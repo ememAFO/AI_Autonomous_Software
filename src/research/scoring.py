@@ -47,7 +47,7 @@ class OpportunityScoringEngine:
     def _recommend(self, total_score: float) -> str:
         if total_score >= 8:
             return "BUILD_NOW"
-        if total_score >= 6.5:
+        if total_score >= 6:
             return "VALIDATE_FIRST"
         if total_score >= 5:
             return "WATCH"
