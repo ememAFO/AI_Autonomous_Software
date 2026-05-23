@@ -9,7 +9,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from src.adapters.reddit_fetcher import RedditFetcherError, RedditResearchQuery
 from src.research.reddit_research_job import RedditResearchJob
-
+from src.utils.audit_logger import AuditEvent, AuditLogger
 
 ALLOWED_SUBREDDITS = {
     "smallbusiness",
@@ -83,6 +83,8 @@ def main() -> int:
 
         job = RedditResearchJob()
 
+        audit_logger = AuditLogger()
+
         result = job.run(
             research_query=RedditResearchQuery(
                 query=args.query,
@@ -105,9 +107,38 @@ def main() -> int:
             for pipeline_result in result.adapter_result.results:
                 print(f"- {pipeline_result.report_path}")
 
+        audit_logger.log(
+            AuditEvent(
+                action="reddit_research_job",
+                status="success",
+                details={
+                    "query": result.query.query,
+                    "subreddit": result.query.subreddit,
+                    "industry": args.industry,
+                    "processed_count": result.processed_count,
+                    "accepted_count": result.accepted_count,
+                    "rejected_count": result.rejected_count,
+                    "report_paths": [
+                        str(pipeline_result.report_path)
+                        for pipeline_result in result.adapter_result.results
+                    ],
+                },
+            )
+        )
+
         return 0
 
     except (ValueError, RedditFetcherError) as exc:
+        AuditLogger().log(
+            AuditEvent(
+                action="reddit_research_job",
+                status="blocked",
+                details={
+                    "error": str(exc),
+                },
+            )
+        )
+
         print(f"Research job blocked: {exc}", file=sys.stderr)
         return 1
 
