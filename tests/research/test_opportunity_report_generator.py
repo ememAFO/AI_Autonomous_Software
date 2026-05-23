@@ -1,6 +1,7 @@
 from src.research.models import Opportunity, OpportunitySource
 from src.research.report_generator import OpportunityReportGenerator
 from src.research.scoring import OpportunityScoringEngine
+import pytest
 
 
 def test_opportunity_report_generator_creates_markdown_file(tmp_path):
@@ -21,7 +22,7 @@ def test_opportunity_report_generator_creates_markdown_file(tmp_path):
     )
 
     score = OpportunityScoringEngine().score(opportunity)
-    generator = OpportunityReportGenerator(output_dir=str(tmp_path))
+    generator = OpportunityReportGenerator(output_dir="reports/opportunities")
 
     report_path = generator.generate(score)
 
@@ -33,3 +34,18 @@ def test_opportunity_report_generator_creates_markdown_file(tmp_path):
     assert "AI lead recovery assistant" in content
     assert "Repeated complaints about missed follow-ups." in content
     assert score.recommendation in content
+
+
+
+def test_report_generator_blocks_path_traversal_output_dir():
+    with pytest.raises(ValueError):
+        OpportunityReportGenerator(output_dir="../../unsafe")
+
+
+def test_report_generator_keeps_reports_inside_reports_folder():
+    generator = OpportunityReportGenerator(output_dir="reports/opportunities")
+
+    safe_path = generator._safe_report_path("safe_report")
+
+    assert "reports/opportunities" in str(safe_path)
+    assert safe_path.name == "safe_report.md"
