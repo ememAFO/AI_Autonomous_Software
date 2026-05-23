@@ -2,15 +2,15 @@
 
 ## Recommendation
 
-**VALIDATE_FIRST**
+**BUILD_NOW**
 
 ## Total Score
 
-**7.95/10**
+**8.1/10**
 
 ## Industry
 
-roofing
+home services
 
 ## Source
 
@@ -18,7 +18,9 @@ reddit
 
 ## Pain Point
 
-We keep losing leads because customers stop replying after quotes and manual follow up takes too long.
+Clients stop replying after quotes
+
+I keep losing leads because manual follow up takes too long and customers stop replying after quotes.
 
 ## Suggested MVP
 
@@ -26,11 +28,13 @@ AI lead recovery assistant
 
 ## Evidence
 
-- We keep losing leads because customers stop replying after quotes and manual follow up takes too long.
+- Clients stop replying after quotes
+
+I keep losing leads because manual follow up takes too long and customers stop replying after quotes.
 
 ## Scoring Breakdown
 
-- Frequency: 9.4/10
+- Frequency: 10.0/10
 - Urgency: 10.0/10
 - Monetization: 8.0/10
 - Retention Impact: 7.0/10
@@ -47,4 +51,4 @@ AI lead recovery assistant
 
 ## Next Action
 
-Collect more evidence before planning an MVP.
+Move this opportunity into validation and MVP planning.

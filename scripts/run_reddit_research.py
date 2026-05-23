@@ -11,6 +11,7 @@ from src.research.run_manifest import ResearchRunManifestWriter
 from src.adapters.reddit_fetcher import RedditFetcherError, RedditResearchQuery
 from src.research.research_orchestrator import ResearchOrchestrator
 from src.utils.audit_logger import AuditEvent, AuditLogger
+from src.research.run_registry import ResearchRunRegistryWriter
 
 ALLOWED_SUBREDDITS = {
     "smallbusiness",
@@ -85,6 +86,7 @@ def main() -> int:
         orchestrator = ResearchOrchestrator()
         audit_logger = AuditLogger()
         manifest_writer = ResearchRunManifestWriter()
+        registry_writer = ResearchRunRegistryWriter()
 
         orchestrator_result = orchestrator.run_reddit_research(
             research_query=RedditResearchQuery(
@@ -116,6 +118,10 @@ def main() -> int:
 
         manifest_path = manifest_writer.write(manifest)
 
+        registry_path = registry_writer.add_run(
+            manifest=manifest,
+            manifest_path=str(manifest_path),
+        )
         audit_logger.log(
             AuditEvent(
                 action="reddit_research_job",
@@ -130,6 +136,7 @@ def main() -> int:
                     "final_workflow_stage": orchestrator_result.final_stage.value,
                     "manifest_path": str(manifest_path),
                     "report_paths": report_paths,
+                    "registry_path": str(registry_path),
                 },
             )
         )
@@ -142,6 +149,8 @@ def main() -> int:
         print(f"Accepted: {result.accepted_count}")
         print(f"Rejected: {result.rejected_count}")
         print(f"Final Workflow Stage: {orchestrator_result.final_stage}")
+        print("\nResearch Run Registry:")
+        print(f"- {registry_path}")
 
         if report_paths:
             print("\nGenerated Reports:")

@@ -1,0 +1,60 @@
+{
+  "runs": [
+    {
+      "accepted_count": 2,
+      "final_workflow_stage": "REPORT",
+      "industry": "home services",
+      "manifest_path": "reports/intelligence/runs/first.json",
+      "processed_count": 2,
+      "query": "manual follow up",
+      "rejected_count": 0,
+      "report_paths": [],
+      "run_id": "b28d11e4-c06e-43f7-9821-63f6618e3a34",
+      "status": "success",
+      "subreddit": "smallbusiness",
+      "timestamp": "2026-05-23T20:14:16.344825+00:00"
+    },
+    {
+      "accepted_count": 1,
+      "final_workflow_stage": "REPORT",
+      "industry": "clinics",
+      "manifest_path": "reports/intelligence/runs/second.json",
+      "processed_count": 2,
+      "query": "missed bookings",
+      "rejected_count": 1,
+      "report_paths": [],
+      "run_id": "9f13f23c-db4b-4a4e-83bc-833c89de3b27",
+      "status": "success",
+      "subreddit": "smallbusiness",
+      "timestamp": "2026-05-23T20:14:16.344880+00:00"
+    },
+    {
+      "accepted_count": 2,
+      "final_workflow_stage": "REPORT",
+      "industry": "home services",
+      "manifest_path": "reports/intelligence/runs/first.json",
+      "processed_count": 2,
+      "query": "manual follow up",
+      "rejected_count": 0,
+      "report_paths": [],
+      "run_id": "196e9302-3b4b-4b1f-b341-826d56a8af59",
+      "status": "success",
+      "subreddit": "smallbusiness",
+      "timestamp": "2026-05-23T20:24:51.437744+00:00"
+    },
+    {
+      "accepted_count": 1,
+      "final_workflow_stage": "REPORT",
+      "industry": "clinics",
+      "manifest_path": "reports/intelligence/runs/second.json",
+      "processed_count": 2,
+      "query": "missed bookings",
+      "rejected_count": 1,
+      "report_paths": [],
+      "run_id": "8ac464f3-55e5-4f33-99eb-09075279a8e9",
+      "status": "success",
+      "subreddit": "smallbusiness",
+      "timestamp": "2026-05-23T20:24:51.437800+00:00"
+    }
+  ]
+}
