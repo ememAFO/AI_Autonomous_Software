@@ -49,3 +49,9 @@ def test_cli_validation_blocks_unknown_subreddit():
 
     with pytest.raises(ValueError):
         validate_cli_inputs(args)
+
+def test_cli_validation_blocks_zero_limit():
+    args = Args(limit=0)
+
+    with pytest.raises(ValueError):
+        validate_cli_inputs(args)

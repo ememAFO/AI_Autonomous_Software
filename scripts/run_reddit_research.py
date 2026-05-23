@@ -8,7 +8,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.adapters.reddit_fetcher import RedditFetcherError, RedditResearchQuery
-from src.research.reddit_research_job import RedditResearchJob
+from src.research.research_orchestrator import ResearchOrchestrator
 from src.utils.audit_logger import AuditEvent, AuditLogger
 
 ALLOWED_SUBREDDITS = {
@@ -81,11 +81,10 @@ def main() -> int:
     try:
         validate_cli_inputs(args)
 
-        job = RedditResearchJob()
-
+        orchestrator = ResearchOrchestrator()
         audit_logger = AuditLogger()
 
-        result = job.run(
+        orchestrator_result = orchestrator.run_reddit_research(
             research_query=RedditResearchQuery(
                 query=args.query,
                 subreddit=args.subreddit,
@@ -94,6 +93,8 @@ def main() -> int:
             industry=args.industry,
         )
 
+        result = orchestrator_result.job_result
+
         print("\nReddit Research Job Complete")
         print("----------------------------")
         print(f"Query: {result.query.query}")
@@ -101,6 +102,7 @@ def main() -> int:
         print(f"Processed: {result.processed_count}")
         print(f"Accepted: {result.accepted_count}")
         print(f"Rejected: {result.rejected_count}")
+        print(f"Final Workflow Stage: {orchestrator_result.final_stage}")
 
         if result.adapter_result.results:
             print("\nGenerated Reports:")
@@ -118,6 +120,7 @@ def main() -> int:
                     "processed_count": result.processed_count,
                     "accepted_count": result.accepted_count,
                     "rejected_count": result.rejected_count,
+                    "final_workflow_stage": orchestrator_result.final_stage.value,
                     "report_paths": [
                         str(pipeline_result.report_path)
                         for pipeline_result in result.adapter_result.results
