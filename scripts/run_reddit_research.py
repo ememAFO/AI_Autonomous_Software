@@ -7,6 +7,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from src.research.run_manifest import ResearchRunManifestWriter
 from src.adapters.reddit_fetcher import RedditFetcherError, RedditResearchQuery
 from src.research.research_orchestrator import ResearchOrchestrator
 from src.utils.audit_logger import AuditEvent, AuditLogger
@@ -83,6 +84,7 @@ def main() -> int:
 
         orchestrator = ResearchOrchestrator()
         audit_logger = AuditLogger()
+        manifest_writer = ResearchRunManifestWriter()
 
         orchestrator_result = orchestrator.run_reddit_research(
             research_query=RedditResearchQuery(
@@ -95,19 +97,24 @@ def main() -> int:
 
         result = orchestrator_result.job_result
 
-        print("\nReddit Research Job Complete")
-        print("----------------------------")
-        print(f"Query: {result.query.query}")
-        print(f"Subreddit: {result.query.subreddit}")
-        print(f"Processed: {result.processed_count}")
-        print(f"Accepted: {result.accepted_count}")
-        print(f"Rejected: {result.rejected_count}")
-        print(f"Final Workflow Stage: {orchestrator_result.final_stage}")
+        report_paths = [
+            str(pipeline_result.report_path)
+            for pipeline_result in result.adapter_result.results
+        ]
 
-        if result.adapter_result.results:
-            print("\nGenerated Reports:")
-            for pipeline_result in result.adapter_result.results:
-                print(f"- {pipeline_result.report_path}")
+        manifest = manifest_writer.create_manifest(
+            status="success",
+            query=result.query.query,
+            subreddit=result.query.subreddit,
+            industry=args.industry,
+            final_workflow_stage=orchestrator_result.final_stage.value,
+            processed_count=result.processed_count,
+            accepted_count=result.accepted_count,
+            rejected_count=result.rejected_count,
+            report_paths=report_paths,
+        )
+
+        manifest_path = manifest_writer.write(manifest)
 
         audit_logger.log(
             AuditEvent(
@@ -121,13 +128,28 @@ def main() -> int:
                     "accepted_count": result.accepted_count,
                     "rejected_count": result.rejected_count,
                     "final_workflow_stage": orchestrator_result.final_stage.value,
-                    "report_paths": [
-                        str(pipeline_result.report_path)
-                        for pipeline_result in result.adapter_result.results
-                    ],
+                    "manifest_path": str(manifest_path),
+                    "report_paths": report_paths,
                 },
             )
         )
+
+        print("\nReddit Research Job Complete")
+        print("----------------------------")
+        print(f"Query: {result.query.query}")
+        print(f"Subreddit: {result.query.subreddit}")
+        print(f"Processed: {result.processed_count}")
+        print(f"Accepted: {result.accepted_count}")
+        print(f"Rejected: {result.rejected_count}")
+        print(f"Final Workflow Stage: {orchestrator_result.final_stage}")
+
+        if report_paths:
+            print("\nGenerated Reports:")
+            for report_path in report_paths:
+                print(f"- {report_path}")
+
+        print("\nRun Manifest:")
+        print(f"- {manifest_path}")
 
         return 0
 
@@ -144,7 +166,6 @@ def main() -> int:
 
         print(f"Research job blocked: {exc}", file=sys.stderr)
         return 1
-
 
 if __name__ == "__main__":
     raise SystemExit(main())
