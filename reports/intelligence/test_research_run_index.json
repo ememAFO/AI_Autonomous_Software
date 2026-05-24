@@ -55,6 +55,62 @@
       "status": "success",
       "subreddit": "smallbusiness",
       "timestamp": "2026-05-23T20:24:51.437800+00:00"
+    },
+    {
+      "accepted_count": 2,
+      "final_workflow_stage": "REPORT",
+      "industry": "home services",
+      "manifest_path": "reports/intelligence/runs/first.json",
+      "processed_count": 2,
+      "query": "manual follow up",
+      "rejected_count": 0,
+      "report_paths": [],
+      "run_id": "9e6ae916-213d-4023-8850-1f588b6befe6",
+      "status": "success",
+      "subreddit": "smallbusiness",
+      "timestamp": "2026-05-24T10:03:49.186191+00:00"
+    },
+    {
+      "accepted_count": 1,
+      "final_workflow_stage": "REPORT",
+      "industry": "clinics",
+      "manifest_path": "reports/intelligence/runs/second.json",
+      "processed_count": 2,
+      "query": "missed bookings",
+      "rejected_count": 1,
+      "report_paths": [],
+      "run_id": "bb75236d-aa84-464a-a2f9-89823e6b310c",
+      "status": "success",
+      "subreddit": "smallbusiness",
+      "timestamp": "2026-05-24T10:03:49.186225+00:00"
+    },
+    {
+      "accepted_count": 2,
+      "final_workflow_stage": "REPORT",
+      "industry": "home services",
+      "manifest_path": "reports/intelligence/runs/first.json",
+      "processed_count": 2,
+      "query": "manual follow up",
+      "rejected_count": 0,
+      "report_paths": [],
+      "run_id": "1408f9bd-362e-4f43-ae5d-eec361fb12df",
+      "status": "success",
+      "subreddit": "smallbusiness",
+      "timestamp": "2026-05-24T10:05:30.720121+00:00"
+    },
+    {
+      "accepted_count": 1,
+      "final_workflow_stage": "REPORT",
+      "industry": "clinics",
+      "manifest_path": "reports/intelligence/runs/second.json",
+      "processed_count": 2,
+      "query": "missed bookings",
+      "rejected_count": 1,
+      "report_paths": [],
+      "run_id": "f6a2b1f6-3fea-47c6-a487-2651529a0941",
+      "status": "success",
+      "subreddit": "smallbusiness",
+      "timestamp": "2026-05-24T10:05:30.720176+00:00"
     }
   ]
 }

@@ -1,0 +1,15 @@
+{
+  "accepted_count": 2,
+  "final_workflow_stage": "REPORT",
+  "industry": "home services",
+  "processed_count": 2,
+  "query": "manual follow up",
+  "rejected_count": 0,
+  "report_paths": [
+    "reports/opportunities/lead_follow-up_automation.md"
+  ],
+  "run_id": "698753ab-02b5-4b9e-8eff-3aa828516e55",
+  "status": "success",
+  "subreddit": "smallbusiness",
+  "timestamp": "2026-05-24T10:03:49.159315+00:00"
+}

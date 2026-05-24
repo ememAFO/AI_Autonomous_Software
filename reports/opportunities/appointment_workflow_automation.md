@@ -6,21 +6,19 @@
 
 ## Total Score
 
-**6.35/10**
+**6.25/10**
 
 ## Industry
 
-home services
+clinics
 
 ## Source
 
-reddit
+review_site
 
 ## Pain Point
 
-Manual booking is wasting staff time
-
-Our team spends hours on manual appointment booking and customers miss bookings when reminders are forgotten.
+Manual appointment booking wastes time and customers miss bookings because staff forget reminders.
 
 ## Suggested MVP
 
@@ -28,13 +26,11 @@ Automated booking and reminder assistant
 
 ## Evidence
 
-- Manual booking is wasting staff time
-
-Our team spends hours on manual appointment booking and customers miss bookings when reminders are forgotten.
+- Manual appointment booking wastes time and customers miss bookings because staff forget reminders.
 
 ## Scoring Breakdown
 
-- Frequency: 8.2/10
+- Frequency: 7.800000000000001/10
 - Urgency: 5.5/10
 - Monetization: 6.0/10
 - Retention Impact: 7.0/10

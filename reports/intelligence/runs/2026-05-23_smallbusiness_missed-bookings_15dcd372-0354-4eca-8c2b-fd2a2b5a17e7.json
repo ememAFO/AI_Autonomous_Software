@@ -1,0 +1,16 @@
+{
+  "accepted_count": 2,
+  "final_workflow_stage": "REPORT",
+  "industry": "general",
+  "processed_count": 2,
+  "query": "missed bookings",
+  "rejected_count": 0,
+  "report_paths": [
+    "/home/emem2026/Projects/ai-autonomus-factory/reports/opportunities/lead_follow-up_automation.md",
+    "/home/emem2026/Projects/ai-autonomus-factory/reports/opportunities/appointment_workflow_automation.md"
+  ],
+  "run_id": "15dcd372-0354-4eca-8c2b-fd2a2b5a17e7",
+  "status": "success",
+  "subreddit": "smallbusiness",
+  "timestamp": "2026-05-23T20:35:23.246862+00:00"
+}
