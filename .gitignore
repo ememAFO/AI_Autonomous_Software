@@ -1,3 +1,40 @@
-.venv/
-__pycache__/
+# python
 *.pyc
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/*.log
+logs/*.jsonl
+
+# Runtime reports and generated intelligence artifacts
+reports/opportunities/*.md
+reports/intelligence/runs/*.json
+reports/intelligence/test_*.json
+reports/intelligence/research_run_index.json
+reports/weekly/weekly_intelligence_report.md
+
+# Temporary/sandbox files
+sandbox/*
+!sandbox/.gitkeep
+
+# OS/editor files
+.DS_Store
+.vscode/
+.idea/
