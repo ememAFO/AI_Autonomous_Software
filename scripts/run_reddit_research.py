@@ -7,6 +7,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from src.hermes.research_memory_sync import HermesResearchMemorySync
 from src.research.run_manifest import ResearchRunManifestWriter
 from src.adapters.reddit_fetcher import RedditFetcherError, RedditResearchQuery
 from src.research.research_orchestrator import ResearchOrchestrator
@@ -87,6 +88,7 @@ def main() -> int:
         audit_logger = AuditLogger()
         manifest_writer = ResearchRunManifestWriter()
         registry_writer = ResearchRunRegistryWriter()
+        memory_sync = HermesResearchMemorySync()
 
         orchestrator_result = orchestrator.run_reddit_research(
             research_query=RedditResearchQuery(
@@ -122,6 +124,15 @@ def main() -> int:
             manifest=manifest,
             manifest_path=str(manifest_path),
         )
+
+        memory_sync_result = memory_sync.sync_from_reddit_job(result)
+
+        memory_paths = [
+            str(memory_path)
+            for memory_path in memory_sync_result.memory_paths
+        ]
+
+
         audit_logger.log(
             AuditEvent(
                 action="reddit_research_job",
@@ -137,6 +148,8 @@ def main() -> int:
                     "manifest_path": str(manifest_path),
                     "report_paths": report_paths,
                     "registry_path": str(registry_path),
+                    "hermes_memory_count": memory_sync_result.written_count,
+                    "hermes_memory_paths": memory_paths,
                 },
             )
         )
@@ -151,6 +164,13 @@ def main() -> int:
         print(f"Final Workflow Stage: {orchestrator_result.final_stage}")
         print("\nResearch Run Registry:")
         print(f"- {registry_path}")
+        print("\nHermes Memory Records:")
+
+        if memory_paths:
+            for memory_path in memory_paths:
+                print(f"- {memory_path}")
+        else:
+            print("- No Hermes memory records written.")
 
         if report_paths:
             print("\nGenerated Reports:")
