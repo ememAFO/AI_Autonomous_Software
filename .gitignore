@@ -22,6 +22,7 @@ env/
 # Logs
 logs/*.log
 logs/*.jsonl
+reports/intelligence/test_*.json
 
 # Runtime reports and generated intelligence artifacts
 reports/opportunities/*.md
