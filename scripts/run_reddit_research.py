@@ -106,6 +106,13 @@ def main() -> int:
             for pipeline_result in result.adapter_result.results
         ]
 
+        memory_sync_result = memory_sync.sync_from_reddit_job(result)
+
+        memory_paths = [
+            str(memory_path)
+            for memory_path in memory_sync_result.memory_paths
+        ]
+
         manifest = manifest_writer.create_manifest(
             status="success",
             query=result.query.query,
@@ -116,6 +123,8 @@ def main() -> int:
             accepted_count=result.accepted_count,
             rejected_count=result.rejected_count,
             report_paths=report_paths,
+            hermes_memory_count=memory_sync_result.written_count,
+            hermes_memory_paths=memory_paths,
         )
 
         manifest_path = manifest_writer.write(manifest)

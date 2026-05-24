@@ -21,6 +21,8 @@ class ResearchRunManifest:
     accepted_count: int
     rejected_count: int
     report_paths: list[str]
+    hermes_memory_count: int = 0
+    hermes_memory_paths: list[str] = field(default_factory=list)
     timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
 
@@ -53,6 +55,8 @@ class ResearchRunManifestWriter:
         accepted_count: int,
         rejected_count: int,
         report_paths: list[str],
+        hermes_memory_count: int = 0,
+        hermes_memory_paths: list[str] | None = None,
     ) -> ResearchRunManifest:
         run_id = str(uuid.uuid4())
 
@@ -67,6 +71,8 @@ class ResearchRunManifestWriter:
             accepted_count=accepted_count,
             rejected_count=rejected_count,
             report_paths=report_paths,
+            hermes_memory_count=hermes_memory_count,
+            hermes_memory_paths=hermes_memory_paths or [],
         )
 
     def write(self, manifest: ResearchRunManifest) -> Path:

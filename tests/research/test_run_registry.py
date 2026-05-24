@@ -24,6 +24,10 @@ def test_run_registry_adds_manifest_to_index():
         report_paths=[
             "reports/opportunities/lead_follow-up_automation.md",
         ],
+        hermes_memory_count=1,
+        hermes_memory_paths=[
+            "data/hermes/research_memory/example.json",
+        ],
     )
 
     manifest_path = manifest_writer.write(manifest)
@@ -48,6 +52,10 @@ def test_run_registry_adds_manifest_to_index():
     assert latest_run["query"] == "manual follow up"
     assert latest_run["subreddit"] == "smallbusiness"
     assert latest_run["manifest_path"] == str(manifest_path)
+    assert latest_run["hermes_memory_count"] == 1
+    assert latest_run["hermes_memory_paths"] == [
+        "data/hermes/research_memory/example.json",
+    ]
 
 
 def test_run_registry_blocks_path_traversal():

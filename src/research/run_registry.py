@@ -24,6 +24,9 @@ class ResearchRunRegistryEntry:
     manifest_path: str
     report_paths: list[str]
     timestamp: str
+    hermes_memory_count: int = 0
+    hermes_memory_paths: list[str] = field(default_factory=list)
+
 
 
 @dataclass(frozen=True)
@@ -69,6 +72,8 @@ class ResearchRunRegistryWriter:
             manifest_path=manifest_path,
             report_paths=manifest.report_paths,
             timestamp=manifest.timestamp,
+            hermes_memory_count=manifest.hermes_memory_count,
+            hermes_memory_paths=manifest.hermes_memory_paths,
         )
 
         updated_registry = ResearchRunRegistry(

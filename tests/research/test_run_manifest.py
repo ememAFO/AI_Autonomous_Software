@@ -23,6 +23,10 @@ def test_run_manifest_writer_creates_manifest_file():
         report_paths=[
             "reports/opportunities/lead_follow-up_automation.md",
         ],
+        hermes_memory_count=1,
+        hermes_memory_paths=[
+            "data/hermes/research_memory/example.json",
+        ],
     )
 
     manifest_path = writer.write(manifest)
@@ -40,6 +44,10 @@ def test_run_manifest_writer_creates_manifest_file():
     assert data["processed_count"] == 2
     assert data["accepted_count"] == 2
     assert data["rejected_count"] == 0
+    assert data["hermes_memory_count"] == 1
+    assert data["hermes_memory_paths"] == [
+        "data/hermes/research_memory/example.json",
+    ]
 
 
 def test_run_manifest_blocks_path_traversal_output_dir():
