@@ -39,3 +39,6 @@ sandbox/*
 .DS_Store
 .vscode/
 .idea/
+
+# Hermes local memory artifacts
+data/hermes/research_memory/*.json
