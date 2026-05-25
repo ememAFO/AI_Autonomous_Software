@@ -54,3 +54,8 @@ data/hermes/research_memory/test_sync/
 
 # Batch research reports
 reports/intelligence/batches/*.md
+
+# Batch registry runtime index
+reports/intelligence/batch_run_index.json
+reports/intelligence/test_runs/test_batch_run_index*.json
+reports/intelligence/batches/test_reports/

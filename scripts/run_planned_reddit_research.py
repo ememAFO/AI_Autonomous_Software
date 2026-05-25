@@ -11,7 +11,7 @@ from src.research.planned_reddit_research_runner import PlannedRedditResearchRun
 from src.research.reddit_job_planner import RedditJobPlannerError
 from src.utils.audit_logger import AuditEvent, AuditLogger
 from src.research.batch_report import PlannedRedditBatchReportGenerator
-
+from src.research.batch_registry import BatchRunRegistryWriter
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -45,6 +45,10 @@ def main() -> int:
             limit_per_job=args.limit,
         )
         batch_report_path = PlannedRedditBatchReportGenerator().generate(batch_result)
+        batch_registry_path = BatchRunRegistryWriter().add_batch(
+            batch_result=batch_result,
+            batch_report_path=str(batch_report_path),
+        )
 
         AuditLogger().log(
             AuditEvent(
@@ -54,6 +58,7 @@ def main() -> int:
                     "industry": batch_result.industry,
                     "planned_count": batch_result.planned_count,
                     "batch_report_path": str(batch_report_path),
+                    "batch_registry_path": str(batch_registry_path),
                     "successful_count": batch_result.successful_count,
                     "blocked_count": batch_result.blocked_count,
                     "jobs": [
@@ -83,6 +88,7 @@ def main() -> int:
         print(f"Successful Jobs: {batch_result.successful_count}")
         print(f"Blocked Jobs: {batch_result.blocked_count}")
         print(f"Batch Report: {batch_report_path}")
+        print(f"Batch Registry: {batch_registry_path}")
         print("\nJob Results:")
         for index, result in enumerate(batch_result.results, start=1):
             print(
