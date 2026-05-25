@@ -96,7 +96,8 @@ def test_weekly_report_generator_summarizes_registry_data():
     assert "reports/opportunities/lead_follow-up_automation.md" in content
     assert "data/hermes/research_memory/lead.json" in content
     assert "reports/intelligence/batches/sales_batch_report.md" in content
-
+    assert "Total Hermes Memory Records: 1" in content
+    assert "### Latest Hermes Memory Records" in content
 
 def test_weekly_report_blocks_registry_path_traversal():
     with pytest.raises(WeeklyIntelligenceReportError):
@@ -125,3 +126,68 @@ def test_weekly_report_blocks_non_json_batch_registry():
 def test_weekly_report_blocks_output_outside_weekly_folder():
     with pytest.raises(WeeklyIntelligenceReportError):
         WeeklyIntelligenceReportGenerator(output_dir="reports/intelligence")
+
+def test_weekly_report_normalizes_absolute_project_paths():
+    project_root = __import__("pathlib").Path.cwd()
+
+    registry_path = "reports/intelligence/test_weekly_path_registry.json"
+    batch_registry_path = "reports/intelligence/test_weekly_path_batch_registry.json"
+
+    registry_data = {
+        "runs": [
+            {
+                "run_id": "run-1",
+                "status": "success",
+                "query": "manual follow up",
+                "subreddit": "smallbusiness",
+                "industry": "sales",
+                "final_workflow_stage": "REPORT",
+                "processed_count": 1,
+                "accepted_count": 1,
+                "rejected_count": 0,
+                "manifest_path": str(project_root / "reports" / "intelligence" / "runs" / "run-1.json"),
+                "report_paths": [
+                    str(project_root / "reports" / "opportunities" / "lead_follow-up_automation.md")
+                ],
+                "hermes_memory_count": 1,
+                "hermes_memory_paths": [
+                    str(project_root / "data" / "hermes" / "research_memory" / "memory.json")
+                ],
+                "timestamp": "2026-05-25T22:00:00+00:00",
+            }
+        ]
+    }
+
+    batch_registry_data = {
+        "batches": [
+            {
+                "batch_id": "batch-1",
+                "industry": "sales",
+                "planned_count": 1,
+                "successful_count": 1,
+                "blocked_count": 0,
+                "batch_report_path": str(project_root / "reports" / "intelligence" / "batches" / "sales_batch_report.md"),
+                "timestamp": "2026-05-25T22:00:00+00:00",
+            }
+        ]
+    }
+
+    with open(registry_path, "w", encoding="utf-8") as file:
+        json.dump(registry_data, file)
+
+    with open(batch_registry_path, "w", encoding="utf-8") as file:
+        json.dump(batch_registry_data, file)
+
+    generator = WeeklyIntelligenceReportGenerator(
+        registry_path=registry_path,
+        batch_registry_path=batch_registry_path,
+        output_dir="reports/weekly/test_reports",
+    )
+
+    report_path = generator.generate()
+    content = report_path.read_text(encoding="utf-8")
+
+    assert "/home/" not in content
+    assert "reports/opportunities/lead_follow-up_automation.md" in content
+    assert "data/hermes/research_memory/memory.json" in content
+    assert "reports/intelligence/batches/sales_batch_report.md" in content

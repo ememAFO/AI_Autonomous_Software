@@ -2,7 +2,7 @@ import json
 from collections import Counter
 from pathlib import Path
 from typing import Any
-
+from src.utils.path_normalizer import ProjectPathNormalizer, PathNormalizerError
 
 class WeeklyIntelligenceReportError(Exception):
     pass
@@ -36,6 +36,7 @@ class WeeklyIntelligenceReportGenerator:
         self.registry_path = self._validate_registry_path(Path(registry_path))
         self.batch_registry_path = self._validate_registry_path(Path(batch_registry_path))
         self.output_dir = self._validate_output_dir(Path(output_dir))
+        self.path_normalizer = ProjectPathNormalizer()
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def generate(self) -> Path:
@@ -82,7 +83,9 @@ class WeeklyIntelligenceReportGenerator:
         for run in runs:
             report_paths.extend(run.get("report_paths", []))
             hermes_memory_paths.extend(run.get("hermes_memory_paths", []))
-
+           
+        report_paths = self._safe_normalize_paths(report_paths)
+        hermes_memory_paths = self._safe_normalize_paths(hermes_memory_paths)
         latest_runs = runs[-5:]
 
         total_batches = len(batches)
@@ -104,15 +107,29 @@ class WeeklyIntelligenceReportGenerator:
             for batch in batches
         )
 
-        batch_report_paths = [
-            batch.get("batch_report_path", "")
-            for batch in batches
-            if batch.get("batch_report_path")
-        ]
+        batch_report_paths = self._safe_normalize_paths(
+            [
+                batch.get("batch_report_path", "")
+                for batch in batches
+                if batch.get("batch_report_path")
+            ]
+        )
 
         latest_batches = batches[-5:]
 
         content = f"""# Weekly Research Intelligence Report
+
+
+    def _safe_normalize_paths(self, values: list[str]) -> list[str]:
+        normalized: list[str] = []
+
+        for value in values:
+            try:
+                normalized.append(self.path_normalizer.normalize(value))
+            except PathNormalizerError:
+                normalized.append("[blocked unsafe path]")
+
+        return normalized
 
 ## Summary
 
@@ -152,7 +169,11 @@ class WeeklyIntelligenceReportGenerator:
 
 ## Hermes Memory Records
 
-{self._format_list(hermes_memory_paths, "- No Hermes memory records generated yet.")}
+- Total Hermes Memory Records: {len(hermes_memory_paths)}
+
+### Latest Hermes Memory Records
+
+{self._format_list(hermes_memory_paths[-10:], "- No Hermes memory records generated yet.")}
 
 ## Batch Reports
 
@@ -177,6 +198,17 @@ class WeeklyIntelligenceReportGenerator:
 """
 
         return content
+
+    def _safe_normalize_paths(self, values: list[str]) -> list[str]:
+        normalized: list[str] = []
+
+        for value in values:
+            try:
+                normalized.append(self.path_normalizer.normalize(value))
+            except PathNormalizerError:
+                normalized.append("[blocked unsafe path]")
+
+        return normalized
 
     def _format_counter(self, counter: Counter[str]) -> str:
         if not counter:

@@ -60,3 +60,5 @@ reports/intelligence/batch_run_index.json
 reports/intelligence/test_runs/test_batch_run_index*.json
 reports/intelligence/batches/test_reports/
 reports/intelligence/test_weekly_batch_registry.json
+reports/intelligence/test_weekly_path_registry.json
+reports/intelligence/test_weekly_path_batch_registry.json
