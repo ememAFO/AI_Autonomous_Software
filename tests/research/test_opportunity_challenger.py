@@ -189,3 +189,26 @@ def test_opportunity_challenger_rejects_low_automation_low_monetization():
 
     assert result.should_continue is False
     assert result.recommendation == ChallengeRecommendation.REJECT_FALSE_OPPORTUNITY
+
+def test_opportunity_challenger_rejects_negated_revenue_cosmetic_issue():
+    opportunity = make_opportunity(
+        title="Dashboard theme issue",
+        pain_point=(
+            "Customers want a nicer dashboard colour and theme. "
+            "It is annoying but there is no revenue issue."
+        ),
+        industry="saas",
+        frequency=2,
+        urgency=2,
+        monetization=1,
+        retention_impact=1,
+        competition_gap=2,
+        automation_potential=1,
+        implementation_difficulty=2,
+        suggested_mvp="Theme selector",
+    )
+
+    result = OpportunityChallenger().challenge(opportunity)
+
+    assert result.should_continue is False
+    assert result.recommendation == ChallengeRecommendation.REJECT_FALSE_OPPORTUNITY

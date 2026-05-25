@@ -19,6 +19,7 @@ def test_pipeline_creates_full_research_result():
     )
 
     assert result.opportunity.title == "Lead Follow-Up Automation"
+    assert result.challenge_result.should_continue is True
     assert result.score.total_score > 0
     assert result.report_path.exists()
 
@@ -50,7 +51,24 @@ def test_pipeline_generates_build_now_or_validate_recommendation():
         industry="clinics",
     )
 
+    assert result.challenge_result.should_continue is True
     assert result.score.recommendation in {
         "BUILD_NOW",
         "VALIDATE_FIRST",
     }
+
+
+def test_pipeline_blocks_false_opportunity_before_scoring():
+    text = (
+        "Customers want a nicer dashboard colour and theme. "
+        "It is annoying but there is no revenue issue."
+    )
+
+    pipeline = ResearchPipeline()
+
+    with pytest.raises(ValueError):
+        pipeline.run(
+            raw_text=text,
+            source=OpportunitySource.REDDIT,
+            industry="saas",
+        )

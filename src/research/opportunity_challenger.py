@@ -198,7 +198,7 @@ class OpportunityChallenger:
                 "The complaint may be cosmetic or low-value rather than a strong business pain."
             )
 
-        if not self._contains_any(text, self.ECONOMIC_SIGNAL_TERMS):
+        if not self._has_valid_economic_signal(text):
             risks.append(
                 "There is weak evidence of economic loss or willingness to pay."
             )
@@ -306,7 +306,7 @@ class OpportunityChallenger:
     ) -> ChallengeRecommendation:
         if (
             self._contains_any(text, self.LOW_COMMERCIAL_SIGNAL_TERMS)
-            and not self._contains_any(text, self.ECONOMIC_SIGNAL_TERMS)
+            and not self._has_valid_economic_signal(text)
         ):
             return ChallengeRecommendation.REJECT_FALSE_OPPORTUNITY
 
@@ -323,6 +323,25 @@ class OpportunityChallenger:
             return ChallengeRecommendation.VALIDATE_BEFORE_SCORING
 
         return ChallengeRecommendation.CONTINUE_TO_SCORING
+    def _has_valid_economic_signal(self, text: str) -> bool:
+        negated_economic_phrases = {
+            "no revenue issue",
+            "no revenue impact",
+            "not affecting revenue",
+            "does not affect revenue",
+            "doesn't affect revenue",
+            "no sales impact",
+            "not affecting sales",
+            "no lost deals",
+            "no payment issue",
+            "no customer loss",
+            "no client loss",
+        }
+
+        if self._contains_any(text, negated_economic_phrases):
+            return False
+
+        return self._contains_any(text, self.ECONOMIC_SIGNAL_TERMS)
 
     def _contains_any(self, text: str, terms: set[str]) -> bool:
         return any(term in text for term in terms)
