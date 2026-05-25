@@ -62,3 +62,10 @@ reports/intelligence/batches/test_reports/
 reports/intelligence/test_weekly_batch_registry.json
 reports/intelligence/test_weekly_path_registry.json
 reports/intelligence/test_weekly_path_batch_registry.json
+
+# Hermes trend reports and test memory
+reports/intelligence/hermes_memory_trend_report.md
+reports/intelligence/test_trends/
+data/hermes/research_memory/test_trends/
+data/hermes/research_memory/test_malformed/
+data/hermes/research_memory/test_report/
