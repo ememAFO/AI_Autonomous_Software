@@ -1,3 +1,4 @@
+from src.research.opportunity_challenger import OpportunityChallenger
 from src.research.models import Opportunity, OpportunitySource
 from src.research.report_generator import OpportunityReportGenerator
 from src.research.scoring import OpportunityScoringEngine
@@ -49,3 +50,39 @@ def test_report_generator_keeps_reports_inside_reports_folder():
 
     assert "reports/opportunities" in str(safe_path)
     assert safe_path.name == "safe_report.md"
+
+def test_opportunity_report_generator_includes_strategic_validation():
+    opportunity = Opportunity(
+        title="Lead Recovery Assistant Strategic",
+        pain_point="Small businesses lose leads because customers stop replying after quotes and manual follow up takes too long.",
+        source=OpportunitySource.REDDIT,
+        industry="home services",
+        frequency=9,
+        urgency=8,
+        monetization=9,
+        retention_impact=8,
+        competition_gap=7,
+        automation_potential=9,
+        implementation_difficulty=3,
+        evidence=["Repeated complaints about missed follow-ups."],
+        suggested_mvp="AI lead recovery assistant",
+    )
+
+    score = OpportunityScoringEngine().score(opportunity)
+    challenge_result = OpportunityChallenger().challenge(opportunity)
+
+    generator = OpportunityReportGenerator(output_dir="reports/opportunities")
+    report_path = generator.generate(
+        score=score,
+        challenge_result=challenge_result,
+    )
+
+    content = report_path.read_text(encoding="utf-8")
+
+    assert "## Strategic Validation" in content
+    assert "### Problem Type" in content
+    assert "workflow_failure" in content
+    assert "### Reframed Problem" in content
+    assert "Revenue leakage" in content
+    assert "### Hidden Assumptions" in content
+    assert "### Validation Questions" in content

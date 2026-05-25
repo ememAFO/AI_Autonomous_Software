@@ -75,7 +75,10 @@ class ResearchPipeline:
 
         score = self.scorer.score(opportunity)
 
-        report_path = self.report_generator.generate(score)
+        report_path = self.report_generator.generate(
+            score=score,
+            challenge_result=challenge_result,
+        )
 
         return PipelineResult(
             raw_text=raw_text,

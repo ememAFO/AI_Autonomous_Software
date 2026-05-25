@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from src.research.opportunity_challenger import OpportunityChallengeResult
 from src.research.scoring import OpportunityScore
 
 
@@ -19,13 +20,18 @@ class OpportunityReportGenerator:
         self.output_dir = self._validate_output_dir(Path(output_dir))
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-    def generate(self, score: OpportunityScore) -> Path:
+    def generate(
+        self,
+        score: OpportunityScore,
+        challenge_result: OpportunityChallengeResult | None = None,
+    ) -> Path:
         opportunity = score.opportunity
         filename = self._safe_filename(opportunity.title)
         report_path = self._safe_report_path(filename)
 
         evidence = "\n".join(f"- {item}" for item in opportunity.evidence) or "- No evidence provided yet."
         reasons = "\n".join(f"- {reason}" for reason in score.reasons) or "- No scoring reasons provided."
+        strategic_validation = self._format_strategic_validation(challenge_result)
 
         content = f"""# Opportunity Report: {opportunity.title}
 
@@ -53,6 +59,10 @@ class OpportunityReportGenerator:
 
 {opportunity.suggested_mvp or "No MVP suggestion provided yet."}
 
+## Strategic Validation
+
+{strategic_validation}
+
 ## Evidence
 
 {evidence}
@@ -78,6 +88,63 @@ class OpportunityReportGenerator:
 
         report_path.write_text(content, encoding="utf-8")
         return report_path
+
+    def _format_strategic_validation(
+        self,
+        challenge_result: OpportunityChallengeResult | None,
+    ) -> str:
+        if challenge_result is None:
+            return "- Strategic validation was not provided."
+
+        hidden_assumptions = self._format_list(
+            challenge_result.hidden_assumptions,
+            fallback="- No hidden assumptions recorded.",
+        )
+
+        false_risks = self._format_list(
+            challenge_result.false_opportunity_risks,
+            fallback="- No false opportunity risks recorded.",
+        )
+
+        validation_questions = self._format_list(
+            challenge_result.validation_questions,
+            fallback="- No validation questions recorded.",
+        )
+
+        return f"""### Problem Type
+
+{challenge_result.problem_type.value}
+
+### Strategic Recommendation
+
+{challenge_result.recommendation.value}
+
+### Should Continue
+
+{challenge_result.should_continue}
+
+### Reframed Problem
+
+{challenge_result.reframed_problem}
+
+### Hidden Assumptions
+
+{hidden_assumptions}
+
+### False Opportunity Risks
+
+{false_risks}
+
+### Validation Questions
+
+{validation_questions}
+"""
+
+    def _format_list(self, values: list[str], fallback: str) -> str:
+        if not values:
+            return fallback
+
+        return "\n".join(f"- {value}" for value in values)
 
     def _validate_output_dir(self, output_dir: Path) -> Path:
         resolved = output_dir.resolve()

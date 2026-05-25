@@ -22,6 +22,10 @@ def test_pipeline_creates_full_research_result():
     assert result.challenge_result.should_continue is True
     assert result.score.total_score > 0
     assert result.report_path.exists()
+    content = result.report_path.read_text(encoding="utf-8")
+
+    assert "## Strategic Validation" in content
+    assert "### Reframed Problem" in content
 
 
 def test_pipeline_rejects_non_business_text():
