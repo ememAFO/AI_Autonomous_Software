@@ -1,6 +1,7 @@
 from src.adapters.reddit_fetcher import RedditResearchQuery
 from src.hermes.research_memory_sync import HermesResearchMemorySync
 from src.research.reddit_research_job import RedditResearchJob
+from src.hermes.research_memory import HermesResearchMemoryHook
 
 
 def test_hermes_memory_sync_writes_records_from_reddit_job():
@@ -13,7 +14,14 @@ def test_hermes_memory_sync_writes_records_from_reddit_job():
         industry="home services",
     )
 
-    sync_result = HermesResearchMemorySync().sync_from_reddit_job(job_result)
+    sync = HermesResearchMemorySync(
+        memory_hook=HermesResearchMemoryHook(
+            memory_dir="data/hermes/research_memory/test_sync"
+        )
+    )
+
+    sync_result = sync.sync_from_reddit_job(job_result)
+
 
     assert sync_result.written_count == job_result.accepted_count
     assert sync_result.memory_paths
@@ -36,6 +44,14 @@ def test_hermes_memory_sync_handles_no_accepted_results():
 
     # The current mock fetcher still returns pain-heavy mock posts,
     # so this test verifies the sync result structure rather than forcing zero.
-    sync_result = HermesResearchMemorySync().sync_from_reddit_job(job_result)
+
+    sync = HermesResearchMemorySync(
+        memory_hook=HermesResearchMemoryHook(
+            memory_dir="data/hermes/research_memory/test_sync"
+        )
+    )
+
+    sync_result = sync.sync_from_reddit_job(job_result)
+
 
     assert sync_result.written_count == len(sync_result.memory_paths)

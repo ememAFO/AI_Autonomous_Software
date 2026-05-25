@@ -9,7 +9,7 @@ from src.research.weekly_report import (
 
 
 def test_weekly_report_generator_creates_markdown_report():
-    generator = WeeklyIntelligenceReportGenerator()
+    generator = WeeklyIntelligenceReportGenerator(output_dir="reports/weekly/test_reports")
 
     report_path = generator.generate()
 
@@ -50,7 +50,11 @@ def test_weekly_report_generator_summarizes_registry_data():
     with open(registry_path, "w", encoding="utf-8") as file:
         json.dump(registry_data, file)
 
-    generator = WeeklyIntelligenceReportGenerator(registry_path=registry_path)
+    generator = WeeklyIntelligenceReportGenerator(
+        registry_path=registry_path,
+        output_dir="reports/weekly/test_reports"
+    )
+
 
     report_path = generator.generate()
 

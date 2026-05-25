@@ -31,6 +31,13 @@ reports/intelligence/test_*.json
 reports/intelligence/research_run_index.json
 reports/weekly/weekly_intelligence_report.md
 
+# Test-generated artifacts
+reports/intelligence/runs/test_runs/
+reports/intelligence/test_runs/
+reports/weekly/test_reports/
+logs/test_*.log
+data/hermes/research_memory/test_*.json
+
 # Temporary/sandbox files
 sandbox/*
 !sandbox/.gitkeep
@@ -42,3 +49,5 @@ sandbox/*
 
 # Hermes local memory artifacts
 data/hermes/research_memory/*.json
+data/hermes/research_memory/test_records/
+data/hermes/research_memory/test_sync/

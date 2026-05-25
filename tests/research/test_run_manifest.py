@@ -9,7 +9,7 @@ from src.research.run_manifest import (
 
 
 def test_run_manifest_writer_creates_manifest_file():
-    writer = ResearchRunManifestWriter()
+    writer = ResearchRunManifestWriter(output_dir="reports/intelligence/runs/test_runs")
 
     manifest = writer.create_manifest(
         status="success",
@@ -61,8 +61,8 @@ def test_run_manifest_blocks_output_outside_allowed_folder():
 
 
 def test_run_manifest_sanitizes_filename_values():
-    writer = ResearchRunManifestWriter()
-
+    writer = ResearchRunManifestWriter(output_dir="reports/intelligence/runs/test_runs")
+    
     manifest = writer.create_manifest(
         status="success",
         query="../manual follow up!!",

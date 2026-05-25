@@ -9,7 +9,7 @@ from src.hermes.research_memory import (
 
 
 def test_hermes_memory_hook_builds_and_writes_record():
-    hook = HermesResearchMemoryHook()
+    hook = HermesResearchMemoryHook(memory_dir="data/hermes/research_memory/test_records")
 
     record = hook.build_record(
         source="reddit",
@@ -34,7 +34,7 @@ def test_hermes_memory_hook_builds_and_writes_record():
 
 
 def test_hermes_memory_hook_blocks_empty_text():
-    hook = HermesResearchMemoryHook()
+    hook = HermesResearchMemoryHook(memory_dir="data/hermes/research_memory/test_records")
 
     with pytest.raises(HermesMemoryError):
         hook.build_record(
@@ -48,7 +48,7 @@ def test_hermes_memory_hook_blocks_empty_text():
 
 
 def test_hermes_memory_hook_blocks_secret_like_text():
-    hook = HermesResearchMemoryHook()
+    hook = HermesResearchMemoryHook(memory_dir="data/hermes/research_memory/test_records")
 
     with pytest.raises(HermesMemoryError):
         hook.build_record(
@@ -62,7 +62,7 @@ def test_hermes_memory_hook_blocks_secret_like_text():
 
 
 def test_hermes_memory_hook_blocks_score_outside_range():
-    hook = HermesResearchMemoryHook()
+    hook = HermesResearchMemoryHook(memory_dir="data/hermes/research_memory/test_records")
 
     with pytest.raises(HermesMemoryError):
         hook.build_record(
@@ -81,7 +81,7 @@ def test_hermes_memory_hook_blocks_memory_dir_path_traversal():
 
 
 def test_hermes_memory_hook_blocks_report_path_outside_reports():
-    hook = HermesResearchMemoryHook()
+    hook = HermesResearchMemoryHook(memory_dir="data/hermes/research_memory/test_records")
 
     with pytest.raises(HermesMemoryError):
         hook.build_record(
@@ -95,7 +95,7 @@ def test_hermes_memory_hook_blocks_report_path_outside_reports():
 
 
 def test_hermes_memory_hook_blocks_non_markdown_report_path():
-    hook = HermesResearchMemoryHook()
+    hook = HermesResearchMemoryHook(memory_dir="data/hermes/research_memory/test_records")
 
     with pytest.raises(HermesMemoryError):
         hook.build_record(

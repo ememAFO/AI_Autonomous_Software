@@ -32,7 +32,9 @@ def test_run_registry_adds_manifest_to_index():
 
     manifest_path = manifest_writer.write(manifest)
 
-    registry_writer = ResearchRunRegistryWriter()
+    registry_writer = ResearchRunRegistryWriter(
+        registry_path="reports/intelligence/test_runs/test_research_run_index.json"
+    )
     registry_path = registry_writer.add_run(
         manifest=manifest,
         manifest_path=str(manifest_path),

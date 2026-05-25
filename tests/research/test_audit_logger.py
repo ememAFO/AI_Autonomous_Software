@@ -6,7 +6,7 @@ from src.utils.audit_logger import AuditEvent, AuditLogger, AuditLoggerError
 
 
 def test_audit_logger_writes_jsonl_event():
-    logger = AuditLogger(log_path="logs/test_audit.log")
+    logger = AuditLogger(log_path="logs/test_audit_logger.log")
 
     log_path = logger.log(
         AuditEvent(
@@ -41,7 +41,7 @@ def test_audit_logger_blocks_non_log_extension():
 
 
 def test_audit_logger_redacts_secret_values():
-    logger = AuditLogger(log_path="logs/test_audit.log")
+    logger = AuditLogger(log_path="logs/test_audit_secrets.log")
 
     log_path = logger.log(
         AuditEvent(
