@@ -51,3 +51,6 @@ sandbox/*
 data/hermes/research_memory/*.json
 data/hermes/research_memory/test_records/
 data/hermes/research_memory/test_sync/
+
+# Batch research reports
+reports/intelligence/batches/*.md
