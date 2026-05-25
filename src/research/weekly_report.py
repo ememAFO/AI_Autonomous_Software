@@ -120,17 +120,6 @@ class WeeklyIntelligenceReportGenerator:
         content = f"""# Weekly Research Intelligence Report
 
 
-    def _safe_normalize_paths(self, values: list[str]) -> list[str]:
-        normalized: list[str] = []
-
-        for value in values:
-            try:
-                normalized.append(self.path_normalizer.normalize(value))
-            except PathNormalizerError:
-                normalized.append("[blocked unsafe path]")
-
-        return normalized
-
 ## Summary
 
 - Total Research Runs: {total_runs}
