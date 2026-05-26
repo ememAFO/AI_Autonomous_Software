@@ -95,8 +95,47 @@ def test_memory_trend_report_generator_creates_markdown_report():
     assert "Total Memory Records" in content
     assert "Top Industries" in content
     assert "Repeated Pain Terms" in content
-
+    assert "High-Confidence Opportunity Themes" in content
+    assert "High-Confidence Themes" in content
 
 def test_memory_trend_report_blocks_output_outside_intelligence():
     with pytest.raises(MemoryTrendReportError):
         HermesMemoryTrendReportGenerator(output_dir="../../unsafe")
+
+def test_memory_trend_detector_groups_repeated_high_confidence_themes():
+    memory_dir = "data/hermes/research_memory/test_theme_grouping"
+
+    import os
+    os.makedirs(memory_dir, exist_ok=True)
+
+    records = [
+        {
+            "source": "reddit",
+            "industry": "sales",
+            "pain_point": "Sales teams lose leads because manual follow up is slow.",
+            "recommendation": "BUILD_NOW",
+            "score": 8.5,
+            "report_path": "reports/opportunities/lead_follow-up_automation.md",
+            "timestamp": "2026-05-25T22:00:00+00:00",
+        },
+        {
+            "source": "reddit",
+            "industry": "home services",
+            "pain_point": "Small businesses lose leads because manual follow up after quotes is poor.",
+            "recommendation": "BUILD_NOW",
+            "score": 8.1,
+            "report_path": "reports/opportunities/lead_follow-up_automation.md",
+            "timestamp": "2026-05-25T22:01:00+00:00",
+        },
+    ]
+
+    for index, record in enumerate(records):
+        with open(f"{memory_dir}/record_{index}.json", "w", encoding="utf-8") as file:
+            json.dump(record, file)
+
+    summary = HermesMemoryTrendDetector(memory_dir=memory_dir).summarize()
+
+    assert summary.high_confidence_themes
+    assert summary.high_confidence_themes[0].record_count == 2
+    assert "lead" in summary.high_confidence_themes[0].theme
+    assert summary.high_confidence_themes[0].average_score == 8.3
