@@ -70,3 +70,14 @@ reports/intelligence/test_trends/
 data/hermes/research_memory/test_trends/
 data/hermes/research_memory/test_malformed/
 data/hermes/research_memory/test_report/
+
+#data
+data/raw/
+data/processed/
+*.csv
+*.zip
+*.xlsx
+*.parquet
+
+# Local CSV adapter test artifacts
+data/raw/external_feedback/test_adapter/
