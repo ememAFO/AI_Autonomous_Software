@@ -130,3 +130,42 @@ def test_local_feedback_research_runner_extracts_dislike_section_before_pipeline
     assert result.successful_count == 1
     assert result.blocked_count == 0
     assert result.results[0].status == "success"
+
+
+def test_local_feedback_research_runner_uses_pain_reasoner_fallback_for_saas_pain():
+    path = Path("data/raw/external_feedback/test_runner/saas_reasoner_fallback.csv")
+
+    write_csv(
+        path,
+        [
+            {
+                "Content": (
+                    "What do you like best about Example SaaS?"
+                    "The reporting is useful. "
+                    "What do you dislike about Example SaaS?"
+                    "The platform is expensive, onboarding training is poor, "
+                    "and the integration creates duplicate contacts that are difficult to resolve."
+                ),
+            }
+        ],
+    )
+
+    result = LocalFeedbackResearchRunner().run_file(
+        path,
+        industry="saas",
+        source_type="g2_reviews",
+        max_rows=1,
+    )
+
+    assert result.loaded_count == 1
+    assert result.processed_count == 1
+    assert result.successful_count == 1
+    assert result.blocked_count == 0
+
+    item_result = result.results[0]
+
+    assert item_result.status == "success"
+    assert item_result.report_path is not None
+    assert item_result.manifest_path is not None
+    assert item_result.registry_path is not None
+    assert item_result.hermes_memory_path is not None
