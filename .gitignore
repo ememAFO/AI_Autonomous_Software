@@ -81,3 +81,6 @@ data/processed/
 
 # Local CSV adapter test artifacts
 data/raw/external_feedback/test_adapter/
+
+# Local feedback research runner test artifacts
+data/raw/external_feedback/test_runner/
