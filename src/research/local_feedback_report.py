@@ -178,8 +178,15 @@ LOCAL CSV LOAD
 
         unique_values = list(dict.fromkeys(values))
 
-        return "\n".join(f"- {value}" for value in unique_values)
+        lines = []
 
+        for value in unique_values:
+            if value.startswith("- "):
+                lines.append(value)
+            else:
+                lines.append(f"- {value}")
+
+        return "\n".join(lines)
     def _normalize_many(self, values: list[str]) -> list[str]:
         return [self._normalize_path(value) for value in values]
 

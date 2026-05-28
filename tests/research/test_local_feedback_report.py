@@ -58,7 +58,7 @@ def test_local_feedback_report_generator_creates_report():
     assert "## Item Results" in content
     assert "## Accountability Notes" in content
     assert "Successful Rows: 1" in content
-
+    assert "- - Row" not in content
 
 def test_local_feedback_report_includes_blocked_rows():
     path = Path("data/raw/external_feedback/test_local_feedback_report/blocked.csv")
