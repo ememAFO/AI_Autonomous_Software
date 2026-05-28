@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import pytest
 
@@ -23,12 +24,17 @@ def test_weekly_report_generator_creates_markdown_report():
     assert "# Weekly Research Intelligence Report" in content
     assert "## Summary" in content
     assert "## Batch Research Summary" in content
+    assert "## Local Feedback Research Summary" in content
+    assert "## Local Feedback Reports" in content
     assert "## Recommended Next Actions" in content
 
 
 def test_weekly_report_generator_summarizes_registry_data():
     registry_path = "reports/intelligence/test_weekly_registry.json"
     batch_registry_path = "reports/intelligence/test_weekly_batch_registry.json"
+    local_feedback_registry_path = (
+        "reports/intelligence/test_weekly_local_feedback_registry.json"
+    )
 
     registry_data = {
         "runs": [
@@ -69,15 +75,38 @@ def test_weekly_report_generator_summarizes_registry_data():
         ]
     }
 
+    local_feedback_registry_data = {
+        "runs": [
+            {
+                "run_id": "local-1",
+                "source_path": "data/raw/external_feedback/g2-reviews/hubspot.csv",
+                "industry": "saas",
+                "source_type": "g2_reviews",
+                "loaded_count": 5,
+                "processed_count": 5,
+                "successful_count": 4,
+                "blocked_count": 1,
+                "local_feedback_report_path": (
+                    "reports/intelligence/local_feedback/saas_g2_feedback_report.md"
+                ),
+                "timestamp": "2026-05-28T03:41:32+00:00",
+            }
+        ]
+    }
+
     with open(registry_path, "w", encoding="utf-8") as file:
         json.dump(registry_data, file)
 
     with open(batch_registry_path, "w", encoding="utf-8") as file:
         json.dump(batch_registry_data, file)
 
+    with open(local_feedback_registry_path, "w", encoding="utf-8") as file:
+        json.dump(local_feedback_registry_data, file)
+
     generator = WeeklyIntelligenceReportGenerator(
         registry_path=registry_path,
         batch_registry_path=batch_registry_path,
+        local_feedback_registry_path=local_feedback_registry_path,
         output_dir="reports/weekly/test_reports",
     )
 
@@ -90,14 +119,27 @@ def test_weekly_report_generator_summarizes_registry_data():
     assert "Total Batch Runs: 1" in content
     assert "Total Planned Batch Jobs: 8" in content
     assert "Successful Batch Jobs: 8" in content
+
+    assert "Total Local Feedback Runs: 1" in content
+    assert "Loaded Feedback Rows: 5" in content
+    assert "Processed Feedback Rows: 5" in content
+    assert "Successful Feedback Rows: 4" in content
+    assert "Blocked Feedback Rows: 1" in content
+
     assert "- home services: 1" in content
     assert "- sales: 1" in content
+    assert "- saas: 1" in content
+    assert "- g2_reviews: 1" in content
     assert "- smallbusiness: 1" in content
+
     assert "reports/opportunities/lead_follow-up_automation.md" in content
     assert "data/hermes/research_memory/lead.json" in content
     assert "reports/intelligence/batches/sales_batch_report.md" in content
+    assert "reports/intelligence/local_feedback/saas_g2_feedback_report.md" in content
+
     assert "Total Hermes Memory Records: 1" in content
     assert "### Latest Hermes Memory Records" in content
+
 
 def test_weekly_report_blocks_registry_path_traversal():
     with pytest.raises(WeeklyIntelligenceReportError):
@@ -107,6 +149,13 @@ def test_weekly_report_blocks_registry_path_traversal():
 def test_weekly_report_blocks_batch_registry_path_traversal():
     with pytest.raises(WeeklyIntelligenceReportError):
         WeeklyIntelligenceReportGenerator(batch_registry_path="../../unsafe.json")
+
+
+def test_weekly_report_blocks_local_feedback_registry_path_traversal():
+    with pytest.raises(WeeklyIntelligenceReportError):
+        WeeklyIntelligenceReportGenerator(
+            local_feedback_registry_path="../../unsafe.json"
+        )
 
 
 def test_weekly_report_blocks_non_json_registry():
@@ -123,15 +172,28 @@ def test_weekly_report_blocks_non_json_batch_registry():
         )
 
 
+def test_weekly_report_blocks_non_json_local_feedback_registry():
+    with pytest.raises(WeeklyIntelligenceReportError):
+        WeeklyIntelligenceReportGenerator(
+            local_feedback_registry_path=(
+                "reports/intelligence/local_feedback_run_index.txt"
+            )
+        )
+
+
 def test_weekly_report_blocks_output_outside_weekly_folder():
     with pytest.raises(WeeklyIntelligenceReportError):
         WeeklyIntelligenceReportGenerator(output_dir="reports/intelligence")
 
+
 def test_weekly_report_normalizes_absolute_project_paths():
-    project_root = __import__("pathlib").Path.cwd()
+    project_root = Path.cwd()
 
     registry_path = "reports/intelligence/test_weekly_path_registry.json"
     batch_registry_path = "reports/intelligence/test_weekly_path_batch_registry.json"
+    local_feedback_registry_path = (
+        "reports/intelligence/test_weekly_path_local_feedback_registry.json"
+    )
 
     registry_data = {
         "runs": [
@@ -145,13 +207,26 @@ def test_weekly_report_normalizes_absolute_project_paths():
                 "processed_count": 1,
                 "accepted_count": 1,
                 "rejected_count": 0,
-                "manifest_path": str(project_root / "reports" / "intelligence" / "runs" / "run-1.json"),
+                "manifest_path": str(
+                    project_root / "reports" / "intelligence" / "runs" / "run-1.json"
+                ),
                 "report_paths": [
-                    str(project_root / "reports" / "opportunities" / "lead_follow-up_automation.md")
+                    str(
+                        project_root
+                        / "reports"
+                        / "opportunities"
+                        / "lead_follow-up_automation.md"
+                    )
                 ],
                 "hermes_memory_count": 1,
                 "hermes_memory_paths": [
-                    str(project_root / "data" / "hermes" / "research_memory" / "memory.json")
+                    str(
+                        project_root
+                        / "data"
+                        / "hermes"
+                        / "research_memory"
+                        / "memory.json"
+                    )
                 ],
                 "timestamp": "2026-05-25T22:00:00+00:00",
             }
@@ -166,8 +241,44 @@ def test_weekly_report_normalizes_absolute_project_paths():
                 "planned_count": 1,
                 "successful_count": 1,
                 "blocked_count": 0,
-                "batch_report_path": str(project_root / "reports" / "intelligence" / "batches" / "sales_batch_report.md"),
+                "batch_report_path": str(
+                    project_root
+                    / "reports"
+                    / "intelligence"
+                    / "batches"
+                    / "sales_batch_report.md"
+                ),
                 "timestamp": "2026-05-25T22:00:00+00:00",
+            }
+        ]
+    }
+
+    local_feedback_registry_data = {
+        "runs": [
+            {
+                "run_id": "local-1",
+                "source_path": str(
+                    project_root
+                    / "data"
+                    / "raw"
+                    / "external_feedback"
+                    / "g2-reviews"
+                    / "hubspot.csv"
+                ),
+                "industry": "saas",
+                "source_type": "g2_reviews",
+                "loaded_count": 5,
+                "processed_count": 5,
+                "successful_count": 4,
+                "blocked_count": 1,
+                "local_feedback_report_path": str(
+                    project_root
+                    / "reports"
+                    / "intelligence"
+                    / "local_feedback"
+                    / "saas_g2_feedback_report.md"
+                ),
+                "timestamp": "2026-05-28T03:41:32+00:00",
             }
         ]
     }
@@ -178,9 +289,13 @@ def test_weekly_report_normalizes_absolute_project_paths():
     with open(batch_registry_path, "w", encoding="utf-8") as file:
         json.dump(batch_registry_data, file)
 
+    with open(local_feedback_registry_path, "w", encoding="utf-8") as file:
+        json.dump(local_feedback_registry_data, file)
+
     generator = WeeklyIntelligenceReportGenerator(
         registry_path=registry_path,
         batch_registry_path=batch_registry_path,
+        local_feedback_registry_path=local_feedback_registry_path,
         output_dir="reports/weekly/test_reports",
     )
 
@@ -191,3 +306,4 @@ def test_weekly_report_normalizes_absolute_project_paths():
     assert "reports/opportunities/lead_follow-up_automation.md" in content
     assert "data/hermes/research_memory/memory.json" in content
     assert "reports/intelligence/batches/sales_batch_report.md" in content
+    assert "reports/intelligence/local_feedback/saas_g2_feedback_report.md" in content
