@@ -10,7 +10,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from src.adapters.local_csv_feedback_adapter import LocalCSVFeedbackAdapterError
 from src.research.local_feedback_research_runner import LocalFeedbackResearchRunner
 from src.utils.audit_logger import AuditEvent, AuditLogger
-
+from src.research.local_feedback_report import LocalFeedbackReportGenerator
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -58,6 +58,9 @@ def main() -> int:
             max_rows=args.max_rows,
         )
 
+        local_feedback_report_path = LocalFeedbackReportGenerator().generate(result)
+
+
         AuditLogger().log(
             AuditEvent(
                 action="local_feedback_research",
@@ -70,6 +73,7 @@ def main() -> int:
                     "processed_count": result.processed_count,
                     "successful_count": result.successful_count,
                     "blocked_count": result.blocked_count,
+                    "local_feedback_report_path": str(local_feedback_report_path),
                     "results": [
                         {
                             "status": item_result.status,
@@ -94,6 +98,7 @@ def main() -> int:
         print(f"Processed Rows: {result.processed_count}")
         print(f"Successful Rows: {result.successful_count}")
         print(f"Blocked Rows: {result.blocked_count}")
+        print(f"Local Feedback Report: {local_feedback_report_path}")
 
         print("\nItem Results:")
         for index, item_result in enumerate(result.results, start=1):

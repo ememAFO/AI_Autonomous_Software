@@ -84,3 +84,8 @@ data/raw/external_feedback/test_adapter/
 
 # Local feedback research runner test artifacts
 data/raw/external_feedback/test_runner/
+
+# Local feedback reports
+reports/intelligence/local_feedback/*.md
+reports/intelligence/local_feedback/test_reports/
+data/raw/external_feedback/test_local_feedback_report/
