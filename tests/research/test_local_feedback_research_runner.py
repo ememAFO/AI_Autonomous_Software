@@ -204,3 +204,27 @@ def test_local_feedback_research_runner_blocks_sensitive_hermes_memory_error():
     assert result.blocked_count == 1
     assert result.results[0].status == "blocked"
     assert "sensitive information" in result.results[0].error
+
+def test_local_feedback_research_runner_normalizes_industry_and_source_type():
+    path = Path("data/raw/external_feedback/test_runner/label_normalization.csv")
+
+    write_csv(
+        path,
+        [
+            {
+                "Content": (
+                    "Manual CRM follow up is slow and sales teams lose leads."
+                ),
+            }
+        ],
+    )
+
+    result = LocalFeedbackResearchRunner().run_file(
+        path,
+        industry="Saas",
+        source_type="App Store Reviews",
+        max_rows=1,
+    )
+
+    assert result.industry == "saas"
+    assert result.source_type == "app_store_reviews"

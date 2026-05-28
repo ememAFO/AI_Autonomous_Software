@@ -18,6 +18,7 @@ from src.research.pain_analysis import PainDecision
 from src.research.models import Opportunity
 from src.research.scoring import OpportunityScoringEngine
 from src.research.report_generator import OpportunityReportGenerator
+from src.utils.label_normalizer import LabelNormalizer
 
 
 @dataclass(frozen=True)
@@ -66,6 +67,7 @@ class LocalFeedbackResearchRunner:
         pain_reasoner: PainReasoner | None = None,
         scorer: OpportunityScoringEngine | None = None,
         report_generator: OpportunityReportGenerator | None = None,
+        label_normalizer: LabelNormalizer | None = None,
 
     ):
         self.adapter = adapter or LocalCSVFeedbackAdapter()
@@ -77,6 +79,7 @@ class LocalFeedbackResearchRunner:
         self.pain_reasoner = pain_reasoner or PainReasoner()
         self.scorer = scorer or OpportunityScoringEngine()
         self.report_generator = report_generator or OpportunityReportGenerator()
+        self.label_normalizer = label_normalizer or LabelNormalizer()
 
     def run_file(
         self,
@@ -87,10 +90,12 @@ class LocalFeedbackResearchRunner:
         max_rows: int = 10,
     ) -> LocalFeedbackResearchRunResult:
         try:
+            normalized_industry = self.label_normalizer.normalize(industry)
+            normalized_source_type = self.label_normalizer.normalize(source_type)
             load_result = self.adapter.load_file(
                 csv_path,
-                industry=industry,
-                source_type=source_type,
+                industry=normalized_industry,
+                source_type=normalized_source_type,
                 max_rows=max_rows,
             )
         except LocalCSVFeedbackAdapterError:
@@ -106,8 +111,8 @@ class LocalFeedbackResearchRunner:
 
         return LocalFeedbackResearchRunResult(
             source_path=str(load_result.source_path),
-            industry=industry,
-            source_type=source_type,
+            industry=normalized_industry,
+            source_type=normalized_source_type,
             loaded_count=load_result.loaded_count,
             processed_count=len(results),
             successful_count=successful_count,
