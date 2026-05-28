@@ -2,7 +2,7 @@ import csv
 from pathlib import Path
 
 from src.research.local_feedback_research_runner import LocalFeedbackResearchRunner
-
+from src.hermes.research_memory import HermesMemoryError
 
 def write_csv(path: Path, rows: list[dict[str, str]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -169,3 +169,38 @@ def test_local_feedback_research_runner_uses_pain_reasoner_fallback_for_saas_pai
     assert item_result.manifest_path is not None
     assert item_result.registry_path is not None
     assert item_result.hermes_memory_path is not None
+
+def test_local_feedback_research_runner_blocks_sensitive_hermes_memory_error():
+    path = Path("data/raw/external_feedback/test_runner/sensitive_memory.csv")
+
+    write_csv(
+        path,
+        [
+            {
+                "Content": (
+                    "Customer support is slow to respond and unresolved issues "
+                    "cause users to share private phone numbers in support messages."
+                ),
+            }
+        ],
+    )
+
+    class RejectingMemoryHook:
+        def build_record(self, *args, **kwargs):
+            raise HermesMemoryError("pain_point appears to contain sensitive information")
+
+    result = LocalFeedbackResearchRunner(
+        memory_hook=RejectingMemoryHook()
+    ).run_file(
+        path,
+        industry="saas",
+        source_type="app_store_reviews",
+        max_rows=1,
+    )
+
+    assert result.loaded_count == 1
+    assert result.processed_count == 1
+    assert result.successful_count == 0
+    assert result.blocked_count == 1
+    assert result.results[0].status == "blocked"
+    assert "sensitive information" in result.results[0].error

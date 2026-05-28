@@ -6,7 +6,8 @@ from src.adapters.local_csv_feedback_adapter import (
     LocalCSVFeedbackAdapterError,
     LocalFeedbackItem,
 )
-from src.hermes.research_memory import HermesResearchMemoryHook
+
+from src.hermes.research_memory import HermesMemoryError, HermesResearchMemoryHook
 from src.research.models import OpportunitySource
 from src.research.pipeline import PipelineResult, ResearchPipeline
 from src.research.run_manifest import ResearchRunManifestWriter
@@ -165,7 +166,7 @@ class LocalFeedbackResearchRunner:
                 hermes_memory_path=str(hermes_memory_path),
             )
 
-        except ValueError as exc:
+        except (ValueError, HermesMemoryError) as exc:
             return LocalFeedbackResearchItemResult(
                 item=item,
                 status="blocked",
