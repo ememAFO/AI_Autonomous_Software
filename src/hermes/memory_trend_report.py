@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from src.hermes.memory_trend_detector import MemoryTrendSummary, OpportunityTheme
-from src.utils.path_normalizer import ProjectPathNormalizer, PathNormalizerError
+from src.utils.path_normalizer import PathNormalizerError, ProjectPathNormalizer
 
 
 class MemoryTrendReportError(Exception):
@@ -41,12 +41,24 @@ class HermesMemoryTrendReportGenerator:
 
 - Generated At: {generated_at}
 - Total Memory Records: {summary.total_records}
+- Filtered Memory Records: {summary.filtered_records}
 - High-Confidence Records: {len(summary.high_confidence_records)}
 - High-Confidence Themes: {len(summary.high_confidence_themes)}
+
+## Filters Applied
+
+- Industry: {summary.filters.industry or "ALL"}
+- Source: {summary.filters.source or "ALL"}
+- Exclude Source: {summary.filters.exclude_source or "NONE"}
+- Recommendation: {summary.filters.recommendation or "ALL"}
 
 ## Top Industries
 
 {self._format_pairs(summary.top_industries, "- No industries found.")}
+
+## Top Sources
+
+{self._format_pairs(summary.top_sources, "- No sources found.")}
 
 ## Top Recommendations
 
@@ -94,6 +106,11 @@ class HermesMemoryTrendReportGenerator:
                 for recommendation, count in theme.top_recommendations
             )
 
+            sources = ", ".join(
+                f"{source} ({count})"
+                for source, count in theme.top_sources
+            )
+
             report_paths = "\n".join(
                 f"  - {self._normalize_path(path)}"
                 for path in theme.report_paths[:5]
@@ -107,6 +124,7 @@ class HermesMemoryTrendReportGenerator:
                         f"- Records: {theme.record_count}",
                         f"- Average Score: {theme.average_score}",
                         f"- Top Industries: {industries or 'unknown'}",
+                        f"- Top Sources: {sources or 'unknown'}",
                         f"- Top Recommendations: {recommendations or 'unknown'}",
                         f"- Example Pain Point: {theme.example_pain_point[:180]}",
                         "- Related Reports:",
@@ -126,7 +144,7 @@ class HermesMemoryTrendReportGenerator:
         seen: set[str] = set()
 
         for record in summary.high_confidence_records:
-            key = f"{record.industry}|{record.recommendation}|{record.score}|{record.pain_point[:80]}"
+            key = f"{record.industry}|{record.source}|{record.recommendation}|{record.score}|{record.pain_point[:80]}"
 
             if key in seen:
                 continue
@@ -136,6 +154,7 @@ class HermesMemoryTrendReportGenerator:
             lines.append(
                 "- "
                 f"{record.industry} | "
+                f"{record.source} | "
                 f"{record.recommendation} | "
                 f"score={record.score} | "
                 f"{record.pain_point[:120]}"
@@ -147,8 +166,8 @@ class HermesMemoryTrendReportGenerator:
         return "\n".join(lines) or "- No unique high-confidence records yet."
 
     def _recommended_actions(self, summary: MemoryTrendSummary) -> str:
-        if summary.total_records == 0:
-            return "- Run research jobs to create Hermes memory records."
+        if summary.filtered_records == 0:
+            return "- No records matched these filters. Try broadening the source, industry, or recommendation filter."
 
         if not summary.high_confidence_themes:
             return "- Collect more evidence before moving opportunities toward validation."
@@ -156,7 +175,7 @@ class HermesMemoryTrendReportGenerator:
         return "\n".join(
             [
                 "- Review high-confidence opportunity themes.",
-                "- Prioritize themes with repeated records across industries or sources.",
+                "- Compare repeated themes across sources and industries.",
                 "- Validate strongest themes with additional non-Reddit sources.",
                 "- Do not move to MVP planning until strategic validation and evidence are reviewed.",
             ]

@@ -12,11 +12,20 @@ class MemoryTrendDetectorError(Exception):
 
 
 @dataclass(frozen=True)
+class MemoryTrendFilter:
+    industry: str | None = None
+    source: str | None = None
+    exclude_source: str | None = None
+    recommendation: str | None = None
+
+
+@dataclass(frozen=True)
 class OpportunityTheme:
     theme: str
     record_count: int
     top_industries: list[tuple[str, int]]
     top_recommendations: list[tuple[str, int]]
+    top_sources: list[tuple[str, int]]
     average_score: float
     example_pain_point: str
     report_paths: list[str] = field(default_factory=list)
@@ -25,7 +34,10 @@ class OpportunityTheme:
 @dataclass(frozen=True)
 class MemoryTrendSummary:
     total_records: int
+    filtered_records: int
+    filters: MemoryTrendFilter
     top_industries: list[tuple[str, int]]
+    top_sources: list[tuple[str, int]]
     top_recommendations: list[tuple[str, int]]
     repeated_pain_terms: list[tuple[str, int]]
     high_confidence_records: list[HermesResearchMemoryRecord] = field(default_factory=list)
@@ -39,7 +51,7 @@ class HermesMemoryTrendDetector:
     Purpose:
     - detect repeated pain themes
     - identify high-confidence opportunity themes
-    - summarize industries and recommendations
+    - summarize industries, sources, and recommendations
     - support product intelligence without giving Hermes execution authority
 
     Security rules:
@@ -77,6 +89,18 @@ class HermesMemoryTrendDetector:
         "support",
         "integration",
         "onboarding",
+        "pricing",
+        "paywall",
+        "paywalls",
+        "expensive",
+        "duplicate",
+        "duplicates",
+        "delayed",
+        "delay",
+        "cancelled",
+        "canceled",
+        "refund",
+        "training",
     ]
 
     THEME_KEYWORDS = [
@@ -93,15 +117,34 @@ class HermesMemoryTrendDetector:
         "support",
         "manual",
         "reminder",
+        "pricing",
+        "paywall",
+        "paywalls",
+        "expensive",
+        "duplicate",
+        "duplicates",
+        "delay",
+        "delayed",
+        "cancelled",
+        "canceled",
+        "refund",
+        "training",
     ]
 
     def __init__(self, memory_dir: str | Path = DEFAULT_MEMORY_DIR):
         self.memory_dir = self._validate_memory_dir(Path(memory_dir))
 
-    def summarize(self) -> MemoryTrendSummary:
-        records = self._load_records()
+    def summarize(
+        self,
+        filters: MemoryTrendFilter | None = None,
+    ) -> MemoryTrendSummary:
+        filters = filters or MemoryTrendFilter()
+
+        all_records = self._load_records()
+        records = self._apply_filters(all_records, filters)
 
         industry_counter = Counter(record.industry for record in records)
+        source_counter = Counter(record.source for record in records)
         recommendation_counter = Counter(record.recommendation for record in records)
         pain_counter = self._count_pain_terms(records)
 
@@ -114,13 +157,53 @@ class HermesMemoryTrendDetector:
         )
 
         return MemoryTrendSummary(
-            total_records=len(records),
+            total_records=len(all_records),
+            filtered_records=len(records),
+            filters=filters,
             top_industries=industry_counter.most_common(10),
+            top_sources=source_counter.most_common(10),
             top_recommendations=recommendation_counter.most_common(10),
             repeated_pain_terms=pain_counter.most_common(15),
             high_confidence_records=high_confidence_records[:20],
             high_confidence_themes=high_confidence_themes[:20],
         )
+
+    def _apply_filters(
+        self,
+        records: list[HermesResearchMemoryRecord],
+        filters: MemoryTrendFilter,
+    ) -> list[HermesResearchMemoryRecord]:
+        filtered = records
+
+        if filters.industry:
+            expected = filters.industry.lower()
+            filtered = [
+                record for record in filtered
+                if record.industry.lower() == expected
+            ]
+
+        if filters.source:
+            expected = filters.source.lower()
+            filtered = [
+                record for record in filtered
+                if record.source.lower() == expected
+            ]
+
+        if filters.exclude_source:
+            excluded = filters.exclude_source.lower()
+            filtered = [
+                record for record in filtered
+                if record.source.lower() != excluded
+            ]
+
+        if filters.recommendation:
+            expected = filters.recommendation.lower()
+            filtered = [
+                record for record in filtered
+                if record.recommendation.lower() == expected
+            ]
+
+        return filtered
 
     def _load_records(self) -> list[HermesResearchMemoryRecord]:
         if not self.memory_dir.exists():
@@ -178,6 +261,8 @@ class HermesMemoryTrendDetector:
         for theme, theme_records in grouped_records.items():
             industries = Counter(record.industry for record in theme_records)
             recommendations = Counter(record.recommendation for record in theme_records)
+            sources = Counter(record.source for record in theme_records)
+
             average_score = round(
                 sum(record.score for record in theme_records) / len(theme_records),
                 2,
@@ -193,6 +278,7 @@ class HermesMemoryTrendDetector:
                     record_count=len(theme_records),
                     top_industries=industries.most_common(5),
                     top_recommendations=recommendations.most_common(5),
+                    top_sources=sources.most_common(5),
                     average_score=average_score,
                     example_pain_point=theme_records[0].pain_point,
                     report_paths=report_paths[:10],
@@ -216,19 +302,51 @@ class HermesMemoryTrendDetector:
         if ("quote" in text or "quotes" in text) and has_follow_up:
             return "quote + follow up"
 
-        if ("booking" in text or "bookings" in text or "appointment" in text or "appointments" in text) and (
-            "reminder" in text or "reminders" in text or "missed" in text
+        if ("pricing" in text or "expensive" in text or "paywall" in text or "paywalls" in text):
+            return "pricing + roi"
+
+        if ("support" in text or "customer service" in text) and (
+            "slow" in text or "unresolved" in text or "resolve" in text or "escalated" in text
+        ):
+            return "support resolution"
+
+        if (
+            "integration" in text
+            or "integrations" in text
+            or "duplicate contact" in text
+            or "duplicate contacts" in text
+            or "sync" in text
+        ):
+            return "integration workflow"
+
+        if "onboarding" in text or "training" in text or "learning curve" in text:
+            return "onboarding + training"
+
+        if (
+            "delay" in text
+            or "delayed" in text
+            or "cancelled" in text
+            or "canceled" in text
+        ):
+            return "delay + cancellation"
+
+        if (
+            "booking" in text
+            or "bookings" in text
+            or "appointment" in text
+            or "appointments" in text
+        ) and (
+            "reminder" in text
+            or "reminders" in text
+            or "missed" in text
         ):
             return "booking + reminders"
 
         if "crm" in text and ("manual" in text or "data entry" in text):
             return "crm + manual admin"
 
-        if "integration" in text or "integrations" in text:
-            return "integration gap"
-
-        if "onboarding" in text:
-            return "onboarding"
+        if "refund" in text:
+            return "refund + resolution"
 
         matched_keywords = [
             keyword.replace("-", " ")

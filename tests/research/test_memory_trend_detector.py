@@ -11,6 +11,8 @@ from src.hermes.memory_trend_report import (
     MemoryTrendReportError,
 )
 
+from src.hermes.memory_trend_detector import MemoryTrendFilter
+
 
 def test_memory_trend_detector_summarizes_records():
     memory_dir = "data/hermes/research_memory/test_trends"
@@ -97,6 +99,10 @@ def test_memory_trend_report_generator_creates_markdown_report():
     assert "Repeated Pain Terms" in content
     assert "High-Confidence Opportunity Themes" in content
     assert "High-Confidence Themes" in content
+    assert "Filtered Memory Records" in content
+    assert "Filters Applied" in content
+    assert "Top Sources" in content
+
 
 def test_memory_trend_report_blocks_output_outside_intelligence():
     with pytest.raises(MemoryTrendReportError):
@@ -139,3 +145,127 @@ def test_memory_trend_detector_groups_repeated_high_confidence_themes():
     assert summary.high_confidence_themes[0].record_count == 2
     assert "lead" in summary.high_confidence_themes[0].theme
     assert summary.high_confidence_themes[0].average_score == 8.3
+
+def test_memory_trend_detector_filters_by_industry():
+    memory_dir = "data/hermes/research_memory/test_filter_industry"
+
+    import os
+    os.makedirs(memory_dir, exist_ok=True)
+
+    records = [
+        {
+            "source": "reddit",
+            "industry": "sales",
+            "pain_point": "Sales teams lose leads because manual follow up is slow.",
+            "recommendation": "BUILD_NOW",
+            "score": 8.5,
+            "report_path": "reports/opportunities/lead_follow-up_automation.md",
+            "timestamp": "2026-05-25T22:00:00+00:00",
+        },
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": "The integration creates duplicate contacts and is difficult to resolve.",
+            "recommendation": "VALIDATE_FIRST",
+            "score": 7.1,
+            "report_path": "reports/opportunities/integration_workflow_pain.md",
+            "timestamp": "2026-05-25T22:01:00+00:00",
+        },
+    ]
+
+    for index, record in enumerate(records):
+        with open(f"{memory_dir}/record_{index}.json", "w", encoding="utf-8") as file:
+            json.dump(record, file)
+
+    summary = HermesMemoryTrendDetector(memory_dir=memory_dir).summarize(
+        filters=MemoryTrendFilter(industry="saas")
+    )
+
+    assert summary.total_records == 2
+    assert summary.filtered_records == 1
+    assert summary.top_industries == [("saas", 1)]
+    assert summary.filters.industry == "saas"
+
+
+def test_memory_trend_detector_filters_by_source_and_excludes_source():
+    memory_dir = "data/hermes/research_memory/test_filter_source"
+
+    import os
+    os.makedirs(memory_dir, exist_ok=True)
+
+    records = [
+        {
+            "source": "reddit",
+            "industry": "sales",
+            "pain_point": "Sales teams lose leads because manual follow up is slow.",
+            "recommendation": "BUILD_NOW",
+            "score": 8.5,
+            "report_path": "reports/opportunities/lead_follow-up_automation.md",
+            "timestamp": "2026-05-25T22:00:00+00:00",
+        },
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": "The integration creates duplicate contacts and is difficult to resolve.",
+            "recommendation": "VALIDATE_FIRST",
+            "score": 8.1,
+            "report_path": "reports/opportunities/integration_workflow_pain.md",
+            "timestamp": "2026-05-25T22:01:00+00:00",
+        },
+    ]
+
+    for index, record in enumerate(records):
+        with open(f"{memory_dir}/record_{index}.json", "w", encoding="utf-8") as file:
+            json.dump(record, file)
+
+    source_summary = HermesMemoryTrendDetector(memory_dir=memory_dir).summarize(
+        filters=MemoryTrendFilter(source="review_site")
+    )
+
+    exclude_summary = HermesMemoryTrendDetector(memory_dir=memory_dir).summarize(
+        filters=MemoryTrendFilter(exclude_source="reddit")
+    )
+
+    assert source_summary.filtered_records == 1
+    assert source_summary.top_sources == [("review_site", 1)]
+    assert exclude_summary.filtered_records == 1
+    assert exclude_summary.top_sources == [("review_site", 1)]
+
+
+def test_memory_trend_detector_filters_by_recommendation():
+    memory_dir = "data/hermes/research_memory/test_filter_recommendation"
+
+    import os
+    os.makedirs(memory_dir, exist_ok=True)
+
+    records = [
+        {
+            "source": "reddit",
+            "industry": "sales",
+            "pain_point": "Sales teams lose leads because manual follow up is slow.",
+            "recommendation": "BUILD_NOW",
+            "score": 8.5,
+            "report_path": "reports/opportunities/lead_follow-up_automation.md",
+            "timestamp": "2026-05-25T22:00:00+00:00",
+        },
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": "The integration creates duplicate contacts and is difficult to resolve.",
+            "recommendation": "VALIDATE_FIRST",
+            "score": 8.1,
+            "report_path": "reports/opportunities/integration_workflow_pain.md",
+            "timestamp": "2026-05-25T22:01:00+00:00",
+        },
+    ]
+
+    for index, record in enumerate(records):
+        with open(f"{memory_dir}/record_{index}.json", "w", encoding="utf-8") as file:
+            json.dump(record, file)
+
+    summary = HermesMemoryTrendDetector(memory_dir=memory_dir).summarize(
+        filters=MemoryTrendFilter(recommendation="VALIDATE_FIRST")
+    )
+
+    assert summary.filtered_records == 1
+    assert summary.top_recommendations == [("VALIDATE_FIRST", 1)]
