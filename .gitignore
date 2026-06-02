@@ -56,6 +56,8 @@ data/hermes/research_memory/test_filter_industry/
 data/hermes/research_memory/test_filter_source/
 data/hermes/research_memory/test_filter_recommendation/
 data/hermes/research_memory/test_filtered_themes/
+data/hermes/research_memory/test_theme_normalization/
+data/hermes/research_memory/test_capability_expectation_gap/
 
 # Batch research reports
 reports/intelligence/batches/*.md

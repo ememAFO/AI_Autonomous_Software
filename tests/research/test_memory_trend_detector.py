@@ -310,3 +310,90 @@ def test_memory_trend_detector_builds_filtered_themes_below_high_confidence():
     assert summary.filtered_themes[0].record_count == 2
     assert summary.high_confidence_records == []
     assert summary.high_confidence_themes == []
+
+def test_memory_trend_detector_groups_text_fragments_into_business_themes():
+    memory_dir = "data/hermes/research_memory/test_theme_normalization"
+
+    import os
+    os.makedirs(memory_dir, exist_ok=True)
+
+    records = [
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": (
+                "HubSpot Marketing Hub?Although HubSpot is powerful, "
+                "onboarding training is not great and setup is confusing."
+            ),
+            "recommendation": "VALIDATE_FIRST",
+            "score": 6.5,
+            "report_path": "reports/opportunities/onboarding_friction.md",
+            "timestamp": "2026-05-25T22:00:00+00:00",
+        },
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": (
+                "Hi I have been on Netflix for a long time. "
+                "I just want to watch Netflix on the go but I cannot because of updates and account access changes."
+            ),
+            "recommendation": "VALIDATE_FIRST",
+            "score": 6.2,
+            "report_path": "reports/opportunities/content_access_friction.md",
+            "timestamp": "2026-05-25T22:01:00+00:00",
+        },
+        {
+            "source": "review_site",
+            "industry": "airline",
+            "pain_point": (
+                "Might as well not have a chatbot. It doesn't work half the time "
+                "and when you get connected with someone, expect to wait several minutes."
+            ),
+            "recommendation": "VALIDATE_FIRST",
+            "score": 6.0,
+            "report_path": "reports/opportunities/support_automation_failure.md",
+            "timestamp": "2026-05-25T22:02:00+00:00",
+        },
+    ]
+
+    for index, record in enumerate(records):
+        with open(f"{memory_dir}/record_{index}.json", "w", encoding="utf-8") as file:
+            json.dump(record, file)
+
+    summary = HermesMemoryTrendDetector(memory_dir=memory_dir).summarize()
+
+    themes = {theme.theme for theme in summary.filtered_themes}
+
+    assert "onboarding + training" in themes
+    assert "content access friction" in themes
+    assert "support automation failure" in themes
+
+
+def test_memory_trend_detector_groups_capability_expectation_gap():
+    memory_dir = "data/hermes/research_memory/test_capability_expectation_gap"
+
+    import os
+    os.makedirs(memory_dir, exist_ok=True)
+
+    record = {
+        "source": "review_site",
+        "industry": "saas",
+        "pain_point": (
+            "HubSpot Marketing Hub?Although HubSpot is a very diverse and expansive tool, "
+            "I feel as though to sign up we are definitely lied to about its capabilities. "
+            "I was told we have all features, but some capabilities are limited."
+        ),
+        "recommendation": "VALIDATE_FIRST",
+        "score": 6.0,
+        "report_path": "reports/opportunities/capability_expectation_gap.md",
+        "timestamp": "2026-05-25T22:00:00+00:00",
+    }
+
+    with open(f"{memory_dir}/record.json", "w", encoding="utf-8") as file:
+        json.dump(record, file)
+
+    summary = HermesMemoryTrendDetector(memory_dir=memory_dir).summarize()
+
+    themes = {theme.theme for theme in summary.filtered_themes}
+
+    assert "capability expectation gap" in themes

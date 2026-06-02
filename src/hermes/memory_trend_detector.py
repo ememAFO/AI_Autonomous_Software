@@ -303,44 +303,34 @@ class HermesMemoryTrendDetector:
         if ("quote" in text or "quotes" in text) and has_follow_up:
             return "quote + follow up"
 
-        if ("pricing" in text or "expensive" in text or "paywall" in text or "paywalls" in text):
+        if self._contains_pricing_pain(text):
             return "pricing + roi"
 
-        if ("support" in text or "customer service" in text) and (
-            "slow" in text or "unresolved" in text or "resolve" in text or "escalated" in text
-        ):
+        if self._contains_capability_expectation_gap(text):
+            return "capability expectation gap"
+
+        if self._contains_support_resolution_pain(text):
             return "support resolution"
 
-        if (
-            "integration" in text
-            or "integrations" in text
-            or "duplicate contact" in text
-            or "duplicate contacts" in text
-            or "sync" in text
-        ):
+        if self._contains_support_automation_pain(text):
+            return "support automation failure"
+
+        if self._contains_integration_pain(text):
             return "integration workflow"
 
-        if "onboarding" in text or "training" in text or "learning curve" in text:
+        if self._contains_onboarding_pain(text):
             return "onboarding + training"
 
-        if (
-            "delay" in text
-            or "delayed" in text
-            or "cancelled" in text
-            or "canceled" in text
-        ):
+        if self._contains_delay_cancellation_pain(text):
             return "delay + cancellation"
 
-        if (
-            "booking" in text
-            or "bookings" in text
-            or "appointment" in text
-            or "appointments" in text
-        ) and (
-            "reminder" in text
-            or "reminders" in text
-            or "missed" in text
-        ):
+        if self._contains_content_access_pain(text):
+            return "content access friction"
+
+        if self._contains_product_usability_pain(text):
+            return "product usability friction"
+
+        if self._contains_booking_reminder_pain(text):
             return "booking + reminders"
 
         if "crm" in text and ("manual" in text or "data entry" in text):
@@ -363,13 +353,299 @@ class HermesMemoryTrendDetector:
             for word in text.split()
         ]
 
+        stop_words = {
+            "about",
+            "after",
+            "again",
+            "because",
+            "being",
+            "could",
+            "every",
+            "having",
+            "hubspot",
+            "marketing",
+            "netflix",
+            "platform",
+            "product",
+            "really",
+            "review",
+            "their",
+            "there",
+            "these",
+            "those",
+            "thing",
+            "things",
+            "through",
+            "united",
+            "using",
+            "while",
+            "would",
+        }
+
         meaningful_words = [
             word
             for word in words
-            if len(word) >= 5
+            if len(word) >= 5 and word not in stop_words
         ]
 
         return " ".join(meaningful_words[:5]) or "uncategorized"
+
+    def _contains_pricing_pain(self, text: str) -> bool:
+        return any(
+            term in text
+            for term in {
+                "pricing",
+                "price",
+                "prices",
+                "expensive",
+                "cost",
+                "costly",
+                "paywall",
+                "paywalls",
+                "overpay",
+                "overpaying",
+                "subscription",
+                "billing",
+                "charged",
+            }
+        )
+
+    def _contains_support_resolution_pain(self, text: str) -> bool:
+        has_support = (
+            "support" in text
+            or "customer service" in text
+            or "call center" in text
+            or "callcentre" in text
+            or "agent" in text
+            or "representative" in text
+        )
+
+        has_resolution_problem = any(
+            term in text
+            for term in {
+                "slow",
+                "unresolved",
+                "not resolved",
+                "resolve",
+                "escalated",
+                "escalation",
+                "can't reach",
+                "cannot reach",
+                "never reach",
+                "no call",
+                "wait",
+                "waiting",
+                "less helpful",
+            }
+        )
+
+        return has_support and has_resolution_problem
+
+    def _contains_support_automation_pain(self, text: str) -> bool:
+        has_automation = (
+            "chatbot" in text
+            or "bot" in text
+            or "automated" in text
+            or "automation" in text
+        )
+
+        has_failure = any(
+            term in text
+            for term in {
+                "doesn't work",
+                "does not work",
+                "not work",
+                "failed",
+                "failure",
+                "half the time",
+                "can't get connected",
+                "cannot get connected",
+                "wait",
+                "waiting",
+            }
+        )
+
+        return has_automation and has_failure
+
+    def _contains_integration_pain(self, text: str) -> bool:
+        return any(
+            term in text
+            for term in {
+                "integration",
+                "integrations",
+                "duplicate contact",
+                "duplicate contacts",
+                "duplicate",
+                "duplicates",
+                "sync",
+                "synchronization",
+                "connected",
+                "connect",
+                "third party",
+                "third-party",
+                "api",
+            }
+        )
+
+    def _contains_onboarding_pain(self, text: str) -> bool:
+        return any(
+            term in text
+            for term in {
+                "onboarding",
+                "training",
+                "learning curve",
+                "hard to learn",
+                "setup",
+                "set up",
+                "configure",
+                "configuration",
+                "difficult to learn",
+                "not intuitive",
+            }
+        )
+
+    def _contains_delay_cancellation_pain(self, text: str) -> bool:
+        return any(
+            term in text
+            for term in {
+                "delay",
+                "delayed",
+                "cancelled",
+                "canceled",
+                "cancellation",
+                "cancelation",
+                "late",
+                "waiting",
+                "waited",
+                "rescheduled",
+            }
+        )
+
+    def _contains_content_access_pain(self, text: str) -> bool:
+        has_content_or_access = any(
+            term in text
+            for term in {
+                "content",
+                "movie",
+                "movies",
+                "show",
+                "shows",
+                "watch",
+                "streaming",
+                "wifi",
+                "household",
+                "households",
+                "password",
+                "access",
+                "account",
+            }
+        )
+
+        has_policy_or_loss = any(
+            term in text
+            for term in {
+                "remove",
+                "removed",
+                "lose",
+                "losing",
+                "lost",
+                "cannot",
+                "can't",
+                "unable",
+                "not able",
+                "change",
+                "updates",
+                "policy",
+                "different wifi",
+            }
+        )
+
+        return has_content_or_access and has_policy_or_loss
+
+    def _contains_product_usability_pain(self, text: str) -> bool:
+        return any(
+            term in text
+            for term in {
+                "confusing",
+                "hard to use",
+                "difficult",
+                "clunky",
+                "bug",
+                "bugs",
+                "errors",
+                "error",
+                "doesn't work",
+                "does not work",
+                "not working",
+                "poor interface",
+                "limited flexibility",
+                "limited",
+                "quality",
+                "low quality",
+            }
+        )
+
+    def _contains_booking_reminder_pain(self, text: str) -> bool:
+        has_booking = any(
+            term in text
+            for term in {
+                "booking",
+                "bookings",
+                "appointment",
+                "appointments",
+            }
+        )
+
+        has_reminder = any(
+            term in text
+            for term in {
+                "reminder",
+                "reminders",
+                "missed",
+                "no show",
+                "no-show",
+            }
+        )
+
+        return has_booking and has_reminder
+
+    def _contains_capability_expectation_gap(self, text: str) -> bool:
+        has_expectation_language = any(
+            term in text
+            for term in {
+                "lied to",
+                "overpromised",
+                "over promised",
+                "not as advertised",
+                "capabilities",
+                "capability",
+                "features promised",
+                "was told",
+                "expected",
+                "expectation",
+                "does not match",
+                "doesn't match",
+            }
+        )
+
+        has_product_gap_language = any(
+            term in text
+            for term in {
+                "limited",
+                "missing",
+                "not available",
+                "cannot",
+                "can't",
+                "does not",
+                "doesn't",
+                "hard to",
+                "difficult",
+                "expansive tool",
+                "capabilities",
+            }
+        )
+
+        return has_expectation_language and has_product_gap_language
 
     def _validate_memory_dir(self, memory_dir: Path) -> Path:
         resolved = memory_dir.resolve()
