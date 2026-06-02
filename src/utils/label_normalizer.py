@@ -9,6 +9,17 @@ class LabelNormalizer:
     - keep industry/source labels consistent
     - avoid report pollution from casing differences
     - avoid guessing semantic meaning
+
+    Examples:
+    - "Saas" -> "saas"
+    - "App_store" -> "app_store"
+    - "United Airlines" -> "united_airlines"
+    - "United_Airlines" -> "united_airlines"
+
+    This does not:
+    - infer meaning
+    - convert "baas" to "saas"
+    - guess the correct industry
     """
 
     MAX_LABEL_LENGTH = 80

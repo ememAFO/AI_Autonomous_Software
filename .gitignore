@@ -92,3 +92,11 @@ data/raw/external_feedback/test_runner/
 reports/intelligence/local_feedback/*.md
 reports/intelligence/local_feedback/test_reports/
 data/raw/external_feedback/test_local_feedback_report/
+
+# Local feedback registry runtime index
+reports/intelligence/local_feedback_run_index.json
+reports/intelligence/test_runs/test_local_feedback_run_index*.json
+reports/intelligence/local_feedback/test_registry_reports/
+reports/intelligence/test_weekly_local_feedback_registry.json
+reports/intelligence/test_weekly_path_local_feedback_registry.json
+data/raw/external_feedback/test_local_feedback_registry/

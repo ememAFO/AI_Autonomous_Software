@@ -2,7 +2,9 @@ import json
 from collections import Counter
 from pathlib import Path
 from typing import Any
-from src.utils.path_normalizer import ProjectPathNormalizer, PathNormalizerError
+
+from src.utils.path_normalizer import PathNormalizerError, ProjectPathNormalizer
+
 
 class WeeklyIntelligenceReportError(Exception):
     pass
@@ -15,6 +17,7 @@ class WeeklyIntelligenceReportGenerator:
     Inputs:
     - reports/intelligence/research_run_index.json
     - reports/intelligence/batch_run_index.json
+    - reports/intelligence/local_feedback_run_index.json
 
     Security rules:
     - Registry paths must stay inside reports/intelligence.
@@ -25,16 +28,23 @@ class WeeklyIntelligenceReportGenerator:
 
     DEFAULT_REGISTRY_PATH = Path("reports/intelligence/research_run_index.json")
     DEFAULT_BATCH_REGISTRY_PATH = Path("reports/intelligence/batch_run_index.json")
+    DEFAULT_LOCAL_FEEDBACK_REGISTRY_PATH = Path(
+        "reports/intelligence/local_feedback_run_index.json"
+    )
     DEFAULT_OUTPUT_DIR = Path("reports/weekly")
 
     def __init__(
         self,
         registry_path: str | Path = DEFAULT_REGISTRY_PATH,
         batch_registry_path: str | Path = DEFAULT_BATCH_REGISTRY_PATH,
+        local_feedback_registry_path: str | Path = DEFAULT_LOCAL_FEEDBACK_REGISTRY_PATH,
         output_dir: str | Path = DEFAULT_OUTPUT_DIR,
     ):
         self.registry_path = self._validate_registry_path(Path(registry_path))
         self.batch_registry_path = self._validate_registry_path(Path(batch_registry_path))
+        self.local_feedback_registry_path = self._validate_registry_path(
+            Path(local_feedback_registry_path)
+        )
         self.output_dir = self._validate_output_dir(Path(output_dir))
         self.path_normalizer = ProjectPathNormalizer()
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -42,12 +52,21 @@ class WeeklyIntelligenceReportGenerator:
     def generate(self) -> Path:
         registry = self._load_json(self.registry_path, default_key="runs")
         batch_registry = self._load_json(self.batch_registry_path, default_key="batches")
+        local_feedback_registry = self._load_json(
+            self.local_feedback_registry_path,
+            default_key="runs",
+        )
 
         runs = registry.get("runs", [])
         batches = batch_registry.get("batches", [])
+        local_feedback_runs = local_feedback_registry.get("runs", [])
 
         report_path = self._safe_report_path()
-        content = self._build_report(runs=runs, batches=batches)
+        content = self._build_report(
+            runs=runs,
+            batches=batches,
+            local_feedback_runs=local_feedback_runs,
+        )
 
         report_path.write_text(content, encoding="utf-8")
 
@@ -64,6 +83,7 @@ class WeeklyIntelligenceReportGenerator:
         *,
         runs: list[dict[str, Any]],
         batches: list[dict[str, Any]],
+        local_feedback_runs: list[dict[str, Any]],
     ) -> str:
         total_runs = len(runs)
         successful_runs = sum(1 for run in runs if run.get("status") == "success")
@@ -83,9 +103,10 @@ class WeeklyIntelligenceReportGenerator:
         for run in runs:
             report_paths.extend(run.get("report_paths", []))
             hermes_memory_paths.extend(run.get("hermes_memory_paths", []))
-           
+
         report_paths = self._safe_normalize_paths(report_paths)
         hermes_memory_paths = self._safe_normalize_paths(hermes_memory_paths)
+
         latest_runs = runs[-5:]
 
         total_batches = len(batches)
@@ -117,8 +138,45 @@ class WeeklyIntelligenceReportGenerator:
 
         latest_batches = batches[-5:]
 
-        content = f"""# Weekly Research Intelligence Report
+        total_local_feedback_runs = len(local_feedback_runs)
+        total_local_loaded_rows = sum(
+            int(run.get("loaded_count", 0))
+            for run in local_feedback_runs
+        )
+        total_local_processed_rows = sum(
+            int(run.get("processed_count", 0))
+            for run in local_feedback_runs
+        )
+        total_local_successful_rows = sum(
+            int(run.get("successful_count", 0))
+            for run in local_feedback_runs
+        )
+        total_local_blocked_rows = sum(
+            int(run.get("blocked_count", 0))
+            for run in local_feedback_runs
+        )
 
+        local_feedback_industries = Counter(
+            run.get("industry", "unknown")
+            for run in local_feedback_runs
+        )
+
+        local_feedback_source_types = Counter(
+            run.get("source_type", "unknown")
+            for run in local_feedback_runs
+        )
+
+        local_feedback_report_paths = self._safe_normalize_paths(
+            [
+                run.get("local_feedback_report_path", "")
+                for run in local_feedback_runs
+                if run.get("local_feedback_report_path")
+            ]
+        )
+
+        latest_local_feedback_runs = local_feedback_runs[-5:]
+
+        content = f"""# Weekly Research Intelligence Report
 
 ## Summary
 
@@ -136,6 +194,14 @@ class WeeklyIntelligenceReportGenerator:
 - Successful Batch Jobs: {total_successful_batch_jobs}
 - Blocked Batch Jobs: {total_blocked_batch_jobs}
 
+## Local Feedback Research Summary
+
+- Total Local Feedback Runs: {total_local_feedback_runs}
+- Loaded Feedback Rows: {total_local_loaded_rows}
+- Processed Feedback Rows: {total_local_processed_rows}
+- Successful Feedback Rows: {total_local_successful_rows}
+- Blocked Feedback Rows: {total_local_blocked_rows}
+
 ## Top Industries
 
 {self._format_counter(industries)}
@@ -143,6 +209,14 @@ class WeeklyIntelligenceReportGenerator:
 ## Top Batch Industries
 
 {self._format_counter(batch_industries)}
+
+## Top Local Feedback Industries
+
+{self._format_counter(local_feedback_industries)}
+
+## Top Local Feedback Source Types
+
+{self._format_counter(local_feedback_source_types)}
 
 ## Top Subreddits
 
@@ -168,6 +242,10 @@ class WeeklyIntelligenceReportGenerator:
 
 {self._format_list(batch_report_paths, "- No batch reports generated yet.")}
 
+## Local Feedback Reports
+
+{self._format_list(local_feedback_report_paths, "- No local feedback reports generated yet.")}
+
 ## Latest Research Runs
 
 {self._format_latest_runs(latest_runs)}
@@ -176,6 +254,10 @@ class WeeklyIntelligenceReportGenerator:
 
 {self._format_latest_batches(latest_batches)}
 
+## Latest Local Feedback Runs
+
+{self._format_latest_local_feedback_runs(latest_local_feedback_runs)}
+
 ## Recommended Next Actions
 
 {self._recommended_actions(
@@ -183,6 +265,8 @@ class WeeklyIntelligenceReportGenerator:
     total_runs=total_runs,
     total_batches=total_batches,
     total_blocked_batch_jobs=total_blocked_batch_jobs,
+    total_local_feedback_runs=total_local_feedback_runs,
+    total_local_blocked_rows=total_local_blocked_rows,
 )}
 """
 
@@ -252,6 +336,28 @@ class WeeklyIntelligenceReportGenerator:
 
         return "\n".join(lines)
 
+    def _format_latest_local_feedback_runs(
+        self,
+        runs: list[dict[str, Any]],
+    ) -> str:
+        if not runs:
+            return "- No local feedback runs recorded yet."
+
+        lines = []
+
+        for run in runs:
+            lines.append(
+                "- "
+                f"{run.get('timestamp', 'unknown time')} | "
+                f"{run.get('industry', 'unknown')} | "
+                f"{run.get('source_type', 'unknown')} | "
+                f"processed: {run.get('processed_count', 0)} | "
+                f"success: {run.get('successful_count', 0)} | "
+                f"blocked: {run.get('blocked_count', 0)}"
+            )
+
+        return "\n".join(lines)
+
     def _recommended_actions(
         self,
         *,
@@ -259,13 +365,15 @@ class WeeklyIntelligenceReportGenerator:
         total_runs: int,
         total_batches: int,
         total_blocked_batch_jobs: int,
+        total_local_feedback_runs: int,
+        total_local_blocked_rows: int,
     ) -> str:
-        if total_runs == 0 and total_batches == 0:
-            return "- Run the first controlled research job or planned batch."
+        if total_runs == 0 and total_batches == 0 and total_local_feedback_runs == 0:
+            return "- Run the first controlled research job, planned batch, or local feedback research run."
 
         actions = [
             "- Review generated opportunity reports.",
-            "- Compare repeated pain points across jobs and batches.",
+            "- Compare repeated pain points across jobs, batches, and local feedback runs.",
             "- Validate high-scoring opportunities with additional sources.",
             "- Do not move to MVP planning until strategic validation is reviewed.",
         ]
@@ -275,6 +383,9 @@ class WeeklyIntelligenceReportGenerator:
 
         if total_blocked_batch_jobs > 0:
             actions.append("- Review blocked batch jobs before expanding automation.")
+
+        if total_local_blocked_rows > 0:
+            actions.append("- Review blocked local feedback rows for possible false negatives.")
 
         return "\n".join(actions)
 

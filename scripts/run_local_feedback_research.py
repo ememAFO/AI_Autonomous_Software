@@ -11,6 +11,7 @@ from src.adapters.local_csv_feedback_adapter import LocalCSVFeedbackAdapterError
 from src.research.local_feedback_research_runner import LocalFeedbackResearchRunner
 from src.utils.audit_logger import AuditEvent, AuditLogger
 from src.research.local_feedback_report import LocalFeedbackReportGenerator
+from src.research.local_feedback_registry import LocalFeedbackRunRegistryWriter
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -59,6 +60,10 @@ def main() -> int:
         )
 
         local_feedback_report_path = LocalFeedbackReportGenerator().generate(result)
+        local_feedback_registry_path = LocalFeedbackRunRegistryWriter().add_run(
+            run_result=result,
+            local_feedback_report_path=str(local_feedback_report_path),
+        )
 
 
         AuditLogger().log(
@@ -74,6 +79,7 @@ def main() -> int:
                     "successful_count": result.successful_count,
                     "blocked_count": result.blocked_count,
                     "local_feedback_report_path": str(local_feedback_report_path),
+                    "local_feedback_registry_path": str(local_feedback_registry_path),
                     "results": [
                         {
                             "status": item_result.status,
@@ -99,6 +105,7 @@ def main() -> int:
         print(f"Successful Rows: {result.successful_count}")
         print(f"Blocked Rows: {result.blocked_count}")
         print(f"Local Feedback Report: {local_feedback_report_path}")
+        print(f"Local Feedback Registry: {local_feedback_registry_path}")
 
         print("\nItem Results:")
         for index, item_result in enumerate(result.results, start=1):
