@@ -102,7 +102,8 @@ def test_memory_trend_report_generator_creates_markdown_report():
     assert "Filtered Memory Records" in content
     assert "Filters Applied" in content
     assert "Top Sources" in content
-
+    assert "Filtered Themes" in content
+    assert "Filtered Opportunity Themes" in content
 
 def test_memory_trend_report_blocks_output_outside_intelligence():
     with pytest.raises(MemoryTrendReportError):
@@ -269,3 +270,43 @@ def test_memory_trend_detector_filters_by_recommendation():
 
     assert summary.filtered_records == 1
     assert summary.top_recommendations == [("VALIDATE_FIRST", 1)]
+
+def test_memory_trend_detector_builds_filtered_themes_below_high_confidence():
+    memory_dir = "data/hermes/research_memory/test_filtered_themes"
+
+    import os
+    os.makedirs(memory_dir, exist_ok=True)
+
+    records = [
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": "The integration creates duplicate contacts and is difficult to resolve.",
+            "recommendation": "VALIDATE_FIRST",
+            "score": 7.1,
+            "report_path": "reports/opportunities/integration_workflow_pain.md",
+            "timestamp": "2026-05-25T22:00:00+00:00",
+        },
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": "The integration keeps creating duplicate contacts during sync.",
+            "recommendation": "VALIDATE_FIRST",
+            "score": 7.2,
+            "report_path": "reports/opportunities/integration_workflow_pain.md",
+            "timestamp": "2026-05-25T22:01:00+00:00",
+        },
+    ]
+
+    for index, record in enumerate(records):
+        with open(f"{memory_dir}/record_{index}.json", "w", encoding="utf-8") as file:
+            json.dump(record, file)
+
+    summary = HermesMemoryTrendDetector(memory_dir=memory_dir).summarize()
+
+    assert summary.filtered_records == 2
+    assert summary.filtered_themes
+    assert summary.filtered_themes[0].theme == "integration workflow"
+    assert summary.filtered_themes[0].record_count == 2
+    assert summary.high_confidence_records == []
+    assert summary.high_confidence_themes == []

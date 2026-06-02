@@ -42,6 +42,7 @@ class HermesMemoryTrendReportGenerator:
 - Generated At: {generated_at}
 - Total Memory Records: {summary.total_records}
 - Filtered Memory Records: {summary.filtered_records}
+- Filtered Themes: {len(summary.filtered_themes)}
 - High-Confidence Records: {len(summary.high_confidence_records)}
 - High-Confidence Themes: {len(summary.high_confidence_themes)}
 
@@ -67,6 +68,10 @@ class HermesMemoryTrendReportGenerator:
 ## Repeated Pain Terms
 
 {self._format_pairs(summary.repeated_pain_terms, "- No repeated pain terms found.")}
+
+## Filtered Opportunity Themes
+
+{self._format_opportunity_themes(summary.filtered_themes)}
 
 ## High-Confidence Opportunity Themes
 
@@ -169,17 +174,18 @@ class HermesMemoryTrendReportGenerator:
         if summary.filtered_records == 0:
             return "- No records matched these filters. Try broadening the source, industry, or recommendation filter."
 
-        if not summary.high_confidence_themes:
+        if not summary.filtered_themes:
             return "- Collect more evidence before moving opportunities toward validation."
 
-        return "\n".join(
-            [
-                "- Review high-confidence opportunity themes.",
-                "- Compare repeated themes across sources and industries.",
-                "- Validate strongest themes with additional non-Reddit sources.",
-                "- Do not move to MVP planning until strategic validation and evidence are reviewed.",
-            ]
-        )
+        if not summary.high_confidence_themes:
+            return "\n".join(
+                [
+                    "- Review filtered opportunity themes as validation candidates.",
+                    "- Treat these as repeated signals, not build-now decisions.",
+                    "- Collect stronger evidence before moving any theme toward MVP planning.",
+                    "- Compare themes across sources and industries before prioritizing.",
+                ]
+            )
 
     def _normalize_path(self, path: str) -> str:
         try:

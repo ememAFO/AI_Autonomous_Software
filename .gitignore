@@ -55,6 +55,7 @@ data/hermes/research_memory/test_theme_grouping/
 data/hermes/research_memory/test_filter_industry/
 data/hermes/research_memory/test_filter_source/
 data/hermes/research_memory/test_filter_recommendation/
+data/hermes/research_memory/test_filtered_themes/
 
 # Batch research reports
 reports/intelligence/batches/*.md

@@ -30,7 +30,6 @@ class OpportunityTheme:
     example_pain_point: str
     report_paths: list[str] = field(default_factory=list)
 
-
 @dataclass(frozen=True)
 class MemoryTrendSummary:
     total_records: int
@@ -40,6 +39,7 @@ class MemoryTrendSummary:
     top_sources: list[tuple[str, int]]
     top_recommendations: list[tuple[str, int]]
     repeated_pain_terms: list[tuple[str, int]]
+    filtered_themes: list[OpportunityTheme] = field(default_factory=list)
     high_confidence_records: list[HermesResearchMemoryRecord] = field(default_factory=list)
     high_confidence_themes: list[OpportunityTheme] = field(default_factory=list)
 
@@ -147,14 +147,14 @@ class HermesMemoryTrendDetector:
         source_counter = Counter(record.source for record in records)
         recommendation_counter = Counter(record.recommendation for record in records)
         pain_counter = self._count_pain_terms(records)
+        filtered_themes = self._build_opportunity_themes(records)
 
-        high_confidence_records = [
-            record for record in records if record.score >= 8
-        ]
+        high_confidence_records = [record for record in records if record.score >= 8]
 
-        high_confidence_themes = self._build_opportunity_themes(
-            high_confidence_records
-        )
+        high_confidence_themes = self._build_opportunity_themes(high_confidence_records)
+
+
+
 
         return MemoryTrendSummary(
             total_records=len(all_records),
@@ -164,6 +164,7 @@ class HermesMemoryTrendDetector:
             top_sources=source_counter.most_common(10),
             top_recommendations=recommendation_counter.most_common(10),
             repeated_pain_terms=pain_counter.most_common(15),
+            filtered_themes=filtered_themes[:20],
             high_confidence_records=high_confidence_records[:20],
             high_confidence_themes=high_confidence_themes[:20],
         )
