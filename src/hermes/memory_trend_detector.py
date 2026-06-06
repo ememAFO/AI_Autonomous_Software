@@ -303,6 +303,11 @@ class HermesMemoryTrendDetector:
         if ("quote" in text or "quotes" in text) and has_follow_up:
             return "quote + follow up"
 
+        integration_subtheme = self._integration_subtheme(text)
+
+        if integration_subtheme:
+            return integration_subtheme
+
         if self._contains_pricing_pain(text):
             return "pricing + roi"
 
@@ -314,9 +319,6 @@ class HermesMemoryTrendDetector:
 
         if self._contains_support_automation_pain(text):
             return "support automation failure"
-
-        if self._contains_integration_pain(text):
-            return "integration workflow"
 
         if self._contains_onboarding_pain(text):
             return "onboarding + training"
@@ -441,6 +443,33 @@ class HermesMemoryTrendDetector:
 
         return has_support and has_resolution_problem
 
+    def _integration_subtheme(self, text: str) -> str | None:
+        if not self._contains_integration_pain(text):
+            return None
+
+        if self._contains_support_automation_pain(text):
+            return "support automation failure"
+
+        if self._contains_pricing_tier_integration_limits(text):
+            return "pricing-tier integration limits"
+
+        if self._contains_automation_setup_complexity(text):
+            return "automation setup complexity"
+
+        if self._contains_automation_limits_and_task_caps(text):
+            return "automation limits and task caps"
+
+        if self._contains_manual_workflow_maintenance(text):
+            return "manual workflow maintenance"
+
+        if self._contains_integration_coverage_gap(text):
+            return "integration coverage gap"
+
+        if self._contains_integration_reliability_failure(text):
+            return "integration reliability failure"
+
+        return "integration workflow"
+
     def _contains_support_automation_pain(self, text: str) -> bool:
         has_automation = (
             "chatbot" in text
@@ -481,9 +510,17 @@ class HermesMemoryTrendDetector:
                 "synchronization",
                 "connected",
                 "connect",
+                "connection",
+                "connections",
                 "third party",
                 "third-party",
                 "api",
+                "zap",
+                "zaps",
+                "automation",
+                "automations",
+                "workflow",
+                "workflows",
             }
         )
 
@@ -646,6 +683,275 @@ class HermesMemoryTrendDetector:
         )
 
         return has_expectation_language and has_product_gap_language
+
+
+    def _contains_pricing_tier_integration_limits(self, text: str) -> bool:
+        has_pricing_language = any(
+            term in text
+            for term in {
+                "premium",
+                "paid plan",
+                "pricing tier",
+                "tier",
+                "subscription",
+                "free plan",
+                "freemium",
+                "over my pricing tier",
+                "pay",
+                "paid",
+                "expensive",
+                "cost",
+                "price",
+            }
+        )
+
+        has_integration_language = any(
+            term in text
+            for term in {
+                "integration",
+                "integrations",
+                "connect",
+                "connection",
+                "connections",
+                "zap",
+                "zaps",
+                "apps",
+                "app",
+                "task",
+                "tasks",
+            }
+        )
+
+        return has_pricing_language and has_integration_language
+
+    def _contains_integration_reliability_failure(self, text: str) -> bool:
+        has_failure_language = any(
+            term in text
+            for term in {
+                "break",
+                "breaks",
+                "broken",
+                "fail",
+                "fails",
+                "failed",
+                "failure",
+                "not working",
+                "doesn't work",
+                "does not work",
+                "error",
+                "errors",
+                "glitch",
+                "glitches",
+                "reconnect",
+                "reconnecting",
+                "disconnect",
+                "disconnected",
+                "troubleshoot",
+                "troubleshooting",
+                "not obvious reason",
+            }
+        )
+
+        has_integration_language = any(
+            term in text
+            for term in {
+                "integration",
+                "integrations",
+                "connect",
+                "connection",
+                "connections",
+                "sync",
+                "zap",
+                "zaps",
+                "automation",
+                "automations",
+            }
+        )
+
+        return has_failure_language and has_integration_language
+
+    def _contains_automation_setup_complexity(self, text: str) -> bool:
+        has_complexity_language = any(
+            term in text
+            for term in {
+                "complicated",
+                "complex",
+                "complexity",
+                "challenging",
+                "difficult",
+                "hard to",
+                "tough",
+                "confusing",
+                "trial and error",
+                "setup",
+                "set up",
+                "setting up",
+                "figure out",
+                "learning",
+                "learn",
+                "coding",
+                "configure",
+                "configuration",
+                "formulas",
+                "field instructions",
+            }
+        )
+
+        has_automation_language = any(
+            term in text
+            for term in {
+                "zap",
+                "zaps",
+                "workflow",
+                "workflows",
+                "automation",
+                "automations",
+                "trigger",
+                "triggers",
+                "action",
+                "actions",
+                "integration",
+                "integrations",
+            }
+        )
+
+        return has_complexity_language and has_automation_language
+
+    def _contains_automation_limits_and_task_caps(self, text: str) -> bool:
+        has_limit_language = any(
+            term in text
+            for term in {
+                "limited",
+                "limitations",
+                "limit",
+                "limits",
+                "too simple",
+                "not supported",
+                "unsupported",
+                "no if-then",
+                "if-then",
+                "looping",
+                "multiple triggers",
+                "single action",
+                "number of tasks",
+                "task limit",
+                "task limits",
+                "tasks included",
+                "task cap",
+                "task caps",
+                "workflow task limit",
+                "workflow task limits",
+                "block automation",
+                "blocks automation",
+                "paths",
+                "more tasks",
+                "more actions",
+                "more triggers",
+                "functionality",
+            }
+        )
+
+        has_automation_language = any(
+            term in text
+            for term in {
+                "zap",
+                "zaps",
+                "workflow",
+                "workflows",
+                "automation",
+                "automations",
+                "trigger",
+                "triggers",
+                "action",
+                "actions",
+                "task",
+                "tasks",
+            }
+        )
+
+        return has_limit_language and has_automation_language
+
+    def _contains_manual_workflow_maintenance(self, text: str) -> bool:
+        has_manual_language = any(
+            term in text
+            for term in {
+                "manual",
+                "manually",
+                "manual fixing",
+                "fixing",
+                "editing",
+                "edit",
+                "maintain",
+                "maintenance",
+                "backup",
+                "download",
+                "upload",
+                "rework",
+                "workaround",
+                "work around",
+            }
+        )
+
+        has_workflow_language = any(
+            term in text
+            for term in {
+                "zap",
+                "zaps",
+                "workflow",
+                "workflows",
+                "automation",
+                "automations",
+                "contract",
+                "contracts",
+                "document",
+                "documents",
+            }
+        )
+
+        return has_manual_language and has_workflow_language
+
+    def _contains_integration_coverage_gap(self, text: str) -> bool:
+        has_gap_language = any(
+            term in text
+            for term in {
+                "not available",
+                "missing",
+                "not on",
+                "not supported",
+                "unsupported",
+                "wish there were more",
+                "more apps",
+                "more integrations",
+                "official whatsapp",
+                "relevant to my industry",
+                "cannot integrate",
+                "can't integrate",
+                "cant integrate",
+                "intergrate",
+                "zoho",
+                "wpforms",
+                "salesforce",
+            }
+        )
+
+        has_integration_language = any(
+            term in text
+            for term in {
+                "integration",
+                "integrations",
+                "connect",
+                "connected",
+                "connection",
+                "apps",
+                "app",
+                "software",
+                "platforms",
+                "zap",
+                "zaps",
+            }
+        )
+
+        return has_gap_language and has_integration_language
 
     def _validate_memory_dir(self, memory_dir: Path) -> Path:
         resolved = memory_dir.resolve()

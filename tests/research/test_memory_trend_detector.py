@@ -304,10 +304,23 @@ def test_memory_trend_detector_builds_filtered_themes_below_high_confidence():
 
     summary = HermesMemoryTrendDetector(memory_dir=memory_dir).summarize()
 
+    themes = {
+        theme.theme: theme.record_count
+        for theme in summary.filtered_themes
+    }
+
+    assert sum(themes.values()) == 2
+    assert any(
+        theme in themes
+        for theme in {
+            "integration workflow",
+            "integration reliability failure",
+            "integration coverage gap",
+        }
+    )
+ 
     assert summary.filtered_records == 2
     assert summary.filtered_themes
-    assert summary.filtered_themes[0].theme == "integration workflow"
-    assert summary.filtered_themes[0].record_count == 2
     assert summary.high_confidence_records == []
     assert summary.high_confidence_themes == []
 
@@ -397,3 +410,82 @@ def test_memory_trend_detector_groups_capability_expectation_gap():
     themes = {theme.theme for theme in summary.filtered_themes}
 
     assert "capability expectation gap" in themes
+
+
+def test_memory_trend_detector_splits_integration_workflow_subthemes():
+    memory_dir = "data/hermes/research_memory/test_integration_subthemes"
+
+    import os
+    os.makedirs(memory_dir, exist_ok=True)
+
+    records = [
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": "Some apps need premium and the Zap task limit makes integrations expensive.",
+            "recommendation": "VALIDATE_FIRST",
+            "score": 6.8,
+            "report_path": "reports/opportunities/pricing_tier_integration_limits.md",
+            "timestamp": "2026-05-25T22:00:00+00:00",
+        },
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": "The integration links break and Zaps fail without an obvious reason.",
+            "recommendation": "VALIDATE_FIRST",
+            "score": 6.5,
+            "report_path": "reports/opportunities/integration_reliability_failure.md",
+            "timestamp": "2026-05-25T22:01:00+00:00",
+        },
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": "Setting up complex Zaps requires trial and error and is difficult to configure.",
+            "recommendation": "VALIDATE_FIRST",
+            "score": 6.4,
+            "report_path": "reports/opportunities/automation_setup_complexity.md",
+            "timestamp": "2026-05-25T22:02:00+00:00",
+        },
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": "Multiple triggers are not supported and workflow task limits block automation.",
+            "recommendation": "VALIDATE_FIRST",
+            "score": 6.3,
+            "report_path": "reports/opportunities/automation_limits_and_task_caps.md",
+            "timestamp": "2026-05-25T22:03:00+00:00",
+        },
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": "I do not like how often Zaps need manual fixing and editing.",
+            "recommendation": "VALIDATE_FIRST",
+            "score": 6.2,
+            "report_path": "reports/opportunities/manual_workflow_maintenance.md",
+            "timestamp": "2026-05-25T22:04:00+00:00",
+        },
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": "The app I want is not available and there are missing integrations for my industry.",
+            "recommendation": "VALIDATE_FIRST",
+            "score": 6.1,
+            "report_path": "reports/opportunities/integration_coverage_gap.md",
+            "timestamp": "2026-05-25T22:05:00+00:00",
+        },
+    ]
+
+    for index, record in enumerate(records):
+        with open(f"{memory_dir}/record_{index}.json", "w", encoding="utf-8") as file:
+            json.dump(record, file)
+
+    summary = HermesMemoryTrendDetector(memory_dir=memory_dir).summarize()
+
+    themes = {theme.theme for theme in summary.filtered_themes}
+
+    assert "pricing-tier integration limits" in themes
+    assert "integration reliability failure" in themes
+    assert "automation setup complexity" in themes
+    assert "automation limits and task caps" in themes
+    assert "manual workflow maintenance" in themes
+    assert "integration coverage gap" in themes
