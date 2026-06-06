@@ -76,6 +76,7 @@ reports/intelligence/test_trends/
 data/hermes/research_memory/test_trends/
 data/hermes/research_memory/test_malformed/
 data/hermes/research_memory/test_report/
+data/raw/external_feedback/test_profiler/
 
 #data
 data/raw/
