@@ -247,6 +247,7 @@ class HermesMemoryTrendDetector:
 
         return counter
 
+
     def _build_opportunity_themes(
         self,
         records: list[HermesResearchMemoryRecord],
@@ -254,6 +255,9 @@ class HermesMemoryTrendDetector:
         grouped_records: dict[str, list[HermesResearchMemoryRecord]] = defaultdict(list)
 
         for record in records:
+
+            if self._is_non_actionable_positive_feedback(record.pain_point):
+                continue
             theme = self._theme_key(record.pain_point)
             grouped_records[theme].append(record)
 
@@ -412,6 +416,126 @@ class HermesMemoryTrendDetector:
             }
         )
 
+    def _is_non_actionable_positive_feedback(self, pain_point: str) -> bool:
+        text = pain_point.lower().strip()
+
+        positive_no_pain_phrases = {
+            "nothing",
+            "nothing really",
+            "nothing as such",
+            "nothing as such for now",
+            "no issues",
+            "no issue",
+            "no problems",
+            "no problem",
+            "no complaints",
+            "no complaint",
+            "everything is fine",
+            "everything works",
+            "works great",
+            "works well",
+            "amazing and responsive",
+            "customer support is amazing",
+            "i am completely happy",
+            "i'm completely happy",
+            "i cannot really say i dislike anything",
+            "i can't really say i dislike anything",
+            "i dont really dislike anything",
+            "i don't really dislike anything",
+            "i dislike nothing",
+            "best app ever",
+        }
+
+        if any(phrase in text for phrase in positive_no_pain_phrases):
+            has_actionable_contrast = any(
+                phrase in text
+                for phrase in {
+                    "however",
+                    "but",
+                    "although",
+                    "except",
+                    "besides",
+                    "only issue",
+                    "only problem",
+                    "downside",
+                    "wish",
+                    "could improve",
+                    "needs improvement",
+                }
+            )
+
+            if not has_actionable_contrast:
+                return True
+
+        starts_positive_no_pain = any(
+            text.startswith(phrase)
+            for phrase in {
+                "nothing!",
+                "nothing.",
+                "nothing really",
+                "nothing as such",
+                "no issues",
+                "no problems",
+                "i am completely happy",
+                "i'm completely happy",
+            }
+        )
+
+        has_clear_pain_signal = any(
+            term in text
+            for term in {
+                "expensive",
+                "difficult",
+                "hard to",
+                "confusing",
+                "bug",
+                "bugs",
+                "error",
+                "errors",
+                "fail",
+                "fails",
+                "failed",
+                "limited",
+                "manual",
+                "missing",
+                "not supported",
+                "slow",
+                "unresolved",
+                "poor",
+                "awful",
+                "terrible",
+                "break",
+                "breaks",
+                "broken",
+                "can't",
+                "cannot",
+                "doesn't work",
+                "does not work",
+            }
+        )
+
+        future_hypothetical_no_pain = any(
+            phrase in text
+            for phrase in {
+                "if any issues arises",
+                "if any issues arise",
+                "if any issue arises",
+                "if any issue arise",
+                "in future if any issues",
+                "in the future if any issues",
+                "will inform",
+                "will update",
+                "no issues for now",
+                "nothing as such for now",
+                "nothing for now",
+            }
+        )
+
+        if future_hypothetical_no_pain and not has_clear_pain_signal:
+            return True
+
+        return starts_positive_no_pain and not has_clear_pain_signal
+
     def _contains_support_resolution_pain(self, text: str) -> bool:
         has_support = (
             "support" in text
@@ -442,13 +566,24 @@ class HermesMemoryTrendDetector:
         )
 
         return has_support and has_resolution_problem
-
     def _integration_subtheme(self, text: str) -> str | None:
         if not self._contains_integration_pain(text):
             return None
 
+        if self._contains_support_access_gap(text):
+            return "support access gap"
+
+        if self._contains_support_resolution_pain(text):
+            return "support resolution"
+
         if self._contains_support_automation_pain(text):
             return "support automation failure"
+
+        if self._contains_workflow_backup_recovery_pain(text):
+            return "workflow backup and recovery"
+
+        if self._contains_workflow_observability_debugging_pain(text):
+            return "workflow observability and debugging"
 
         if self._contains_pricing_tier_integration_limits(text):
             return "pricing-tier integration limits"
@@ -496,6 +631,88 @@ class HermesMemoryTrendDetector:
 
         return has_automation and has_failure
 
+    def _contains_workflow_backup_recovery_pain(self, text: str) -> bool:
+        has_backup_language = any(
+            term in text
+            for term in {
+                "backup",
+                "back up",
+                "download",
+                "upload",
+                "restore",
+                "recovery",
+                "recover",
+                "version history",
+                "rollback",
+                "roll back",
+                "protected",
+                "unprotected",
+                "business-critical",
+                "business critical",
+            }
+        )
+
+        has_workflow_language = any(
+            term in text
+            for term in {
+                "zap",
+                "zaps",
+                "workflow",
+                "workflows",
+                "automation",
+                "automations",
+                "process",
+                "processes",
+            }
+        )
+
+        return has_backup_language and has_workflow_language
+
+    def _contains_workflow_observability_debugging_pain(self, text: str) -> bool:
+        has_debug_language = any(
+            term in text
+            for term in {
+                "troubleshoot",
+                "troubleshooting",
+                "debug",
+                "debugging",
+                "logs",
+                "log",
+                "audit",
+                "history",
+                "not obvious",
+                "obvious reason",
+                "without reason",
+                "why it failed",
+                "why they fail",
+                "error message",
+                "error messages",
+                "notified of error",
+                "monitor",
+                "monitoring",
+                "alert",
+                "alerts",
+            }
+        )
+
+        has_workflow_language = any(
+            term in text
+            for term in {
+                "zap",
+                "zaps",
+                "workflow",
+                "workflows",
+                "automation",
+                "automations",
+                "integration",
+                "integrations",
+                "task",
+                "tasks",
+            }
+        )
+
+        return has_debug_language and has_workflow_language
+
     def _contains_integration_pain(self, text: str) -> bool:
         return any(
             term in text
@@ -523,6 +740,44 @@ class HermesMemoryTrendDetector:
                 "workflows",
             }
         )
+
+    def _contains_support_access_gap(self, text: str) -> bool:
+        has_support_channel_language = any(
+            term in text
+            for term in {
+                "live chat",
+                "chat support",
+                "phone support",
+                "email support",
+                "support channel",
+                "support channels",
+                "no live chat",
+                "no chat support",
+                "no phone support",
+                "human support",
+                "real person",
+                "representative",
+            }
+        )
+
+        has_access_gap_language = any(
+            term in text
+            for term in {
+                "no ",
+                "missing",
+                "lack",
+                "lacks",
+                "without",
+                "wish",
+                "would be beneficial",
+                "need",
+                "needs",
+                "should have",
+                "could use",
+            }
+        )
+
+        return has_support_channel_language and has_access_gap_language
 
     def _contains_onboarding_pain(self, text: str) -> bool:
         return any(

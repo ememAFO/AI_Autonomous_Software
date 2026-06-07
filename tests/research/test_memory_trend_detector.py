@@ -431,7 +431,7 @@ def test_memory_trend_detector_splits_integration_workflow_subthemes():
         {
             "source": "review_site",
             "industry": "saas",
-            "pain_point": "The integration links break and Zaps fail without an obvious reason.",
+            "pain_point": "The integration links break and Zaps fail repeatedly during sync.",
             "recommendation": "VALIDATE_FIRST",
             "score": 6.5,
             "report_path": "reports/opportunities/integration_reliability_failure.md",
@@ -489,3 +489,169 @@ def test_memory_trend_detector_splits_integration_workflow_subthemes():
     assert "automation limits and task caps" in themes
     assert "manual workflow maintenance" in themes
     assert "integration coverage gap" in themes
+
+def test_memory_trend_detector_groups_workflow_backup_and_debugging_themes():
+    memory_dir = "data/hermes/research_memory/test_workflow_backup_debugging"
+
+    import os
+    os.makedirs(memory_dir, exist_ok=True)
+
+    records = [
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": (
+                "I wish I could backup, download and restore Zaps because "
+                "my business-critical workflows feel unprotected."
+            ),
+            "recommendation": "VALIDATE_FIRST",
+            "score": 6.4,
+            "report_path": "reports/opportunities/workflow_backup_recovery.md",
+            "timestamp": "2026-05-25T22:00:00+00:00",
+        },
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": (
+                "Zaps fail without an obvious reason and it is difficult to troubleshoot "
+                "workflow errors."
+            ),
+            "recommendation": "VALIDATE_FIRST",
+            "score": 6.3,
+            "report_path": "reports/opportunities/workflow_observability_debugging.md",
+            "timestamp": "2026-05-25T22:01:00+00:00",
+        },
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": (
+                "Customer support is awful and I had to wait a long time to resolve "
+                "a Zap issue."
+            ),
+            "recommendation": "VALIDATE_FIRST",
+            "score": 6.2,
+            "report_path": "reports/opportunities/support_resolution_pain.md",
+            "timestamp": "2026-05-25T22:02:00+00:00",
+        },
+    ]
+
+    for index, record in enumerate(records):
+        with open(f"{memory_dir}/record_{index}.json", "w", encoding="utf-8") as file:
+            json.dump(record, file)
+
+    summary = HermesMemoryTrendDetector(memory_dir=memory_dir).summarize()
+
+    themes = {theme.theme for theme in summary.filtered_themes}
+
+    assert "workflow backup and recovery" in themes
+    assert "workflow observability and debugging" in themes
+    assert "support resolution" in themes
+
+
+def test_memory_trend_detector_excludes_non_actionable_positive_feedback_from_themes():
+    memory_dir = "data/hermes/research_memory/test_positive_feedback_guard"
+
+    import os
+    os.makedirs(memory_dir, exist_ok=True)
+
+    records = [
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": "Nothing! Customer support is amazing and responsive.",
+            "recommendation": "REJECT",
+            "score": 3.0,
+            "report_path": "reports/opportunities/integration_workflow_pain.md",
+            "timestamp": "2026-05-25T22:00:00+00:00",
+        },
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": "Nothing really, however pricing is expensive for small teams.",
+            "recommendation": "VALIDATE_FIRST",
+            "score": 6.4,
+            "report_path": "reports/opportunities/pricing_and_roi_pain.md",
+            "timestamp": "2026-05-25T22:01:00+00:00",
+        },
+    ]
+
+    for index, record in enumerate(records):
+        with open(f"{memory_dir}/record_{index}.json", "w", encoding="utf-8") as file:
+            json.dump(record, file)
+
+    summary = HermesMemoryTrendDetector(memory_dir=memory_dir).summarize()
+
+    themes = {theme.theme: theme.record_count for theme in summary.filtered_themes}
+
+    assert "pricing + roi" in themes
+    assert sum(themes.values()) == 1
+
+def test_memory_trend_detector_skips_future_hypothetical_no_pain_feedback():
+    memory_dir = "data/hermes/research_memory/test_future_hypothetical_no_pain"
+
+    import os
+    os.makedirs(memory_dir, exist_ok=True)
+
+    records = [
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": (
+                "Nothing as such for now. But in future if any issues arises "
+                "will inform."
+            ),
+            "recommendation": "REJECT",
+            "score": 3.0,
+            "report_path": "reports/opportunities/integration_workflow_pain.md",
+            "timestamp": "2026-05-25T22:00:00+00:00",
+        },
+        {
+            "source": "review_site",
+            "industry": "saas",
+            "pain_point": "Manual CRM follow up is slow and sales teams lose leads.",
+            "recommendation": "VALIDATE_FIRST",
+            "score": 6.5,
+            "report_path": "reports/opportunities/lead_follow-up_automation.md",
+            "timestamp": "2026-05-25T22:01:00+00:00",
+        },
+    ]
+
+    for index, record in enumerate(records):
+        with open(f"{memory_dir}/record_{index}.json", "w", encoding="utf-8") as file:
+            json.dump(record, file)
+
+    summary = HermesMemoryTrendDetector(memory_dir=memory_dir).summarize()
+
+    themes = {theme.theme: theme.record_count for theme in summary.filtered_themes}
+
+    assert "lead + follow up" in themes
+    assert sum(themes.values()) == 1
+
+
+def test_memory_trend_detector_groups_support_access_gap():
+    memory_dir = "data/hermes/research_memory/test_support_access_gap"
+
+    import os
+    os.makedirs(memory_dir, exist_ok=True)
+
+    record = {
+        "source": "review_site",
+        "industry": "saas",
+        "pain_point": (
+            "No live chat support. It would be beneficial if we have a live chat "
+            "for Zapier issues."
+        ),
+        "recommendation": "VALIDATE_FIRST",
+        "score": 6.0,
+        "report_path": "reports/opportunities/support_access_gap.md",
+        "timestamp": "2026-05-25T22:00:00+00:00",
+    }
+
+    with open(f"{memory_dir}/record.json", "w", encoding="utf-8") as file:
+        json.dump(record, file)
+
+    summary = HermesMemoryTrendDetector(memory_dir=memory_dir).summarize()
+
+    themes = {theme.theme for theme in summary.filtered_themes}
+
+    assert "support access gap" in themes
