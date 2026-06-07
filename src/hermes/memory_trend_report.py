@@ -61,6 +61,10 @@ class HermesMemoryTrendReportGenerator:
 
 {self._format_pairs(summary.top_sources, "- No sources found.")}
 
+## Source Quality Summary
+
+{self._format_pairs(summary.top_source_qualities, "- No source quality data found.")}
+
 ## Top Recommendations
 
 {self._format_pairs(summary.top_recommendations, "- No recommendations found.")}

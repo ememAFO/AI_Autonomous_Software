@@ -38,6 +38,7 @@ class MemoryTrendSummary:
     filters: MemoryTrendFilter
     top_industries: list[tuple[str, int]]
     top_sources: list[tuple[str, int]]
+    top_source_qualities: list[tuple[str, int]]
     top_recommendations: list[tuple[str, int]]
     repeated_pain_terms: list[tuple[str, int]]
     filtered_themes: list[OpportunityTheme] = field(default_factory=list)
@@ -147,16 +148,28 @@ class HermesMemoryTrendDetector:
 
         industry_counter = Counter(record.industry for record in records)
         source_counter = Counter(record.source for record in records)
+
+        source_quality_counter = Counter(
+            self.source_quality_classifier.classify(
+                source=record.source,
+                industry=record.industry,
+                report_path=record.report_path,
+                pain_point=record.pain_point,
+            ).source_quality
+            for record in records
+        )
+
         recommendation_counter = Counter(record.recommendation for record in records)
         pain_counter = self._count_pain_terms(records)
         filtered_themes = self._build_opportunity_themes(records)
 
-        high_confidence_records = [record for record in records if record.score >= 8]
+        high_confidence_records = [
+            record for record in records if record.score >= 8
+        ]
 
-        high_confidence_themes = self._build_opportunity_themes(high_confidence_records)
-
-
-
+        high_confidence_themes = self._build_opportunity_themes(
+            high_confidence_records
+        )
 
         return MemoryTrendSummary(
             total_records=len(all_records),
@@ -164,6 +177,7 @@ class HermesMemoryTrendDetector:
             filters=filters,
             top_industries=industry_counter.most_common(10),
             top_sources=source_counter.most_common(10),
+            top_source_qualities=source_quality_counter.most_common(10),
             top_recommendations=recommendation_counter.most_common(10),
             repeated_pain_terms=pain_counter.most_common(15),
             filtered_themes=filtered_themes[:20],
