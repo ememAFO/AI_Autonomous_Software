@@ -116,6 +116,10 @@ class HermesMemoryTrendReportGenerator:
                 for source, count in theme.top_sources
             )
 
+            source_qualities = ", ".join(
+                f"{quality} ({count})"
+                for quality, count in theme.top_source_qualities
+            )
             report_paths = "\n".join(
                 f"  - {self._normalize_path(path)}"
                 for path in theme.report_paths[:5]
@@ -130,6 +134,8 @@ class HermesMemoryTrendReportGenerator:
                         f"- Average Score: {theme.average_score}",
                         f"- Top Industries: {industries or 'unknown'}",
                         f"- Top Sources: {sources or 'unknown'}",
+                        f"- Top Source Qualities: {source_qualities or 'unknown'}",
+                        f"- Weighted Average Score: {theme.weighted_average_score}",
                         f"- Top Recommendations: {recommendations or 'unknown'}",
                         f"- Example Pain Point: {theme.example_pain_point[:180]}",
                         "- Related Reports:",

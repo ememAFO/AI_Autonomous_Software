@@ -3,7 +3,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
-
+from src.research.source_quality import SourceQualityClassifier
 from src.hermes.research_memory import HermesResearchMemoryRecord
 
 
@@ -18,7 +18,6 @@ class MemoryTrendFilter:
     exclude_source: str | None = None
     recommendation: str | None = None
 
-
 @dataclass(frozen=True)
 class OpportunityTheme:
     theme: str
@@ -26,7 +25,9 @@ class OpportunityTheme:
     top_industries: list[tuple[str, int]]
     top_recommendations: list[tuple[str, int]]
     top_sources: list[tuple[str, int]]
+    top_source_qualities: list[tuple[str, int]]
     average_score: float
+    weighted_average_score: float
     example_pain_point: str
     report_paths: list[str] = field(default_factory=list)
 
@@ -133,6 +134,7 @@ class HermesMemoryTrendDetector:
 
     def __init__(self, memory_dir: str | Path = DEFAULT_MEMORY_DIR):
         self.memory_dir = self._validate_memory_dir(Path(memory_dir))
+        self.source_quality_classifier = SourceQualityClassifier()
 
     def summarize(
         self,
@@ -268,11 +270,36 @@ class HermesMemoryTrendDetector:
             recommendations = Counter(record.recommendation for record in theme_records)
             sources = Counter(record.source for record in theme_records)
 
+            source_qualities = Counter(
+                self.source_quality_classifier.classify(
+                    source=record.source,
+                    industry=record.industry,
+                    report_path=record.report_path,
+                    pain_point=record.pain_point,
+                ).source_quality
+                for record in theme_records
+            )
+
+            weighted_scores = [
+                record.score
+                * self.source_quality_classifier.classify(
+                    source=record.source,
+                    industry=record.industry,
+                    report_path=record.report_path,
+                    pain_point=record.pain_point,
+                ).evidence_weight
+                for record in theme_records
+            ]
+
             average_score = round(
                 sum(record.score for record in theme_records) / len(theme_records),
                 2,
             )
 
+            weighted_average_score = round(
+                sum(weighted_scores) / len(weighted_scores),
+                2,
+            )
             report_paths = list(
                 dict.fromkeys(record.report_path for record in theme_records)
             )
@@ -284,6 +311,8 @@ class HermesMemoryTrendDetector:
                     top_industries=industries.most_common(5),
                     top_recommendations=recommendations.most_common(5),
                     top_sources=sources.most_common(5),
+                    top_source_qualities=source_qualities.most_common(5),
+                    weighted_average_score=weighted_average_score,
                     average_score=average_score,
                     example_pain_point=theme_records[0].pain_point,
                     report_paths=report_paths[:10],
@@ -292,7 +321,11 @@ class HermesMemoryTrendDetector:
 
         return sorted(
             themes,
-            key=lambda item: (item.record_count, item.average_score),
+            key=lambda item: (
+                item.record_count,
+                item.weighted_average_score,
+                item.average_score,
+            ),
             reverse=True,
         )
 
