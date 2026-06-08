@@ -2,6 +2,7 @@ import argparse
 import sys
 from pathlib import Path
 
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 if str(PROJECT_ROOT) not in sys.path:
@@ -15,8 +16,9 @@ from src.hermes.theme_validation_plan import (
     ThemeValidationPlanError,
     ThemeValidationPlanGenerator,
 )
-from src.hermes.theme_validation_readiness import ThemeValidationReadinessEvaluator
 
+from src.hermes.theme_validation_readiness import ThemeValidationReadinessEvaluator
+from src.hermes.theme_validation_plan_registry import ThemeValidationPlanRegistry
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -77,15 +79,18 @@ def main() -> int:
         print(f"Reason: {readiness.reason}", file=sys.stderr)
         return 1
 
+    registry_entry = ThemeValidationPlanRegistry().add_plan(plan)
+
     print("\nValidation Plan Generated")
     print("-------------------------")
     print(f"Theme: {plan.theme}")
     print(f"Readiness: {plan.readiness}")
     print(f"Readiness Score: {plan.readiness_score}")
     print(f"Output Path: {plan.output_path}")
+    print(f"Registry Status: {registry_entry.status}")
+    print(f"Registry Timestamp: {registry_entry.timestamp}")
 
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())
