@@ -34,6 +34,12 @@ reports/intelligence/test_validation_plans/
 reports/intelligence/test_validation_plan_index.json
 reports/intelligence/test_validation_plan_index_list.json
 reports/intelligence/test_invalid_validation_plan_index.json
+reports/intelligence/test_validation_evidence_log.json
+reports/intelligence/test_validation_evidence_log_theme.json
+reports/intelligence/test_validation_evidence_invalid_type.json
+reports/intelligence/test_validation_evidence_invalid_signal.json
+reports/intelligence/test_invalid_validation_evidence_log.json
+
 # Test-generated artifacts
 reports/intelligence/runs/test_runs/
 reports/intelligence/test_runs/
