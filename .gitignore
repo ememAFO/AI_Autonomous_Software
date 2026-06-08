@@ -30,6 +30,7 @@ reports/intelligence/runs/*.json
 reports/intelligence/test_*.json
 reports/intelligence/research_run_index.json
 reports/weekly/weekly_intelligence_report.md
+reports/intelligence/test_validation_plans/
 
 # Test-generated artifacts
 reports/intelligence/runs/test_runs/
