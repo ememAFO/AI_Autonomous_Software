@@ -3,7 +3,7 @@ from pathlib import Path
 
 from src.hermes.memory_trend_detector import MemoryTrendSummary, OpportunityTheme
 from src.utils.path_normalizer import PathNormalizerError, ProjectPathNormalizer
-
+from src.hermes.theme_validation_readiness import ThemeValidationReadinessEvaluator
 
 class MemoryTrendReportError(Exception):
     pass
@@ -24,6 +24,7 @@ class HermesMemoryTrendReportGenerator:
     def __init__(self, output_dir: str | Path = DEFAULT_OUTPUT_DIR):
         self.output_dir = self._validate_output_dir(Path(output_dir))
         self.path_normalizer = ProjectPathNormalizer()
+        self.validation_readiness_evaluator = ThemeValidationReadinessEvaluator()
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def generate(self, summary: MemoryTrendSummary) -> Path:
@@ -72,6 +73,10 @@ class HermesMemoryTrendReportGenerator:
 ## Repeated Pain Terms
 
 {self._format_pairs(summary.repeated_pain_terms, "- No repeated pain terms found.")}
+
+## Validation Readiness Ranking
+
+{self._format_validation_readiness(summary.filtered_themes)}
 
 ## Filtered Opportunity Themes
 
@@ -149,6 +154,32 @@ class HermesMemoryTrendReportGenerator:
             )
 
         return "\n\n".join(blocks)
+    def _format_validation_readiness(self, themes: list[OpportunityTheme]) -> str:
+        if not themes:
+            return "- No validation readiness candidates found."
+
+        readiness_results = self.validation_readiness_evaluator.evaluate_many(themes)
+
+        lines = []
+
+        for result in readiness_results[:10]:
+            risk_flags = ", ".join(result.risk_flags) or "none"
+
+            lines.append(
+                "\n".join(
+                    [
+                        f"### Theme: {result.theme}",
+                        "",
+                        f"- Readiness: {result.readiness}",
+                        f"- Readiness Score: {result.readiness_score}",
+                        f"- Reason: {result.reason}",
+                        f"- Recommended Next Action: {result.recommended_next_action}",
+                        f"- Risk Flags: {risk_flags}",
+                    ]
+                )
+            )
+
+        return "\n\n".join(lines)
 
     def _format_high_confidence(self, summary: MemoryTrendSummary) -> str:
         if not summary.high_confidence_records:
