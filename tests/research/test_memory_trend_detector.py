@@ -104,6 +104,10 @@ def test_memory_trend_report_generator_creates_markdown_report():
     assert "Top Sources" in content
     assert "Filtered Themes" in content
     assert "Filtered Opportunity Themes" in content
+    assert "Source Quality Summary" in content
+    assert "Validation Readiness Ranking" in content
+    assert "Readiness:" in content
+    assert "Recommended Next Action:" in content
 
 def test_memory_trend_report_blocks_output_outside_intelligence():
     with pytest.raises(MemoryTrendReportError):
