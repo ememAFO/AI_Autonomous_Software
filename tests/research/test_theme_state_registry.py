@@ -3,10 +3,13 @@ from pathlib import Path
 import pytest
 
 from src.hermes.theme_state_registry import (
+    DuplicateStateEventError,
+    InvalidTransitionError,
+    RegistryIntegrityError,
+    ThemeNotFoundError,
     ThemeStateRegistry,
     ThemeStateRegistryError,
 )
-
 
 def make_registry(
     path: str = "reports/intelligence/test_theme_state_registry.json",
@@ -203,3 +206,167 @@ def test_theme_state_registry_blocks_invalid_json():
 
     with pytest.raises(ThemeStateRegistryError):
         registry.list_events()
+
+def test_theme_state_registry_blocks_duplicate_state_event():
+    registry = make_registry(
+        "reports/intelligence/test_theme_state_registry_duplicate_state.json"
+    )
+    register_theme(registry)
+
+    registry.transition(
+        theme_id="lead_follow_up_001",
+        theme_name="Lead follow-up automation",
+        new_state="VALIDATION_READY",
+        trigger="validation_readiness_passed",
+        reason="Theme met validation readiness criteria.",
+        changed_by="ThemeValidationReadinessEvaluator",
+        related_artifact_id="readiness_report_001",
+        policy_version="2026-06-08.v1",
+        run_id="pipeline_test_duplicate_state_001",
+    )
+
+    with pytest.raises(DuplicateStateEventError):
+        registry.transition(
+            theme_id="lead_follow_up_001",
+            theme_name="Lead follow-up automation",
+            new_state="VALIDATION_READY",
+            trigger="duplicate_transition",
+            reason="Trying to repeat the same state.",
+            changed_by="Test",
+            related_artifact_id="none",
+            policy_version="2026-06-08.v1",
+            run_id="pipeline_test_duplicate_state_002",
+        )
+
+
+def test_theme_state_registry_uses_specific_missing_theme_error():
+    registry = make_registry(
+        "reports/intelligence/test_theme_state_registry_missing_theme_specific.json"
+    )
+
+    with pytest.raises(ThemeNotFoundError):
+        registry.transition(
+            theme_id="missing_theme",
+            theme_name="Missing theme",
+            new_state="VALIDATION_READY",
+            trigger="missing_registration",
+            reason="No initial RESEARCHED state exists.",
+            changed_by="Test",
+            related_artifact_id="none",
+            policy_version="2026-06-08.v1",
+            run_id="pipeline_test_missing_specific",
+        )
+
+
+def test_theme_state_registry_uses_specific_invalid_transition_error():
+    registry = make_registry(
+        "reports/intelligence/test_theme_state_registry_invalid_transition_specific.json"
+    )
+    register_theme(registry)
+
+    with pytest.raises(InvalidTransitionError):
+        registry.transition(
+            theme_id="lead_follow_up_001",
+            theme_name="Lead follow-up automation",
+            new_state="READY_FOR_REVIEW",
+            trigger="manual_bypass_attempt",
+            reason="Trying to skip validation.",
+            changed_by="Test",
+            related_artifact_id="none",
+            policy_version="2026-06-08.v1",
+            run_id="pipeline_test_invalid_specific",
+        )
+
+
+def test_theme_state_registry_writes_record_hash():
+    registry = make_registry(
+        "reports/intelligence/test_theme_state_registry_record_hash.json"
+    )
+
+    event = register_theme(registry)
+
+    assert event.record_hash
+    assert len(event.record_hash) == 64
+
+
+def test_theme_state_registry_verify_integrity_passes_for_valid_registry():
+    registry = make_registry(
+        "reports/intelligence/test_theme_state_registry_integrity_valid.json"
+    )
+
+    register_theme(registry)
+
+    registry.verify_integrity()
+
+
+def test_theme_state_registry_verify_integrity_detects_modified_record():
+    path = Path("reports/intelligence/test_theme_state_registry_integrity_modified.json")
+
+    if path.exists():
+        path.unlink()
+
+    registry = ThemeStateRegistry(registry_path=path)
+    register_theme(registry)
+
+    data = path.read_text(encoding="utf-8")
+    data = data.replace("Lead follow-up automation", "Tampered theme name")
+    path.write_text(data, encoding="utf-8")
+
+    with pytest.raises(RegistryIntegrityError):
+        registry.verify_integrity()
+
+
+def test_theme_state_registry_blocks_terminal_state_transition():
+    registry = make_registry(
+        "reports/intelligence/test_theme_state_registry_terminal_state.json"
+    )
+    register_theme(registry)
+
+    registry.transition(
+        theme_id="lead_follow_up_001",
+        theme_name="Lead follow-up automation",
+        new_state="VALIDATION_READY",
+        trigger="validation_readiness_passed",
+        reason="Theme met validation readiness criteria.",
+        changed_by="ThemeValidationReadinessEvaluator",
+        related_artifact_id="readiness_report_001",
+        policy_version="2026-06-08.v1",
+        run_id="pipeline_test_terminal_001",
+    )
+
+    registry.transition(
+        theme_id="lead_follow_up_001",
+        theme_name="Lead follow-up automation",
+        new_state="VALIDATING",
+        trigger="validation_plan_created",
+        reason="Validation plan created.",
+        changed_by="ThemeValidationPlanGenerator",
+        related_artifact_id="validation_plan_001",
+        policy_version="2026-06-08.v1",
+        run_id="pipeline_test_terminal_002",
+    )
+
+    registry.transition(
+        theme_id="lead_follow_up_001",
+        theme_name="Lead follow-up automation",
+        new_state="READY_FOR_REVIEW",
+        trigger="validation_gate_passed",
+        reason="Validation evidence met human review threshold.",
+        changed_by="ValidationGate",
+        related_artifact_id="validation_summary_001",
+        policy_version="2026-06-08.v1",
+        run_id="pipeline_test_terminal_003",
+    )
+
+    with pytest.raises(InvalidTransitionError):
+        registry.transition(
+            theme_id="lead_follow_up_001",
+            theme_name="Lead follow-up automation",
+            new_state="REJECTED",
+            trigger="attempt_terminal_change",
+            reason="Trying to move away from terminal review state.",
+            changed_by="Test",
+            related_artifact_id="none",
+            policy_version="2026-06-08.v1",
+            run_id="pipeline_test_terminal_004",
+        )

@@ -1,3 +1,4 @@
+import hashlib
 import json
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
@@ -8,6 +9,21 @@ from uuid import uuid4
 class ThemeStateRegistryError(Exception):
     pass
 
+
+class InvalidTransitionError(ThemeStateRegistryError):
+    pass
+
+
+class ThemeNotFoundError(ThemeStateRegistryError):
+    pass
+
+
+class DuplicateStateEventError(ThemeStateRegistryError):
+    pass
+
+
+class RegistryIntegrityError(ThemeStateRegistryError):
+    pass
 
 @dataclass(frozen=True)
 class ThemeStateEvent:
@@ -23,7 +39,7 @@ class ThemeStateEvent:
     policy_version: str
     run_id: str
     timestamp: str
-
+    record_hash: str
 
 class ThemeStateRegistry:
     """
@@ -63,6 +79,11 @@ class ThemeStateRegistry:
 
     INITIAL_STATE = "RESEARCHED"
 
+    TERMINAL_STATES = {
+        "READY_FOR_REVIEW",
+        "ARCHIVED",
+    }
+
     def __init__(self, registry_path: str | Path = DEFAULT_REGISTRY_PATH):
         self.registry_path = self._validate_registry_path(Path(registry_path))
         self.registry_path.parent.mkdir(parents=True, exist_ok=True)
@@ -80,7 +101,7 @@ class ThemeStateRegistry:
         run_id: str,
     ) -> ThemeStateEvent:
         if self.get_current_state(theme_id) is not None:
-            raise ThemeStateRegistryError(
+            raise DuplicateStateEventError(
                 f"Theme already exists in state registry: {theme_id}"
             )
 
@@ -117,8 +138,13 @@ class ThemeStateRegistry:
         current_state = self.get_current_state(theme_id)
 
         if current_state is None:
-            raise ThemeStateRegistryError(
+            raise ThemeNotFoundError(
                 f"Theme must be registered before transition: {theme_id}"
+            )
+
+        if current_state == new_state:
+            raise DuplicateStateEventError(
+                f"Duplicate state change: {theme_id} is already {new_state}"
             )
 
         self._validate_theme_name(theme_id=theme_id, theme_name=theme_name)
@@ -168,6 +194,7 @@ class ThemeStateRegistry:
                 policy_version=str(item["policy_version"]),
                 run_id=str(item["run_id"]),
                 timestamp=str(item["timestamp"]),
+                record_hash=str(item.get("record_hash", "")),
             )
             for item in data["events"]
         ]
@@ -206,25 +233,30 @@ class ThemeStateRegistry:
         if previous_state is not None:
             previous_state = self._validate_state(previous_state)
 
-        return ThemeStateEvent(
-            event_id=f"state_event_{uuid4().hex}",
-            theme_id=theme_id,
-            theme_name=theme_name,
-            previous_state=previous_state,
-            new_state=new_state,
-            trigger=self._validate_required_text("trigger", trigger),
-            reason=self._validate_required_text("reason", reason),
-            changed_by=self._validate_required_text("changed_by", changed_by),
-            related_artifact_id=self._validate_required_text(
+        event_without_hash = {
+            "event_id": f"state_event_{uuid4().hex}",
+            "theme_id": theme_id,
+            "theme_name": theme_name,
+            "previous_state": previous_state,
+            "new_state": new_state,
+            "trigger": self._validate_required_text("trigger", trigger),
+            "reason": self._validate_required_text("reason", reason),
+            "changed_by": self._validate_required_text("changed_by", changed_by),
+            "related_artifact_id": self._validate_required_text(
                 "related_artifact_id",
                 related_artifact_id,
             ),
-            policy_version=self._validate_required_text(
+            "policy_version": self._validate_required_text(
                 "policy_version",
                 policy_version,
             ),
-            run_id=self._validate_required_text("run_id", run_id),
-            timestamp=datetime.now(UTC).isoformat(),
+            "run_id": self._validate_required_text("run_id", run_id),
+            "timestamp": datetime.now(UTC).isoformat(),
+        }
+
+        return ThemeStateEvent(
+            **event_without_hash,
+            record_hash=self._generate_record_hash(event_without_hash),
         )
 
     def _validate_theme_name(self, *, theme_id: str, theme_name: str) -> None:
@@ -242,10 +274,15 @@ class ThemeStateRegistry:
             )
 
     def _validate_transition(self, *, previous_state: str, new_state: str) -> None:
+        if previous_state in self.TERMINAL_STATES:
+            raise InvalidTransitionError(
+                f"Cannot change terminal state: {previous_state}"
+            )
+
         allowed_next_states = self.ALLOWED_TRANSITIONS.get(previous_state, set())
 
         if new_state not in allowed_next_states:
-            raise ThemeStateRegistryError(
+            raise InvalidTransitionError(
                 f"Invalid state transition: {previous_state} -> {new_state}"
             )
 
@@ -299,6 +336,32 @@ class ThemeStateRegistry:
             json.dumps(data, indent=2, sort_keys=True),
             encoding="utf-8",
         )
+
+    def verify_integrity(self) -> None:
+        for event in self.list_events():
+            event_dict = asdict(event)
+            stored_hash = event_dict.pop("record_hash", "")
+
+            if not stored_hash:
+                raise RegistryIntegrityError(
+                    f"Missing record hash for event: {event.event_id}"
+                )
+
+            expected_hash = self._generate_record_hash(event_dict)
+
+            if stored_hash != expected_hash:
+                raise RegistryIntegrityError(
+                    f"Record hash mismatch for event: {event.event_id}"
+                )
+
+    def _generate_record_hash(self, event_dict: dict) -> str:
+        normalized = json.dumps(
+            event_dict,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+
+        return hashlib.sha256(normalized).hexdigest()
 
     def _validate_registry_path(self, registry_path: Path) -> Path:
         resolved = registry_path.resolve()
