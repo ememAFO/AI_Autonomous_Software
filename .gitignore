@@ -86,6 +86,7 @@ reports/intelligence/test_validation_evidence_guide_unsafe.json
 reports/intelligence/test_validation_evidence_guide_non_md.json
 reports/intelligence/test_validation_guides/
 reports/intelligence/test_validation_interviews/
+reports/intelligence/test_validation_competitor_checks/
 
 # Test-generated artifacts
 reports/intelligence/runs/test_runs/
