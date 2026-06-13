@@ -87,6 +87,11 @@ reports/intelligence/test_validation_evidence_guide_non_md.json
 reports/intelligence/test_validation_guides/
 reports/intelligence/test_validation_interviews/
 reports/intelligence/test_validation_competitor_checks/
+reports/intelligence/test_validation_competitor_evidence_log.json
+reports/intelligence/test_validation_competitor_evidence_negative.json
+reports/intelligence/test_validation_competitor_evidence_empty_name.json
+reports/intelligence/test_validation_competitor_evidence_empty_finding.json
+reports/intelligence/test_validation_competitor_evidence_invalid_signal.json
 
 # Test-generated artifacts
 reports/intelligence/runs/test_runs/
