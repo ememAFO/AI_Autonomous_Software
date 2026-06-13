@@ -78,6 +78,14 @@ reports/intelligence/test_validation_plans/
 reports/intelligence/test_update_theme_state_cli_registry.json
 reports/intelligence/test_run_validation_gate_state_registry.json
 reports/intelligence/test_run_validation_gate_evidence_log.json
+reports/intelligence/test_validation_evidence_guide_log.json
+reports/intelligence/test_validation_evidence_guide_empty.json
+reports/intelligence/test_validation_evidence_guide_markdown.json
+reports/intelligence/test_validation_evidence_guide_write_log.json
+reports/intelligence/test_validation_evidence_guide_unsafe.json
+reports/intelligence/test_validation_evidence_guide_non_md.json
+reports/intelligence/test_validation_guides/
+
 
 # Test-generated artifacts
 reports/intelligence/runs/test_runs/
