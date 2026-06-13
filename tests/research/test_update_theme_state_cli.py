@@ -3,8 +3,7 @@ from pathlib import Path
 
 
 SCRIPT = "scripts/update_theme_state.py"
-REGISTRY_PATH = Path("reports/intelligence/theme_state_registry.json")
-
+REGISTRY_PATH = Path("reports/intelligence/test_update_theme_state_cli_registry.json")
 
 def clean_registry() -> None:
     if REGISTRY_PATH.exists():
@@ -20,6 +19,8 @@ def test_update_theme_state_cli_registers_theme():
             SCRIPT,
             "--action",
             "register",
+            "--registry-path",
+            str(REGISTRY_PATH),
             "--theme-id",
             "lead_follow_up_001",
             "--theme-name",
@@ -56,6 +57,8 @@ def test_update_theme_state_cli_transitions_theme():
             SCRIPT,
             "--action",
             "register",
+            "--registry-path",
+            str(REGISTRY_PATH),
             "--theme-id",
             "lead_follow_up_001",
             "--theme-name",
@@ -72,6 +75,8 @@ def test_update_theme_state_cli_transitions_theme():
             SCRIPT,
             "--action",
             "transition",
+            "--registry-path",
+            str(REGISTRY_PATH),
             "--theme-id",
             "lead_follow_up_001",
             "--theme-name",
@@ -110,6 +115,8 @@ def test_update_theme_state_cli_blocks_invalid_transition():
             SCRIPT,
             "--action",
             "register",
+            "--registry-path",
+            str(REGISTRY_PATH),
             "--theme-id",
             "lead_follow_up_001",
             "--theme-name",
@@ -126,6 +133,8 @@ def test_update_theme_state_cli_blocks_invalid_transition():
             SCRIPT,
             "--action",
             "transition",
+            "--registry-path",
+            str(REGISTRY_PATH),
             "--theme-id",
             "lead_follow_up_001",
             "--theme-name",
@@ -151,6 +160,8 @@ def test_update_theme_state_cli_shows_current_state():
             SCRIPT,
             "--action",
             "register",
+            "--registry-path",
+            str(REGISTRY_PATH),
             "--theme-id",
             "lead_follow_up_001",
             "--theme-name",
@@ -167,6 +178,8 @@ def test_update_theme_state_cli_shows_current_state():
             SCRIPT,
             "--action",
             "current-state",
+            "--registry-path",
+            str(REGISTRY_PATH),
             "--theme-id",
             "lead_follow_up_001",
             "--theme-name",
@@ -190,6 +203,8 @@ def test_update_theme_state_cli_shows_history():
             SCRIPT,
             "--action",
             "register",
+            "--registry-path",
+            str(REGISTRY_PATH),
             "--theme-id",
             "lead_follow_up_001",
             "--theme-name",
@@ -206,6 +221,8 @@ def test_update_theme_state_cli_shows_history():
             SCRIPT,
             "--action",
             "history",
+            "--registry-path",
+            str(REGISTRY_PATH),
             "--theme-id",
             "lead_follow_up_001",
             "--theme-name",

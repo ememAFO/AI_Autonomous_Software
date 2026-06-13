@@ -75,6 +75,9 @@ reports/intelligence/test_factory_health_missing_plan_state_registry.json
 reports/intelligence/test_factory_health_missing_plan_plan_registry.json
 reports/intelligence/test_factory_health_missing_plan_evidence_log.json
 reports/intelligence/test_validation_plans/
+reports/intelligence/test_update_theme_state_cli_registry.json
+reports/intelligence/test_run_validation_gate_state_registry.json
+reports/intelligence/test_run_validation_gate_evidence_log.json
 
 # Test-generated artifacts
 reports/intelligence/runs/test_runs/

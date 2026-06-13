@@ -70,12 +70,18 @@ def parse_args() -> argparse.Namespace:
         help="Run ID for traceability.",
     )
 
+    parser.add_argument(
+        "--registry-path",
+        default="reports/intelligence/theme_state_registry.json",
+        help="Path to the theme state registry JSON file.",
+    )
+
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-    registry = ThemeStateRegistry()
+    registry = ThemeStateRegistry(registry_path=args.registry_path)
 
     try:
         if args.action == "register":
