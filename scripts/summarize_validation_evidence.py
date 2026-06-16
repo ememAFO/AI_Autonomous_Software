@@ -39,6 +39,9 @@ def main() -> int:
     print(f"Supporting Entries: {summary.supporting_entries}")
     print(f"Opposing Entries: {summary.opposing_entries}")
     print(f"Status: {summary.status}")
+    print(f"Primary Entries: {summary.primary_entries}")
+    print(f"Secondary Entries: {summary.secondary_entries}")
+    print(f"Risk Entries: {summary.risk_entries}")
     print(f"Recommended Next Action: {summary.recommended_next_action}")
 
     print("\nSignal Strengths:")

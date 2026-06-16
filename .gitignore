@@ -92,6 +92,8 @@ reports/intelligence/test_validation_competitor_evidence_negative.json
 reports/intelligence/test_validation_competitor_evidence_empty_name.json
 reports/intelligence/test_validation_competitor_evidence_empty_finding.json
 reports/intelligence/test_validation_competitor_evidence_invalid_signal.json
+reports/intelligence/test_validation_evidence_summary_secondary_only.json
+reports/intelligence/test_validation_evidence_summary_primary_ready.json
 
 # Test-generated artifacts
 reports/intelligence/runs/test_runs/

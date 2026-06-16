@@ -1,6 +1,21 @@
+from pathlib import Path
+
+from src.hermes.validation_evidence_log import ValidationEvidenceLog
+
 from src.hermes.validation_evidence_log import ValidationEvidenceEntry
 from src.hermes.validation_evidence_summary import ValidationEvidenceSummarizer
 
+
+def clean_path(path: str) -> None:
+    file_path = Path(path)
+
+    if file_path.exists():
+        file_path.unlink()
+
+
+def make_log(path: str) -> ValidationEvidenceLog:
+    clean_path(path)
+    return ValidationEvidenceLog(log_path=path)
 
 def make_entry(
     *,
@@ -93,3 +108,68 @@ def test_validation_evidence_summary_counts_evidence_types():
 
     assert ("customer_interview", 1) in summary.evidence_types
     assert ("willingness_to_pay", 1) in summary.evidence_types
+
+def test_validation_evidence_summary_does_not_pass_with_only_secondary_evidence():
+    log = make_log(
+        "reports/intelligence/test_validation_evidence_summary_secondary_only.json"
+    )
+
+    for index in range(5):
+        log.add_entry(
+            theme="lead + follow up",
+            validation_plan_path=(
+                "reports/intelligence/validation_plans/"
+                "lead_and_follow_up_validation_plan.md"
+            ),
+            evidence_type="competitor_check",
+            evidence_summary=f"Competitor finding {index}",
+            source_reference=f"competitor_source_{index}",
+            signal_strength="medium",
+            supports_validation=True,
+        )
+
+    summary = ValidationEvidenceSummarizer(log).summarize_theme(
+        "lead + follow up"
+    )
+
+    assert summary.total_entries == 5
+    assert summary.secondary_entries == 5
+    assert summary.primary_entries == 0
+    assert summary.status != "READY_FOR_HUMAN_REVIEW"
+    assert summary.status == "NEEDS_MORE_EVIDENCE"
+
+def test_validation_evidence_summary_can_pass_with_enough_primary_evidence():
+    log = make_log(
+        "reports/intelligence/test_validation_evidence_summary_primary_ready.json"
+    )
+
+    evidence_types = [
+        "customer_interview",
+        "customer_interview",
+        "willingness_to_pay",
+        "competitor_check",
+        "manual_research",
+    ]
+
+    for index, evidence_type in enumerate(evidence_types):
+        log.add_entry(
+            theme="lead + follow up",
+            validation_plan_path=(
+                "reports/intelligence/validation_plans/"
+                "lead_and_follow_up_validation_plan.md"
+            ),
+            evidence_type=evidence_type,
+            evidence_summary=f"Validation finding {index}",
+            source_reference=f"validation_source_{index}",
+            signal_strength="strong" if index < 2 else "medium",
+            supports_validation=True,
+        )
+
+    summary = ValidationEvidenceSummarizer(log).summarize_theme(
+        "lead + follow up"
+    )
+
+    assert summary.total_entries == 5
+    assert summary.primary_entries == 3
+    assert summary.secondary_entries == 2
+    assert summary.status == "READY_FOR_HUMAN_REVIEW"
