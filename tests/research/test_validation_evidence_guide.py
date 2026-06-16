@@ -120,3 +120,47 @@ def test_validation_evidence_guide_blocks_non_markdown_output_path():
             theme="lead + follow up",
             output_path="reports/intelligence/test_validation_guides/guide.txt",
         )
+
+def test_validation_evidence_guide_shows_primary_secondary_and_risk_counts():
+    log = make_log(
+        "reports/intelligence/test_validation_evidence_guide_evidence_mix.json"
+    )
+
+    log.add_entry(
+        theme="lead + follow up",
+        validation_plan_path=(
+            "reports/intelligence/validation_plans/"
+            "lead_and_follow_up_validation_plan.md"
+        ),
+        evidence_type="customer_interview",
+        evidence_summary="User confirmed delayed follow-up causes lost leads.",
+        source_reference="Interview 1",
+        signal_strength="strong",
+        supports_validation=True,
+    )
+
+    log.add_entry(
+        theme="lead + follow up",
+        validation_plan_path=(
+            "reports/intelligence/validation_plans/"
+            "lead_and_follow_up_validation_plan.md"
+        ),
+        evidence_type="competitor_check",
+        evidence_summary="Existing CRM tools may be too broad for small businesses.",
+        source_reference="manual_competitor_check_001",
+        signal_strength="medium",
+        supports_validation=True,
+    )
+
+    guide = make_generator(log).generate("lead + follow up")
+    markdown = make_generator(log).format_markdown(guide)
+
+    assert guide.primary_entries == 1
+    assert guide.secondary_entries == 1
+    assert guide.risk_entries == 0
+    assert guide.primary_entries_needed == 1
+    assert "Primary Entries: 1" in markdown
+    assert "Secondary Entries: 1" in markdown
+    assert "Risk Entries: 0" in markdown
+    assert "Primary Entries Needed Before Human Review: 1" in markdown
+    assert "cannot replace primary customer" in guide.warning

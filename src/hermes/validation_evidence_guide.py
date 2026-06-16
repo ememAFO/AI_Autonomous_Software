@@ -14,7 +14,11 @@ class ValidationEvidenceGuide:
     total_entries: int
     supporting_entries: int
     opposing_entries: int
+    primary_entries: int
+    secondary_entries: int
+    risk_entries: int
     additional_entries_needed: int
+    primary_entries_needed: int
     recommended_evidence_types: list[str]
     recommended_questions: list[str]
     warning: str
@@ -36,6 +40,7 @@ class ValidationEvidenceGuideGenerator:
     MIN_READY_ENTRIES = 5
     MIN_READY_SUPPORTING = 3
     MIN_READY_MEDIUM_OR_STRONG = 2
+    MIN_PRIMARY_EVIDENCE_ENTRIES = 2
 
     def __init__(
         self,
@@ -51,13 +56,22 @@ class ValidationEvidenceGuideGenerator:
             0,
         )
 
+        primary_entries_needed = max(
+            self.MIN_PRIMARY_EVIDENCE_ENTRIES - summary.primary_entries,
+            0,
+        )
+
         return ValidationEvidenceGuide(
             theme=theme,
             evidence_status=summary.status,
             total_entries=summary.total_entries,
             supporting_entries=summary.supporting_entries,
             opposing_entries=summary.opposing_entries,
+            primary_entries=summary.primary_entries,
+            secondary_entries=summary.secondary_entries,
+            risk_entries=summary.risk_entries,
             additional_entries_needed=additional_entries_needed,
+            primary_entries_needed=primary_entries_needed,
             recommended_evidence_types=self._recommended_evidence_types(summary),
             recommended_questions=self._recommended_questions(theme),
             warning=self._warning(summary),
@@ -68,12 +82,15 @@ class ValidationEvidenceGuideGenerator:
         return f"""# Validation Evidence Collection Guide: {guide.theme}
 
 ## Current Evidence Status
-
 - Evidence Status: {guide.evidence_status}
 - Total Entries: {guide.total_entries}
 - Supporting Entries: {guide.supporting_entries}
 - Opposing Entries: {guide.opposing_entries}
+- Primary Entries: {guide.primary_entries}
+- Secondary Entries: {guide.secondary_entries}
+- Risk Entries: {guide.risk_entries}
 - Additional Entries Needed Before Human Review: {guide.additional_entries_needed}
+- Primary Entries Needed Before Human Review: {guide.primary_entries_needed}
 
 ## Warning
 
@@ -115,6 +132,18 @@ This guide does not approve human review or build planning. It only helps collec
         self,
         summary: ValidationEvidenceSummary,
     ) -> list[str]:
+
+        if (
+            summary.primary_entries < self.MIN_PRIMARY_EVIDENCE_ENTRIES
+            and summary.total_entries > 0
+        ):
+            return [
+                "customer_interview",
+                "willingness_to_pay",
+                "landing_page_result",
+                "competitor_check",
+            ]
+
         if summary.status == "NO_EVIDENCE":
             return [
                 "customer_interview",
@@ -190,6 +219,15 @@ This guide does not approve human review or build planning. It only helps collec
                 "blocked from human review."
             )
 
+        if (
+            summary.secondary_entries > 0
+            and summary.primary_entries < self.MIN_PRIMARY_EVIDENCE_ENTRIES
+        ):
+            return (
+                "Secondary evidence exists, but it cannot replace primary customer "
+                "or behavioural evidence. More primary validation evidence is required."
+            )
+
         return (
             "Current evidence is not enough for human review. More real validation "
             "evidence is required."
@@ -204,6 +242,9 @@ This guide does not approve human review or build planning. It only helps collec
 
         if summary.status == "NEGATIVE_OR_WEAK_SIGNAL":
             return "Collect counter-evidence and decide whether the theme should be rejected."
+
+        if summary.primary_entries < self.MIN_PRIMARY_EVIDENCE_ENTRIES:
+            return "Collect more primary validation evidence before running the gate again."
 
         return "Collect more real validation evidence before running the gate again."
 
