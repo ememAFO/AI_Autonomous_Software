@@ -175,3 +175,64 @@ def test_factory_health_check_fails_when_evidence_references_missing_plan():
         and result.status == "FAIL"
         for result in report.results
     )
+
+def test_factory_health_check_reports_primary_evidence_blockage():
+    plan_path = Path(
+        "reports/intelligence/test_validation_plans/"
+        "lead_and_follow_up_primary_block_validation_plan.md"
+    )
+    plan_path.parent.mkdir(parents=True, exist_ok=True)
+    plan_path.write_text("# Test validation plan", encoding="utf-8")
+
+    state_registry = make_state_registry(
+        "reports/intelligence/test_factory_health_primary_block_state_registry.json"
+    )
+    plan_registry = make_plan_registry(
+        "reports/intelligence/test_factory_health_primary_block_plan_registry.json"
+    )
+    evidence_log = make_evidence_log(
+        "reports/intelligence/test_factory_health_primary_block_evidence_log.json"
+    )
+
+    register_theme(state_registry)
+    plan_registry.add_plan(make_plan(str(plan_path)))
+
+    evidence_log.add_entry(
+        theme="lead + follow up",
+        validation_plan_path=str(plan_path),
+        evidence_type="customer_interview",
+        evidence_summary="User confirmed delayed follow-up creates lost sales.",
+        source_reference="Interview 1",
+        signal_strength="strong",
+        supports_validation=True,
+    )
+
+    evidence_log.add_entry(
+        theme="lead + follow up",
+        validation_plan_path=str(plan_path),
+        evidence_type="competitor_check",
+        evidence_summary="Existing CRM tools may be too broad for small businesses.",
+        source_reference="manual_competitor_check_001",
+        signal_strength="medium",
+        supports_validation=True,
+    )
+
+    report = FactoryHealthChecker(
+        state_registry=state_registry,
+        validation_plan_registry=plan_registry,
+        validation_evidence_log=evidence_log,
+    ).run()
+
+    readiness_result = next(
+        result
+        for result in report.results
+        if result.check_name == "validation_evidence_readiness"
+    )
+
+    assert report.status == "PASS"
+    assert readiness_result.status == "PASS"
+    assert "EARLY_SUPPORTING_SIGNAL" in readiness_result.message
+    assert "primary=1" in readiness_result.message
+    assert "secondary=1" in readiness_result.message
+    assert "risk=0" in readiness_result.message
+    assert "Collect more primary validation evidence" in readiness_result.message
