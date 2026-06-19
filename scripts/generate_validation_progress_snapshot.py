@@ -98,16 +98,30 @@ def main() -> int:
     print(f"Evidence Status: {snapshot.evidence_status}")
     print(f"Gate Status: {snapshot.gate_status}")
     print(f"Gate Reason: {snapshot.gate_reason}")
-    print( "Total Evidence: "f"{snapshot.total_entries}/{snapshot.required_total_entries}")
-    print( "Primary Evidence: "f"{snapshot.primary_entries}/{snapshot.required_primary_entries}")
 
-    print( "Gate-Safe Evidence: "f"{snapshot.gate_safe_entries}/{snapshot.required_total_entries}")
-    print( "Gate-Safe Primary Evidence: "f"{snapshot.gate_safe_primary_entries}/{snapshot.required_primary_entries}")
+    print(
+        "Raw Total Evidence: "
+        f"{snapshot.total_entries}/{snapshot.required_total_entries}"
+    )
+    print(
+        "Raw Primary Evidence: "
+        f"{snapshot.primary_entries}/{snapshot.required_primary_entries}"
+    )
+
+    print(f"Raw Secondary Evidence: {snapshot.secondary_entries}")
+    print(f"Raw Risk Evidence: {snapshot.risk_entries}")
+
+    print(
+        "Gate-Safe Evidence: "
+        f"{snapshot.gate_safe_entries}/{snapshot.required_total_entries}"
+    )
+    print(
+        "Gate-Safe Primary Evidence: "
+        f"{snapshot.gate_safe_primary_entries}/{snapshot.required_primary_entries}"
+    )
     print(f"Gate-Safe Supporting Evidence: {snapshot.gate_safe_supporting_entries}")
     print(f"Suspect / Placeholder Evidence: {snapshot.suspect_entries}")
 
-    print(f"Secondary Evidence: {snapshot.secondary_entries}")
-    print(f"Risk Evidence: {snapshot.risk_entries}")
     print(f"Recommended Next Action: {snapshot.recommended_next_action}")
     print(f"Output Path: {written_path}")
 
