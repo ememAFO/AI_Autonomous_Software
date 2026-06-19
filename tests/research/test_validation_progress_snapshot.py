@@ -278,3 +278,52 @@ def test_validation_progress_snapshot_blocks_unsafe_output_path():
             snapshot=snapshot,
             output_path="../../unsafe.md",
         )
+
+
+def test_validation_progress_snapshot_reports_suspect_evidence_blocker():
+    generator, registry, evidence_log = make_generator(
+        registry_path=(
+            "reports/intelligence/"
+            "test_validation_progress_snapshot_suspect_state_registry.json"
+        ),
+        evidence_log_path=(
+            "reports/intelligence/"
+            "test_validation_progress_snapshot_suspect_evidence_log.json"
+        ),
+    )
+
+    register_theme_as_validating(registry)
+
+    for index in range(5):
+        evidence_log.add_entry(
+            theme=THEME_NAME,
+            validation_plan_path=(
+                "reports/intelligence/validation_plans/"
+                "lead_and_follow_up_validation_plan.md"
+            ),
+            evidence_type="customer_interview",
+            evidence_summary=f"Placeholder interview {index}",
+            source_reference=f"manual_test_interview_{index}",
+            signal_strength="strong",
+            supports_validation=True,
+            notes=(
+                "Primary evidence placeholder. "
+                "Replace with real interview reference."
+            ),
+        )
+
+    snapshot = generator.generate(
+        theme_id=THEME_ID,
+        theme_name=THEME_NAME,
+        policy_version=POLICY_VERSION,
+        run_id="validation_progress_snapshot_suspect_001",
+    )
+
+    assert snapshot.evidence_status == "EVIDENCE_NEEDS_VERIFICATION"
+    assert snapshot.gate_status == "BLOCKED"
+    assert snapshot.total_entries == 5
+    assert snapshot.gate_safe_entries == 0
+    assert snapshot.gate_safe_primary_entries == 0
+    assert snapshot.suspect_entries == 5
+    assert "gate-safe evidence 0/5" in snapshot.gate_reason
+    assert "suspect evidence 5" in snapshot.gate_reason

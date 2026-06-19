@@ -22,6 +22,9 @@ def make_entry(
     supports_validation: bool = True,
     signal_strength: str = "strong",
     evidence_type: str = "customer_interview",
+    evidence_summary: str = "User confirmed delayed follow-up causes lost leads.",
+    source_reference: str = "Interview",
+    notes: str = "",
 ) -> ValidationEvidenceEntry:
     return ValidationEvidenceEntry(
         theme="lead + follow up",
@@ -30,14 +33,13 @@ def make_entry(
             "lead_and_follow_up_validation_plan.md"
         ),
         evidence_type=evidence_type,
-        evidence_summary="User confirmed delayed follow-up causes lost leads.",
-        source_reference="Interview",
+        evidence_summary=evidence_summary,
+        source_reference=source_reference,
         signal_strength=signal_strength,
         supports_validation=supports_validation,
         timestamp="2026-06-08T00:00:00+00:00",
-        notes="",
+        notes=notes,
     )
-
 
 def test_validation_evidence_summary_returns_no_evidence():
     summary = ValidationEvidenceSummarizer().summarize_entries(
@@ -172,4 +174,49 @@ def test_validation_evidence_summary_can_pass_with_enough_primary_evidence():
     assert summary.total_entries == 5
     assert summary.primary_entries == 3
     assert summary.secondary_entries == 2
+    assert summary.status == "READY_FOR_HUMAN_REVIEW"
+
+def test_validation_evidence_summary_blocks_placeholder_evidence_from_readiness():
+    entries = [
+        make_entry(
+            evidence_summary=f"Placeholder customer interview {index}",
+            source_reference=f"manual_test_interview_{index}",
+            notes="Primary evidence placeholder. Replace with real interview reference.",
+        )
+        for index in range(5)
+    ]
+
+    summary = ValidationEvidenceSummarizer().summarize_entries(
+        theme="lead + follow up",
+        entries=entries,
+    )
+
+    assert summary.total_entries == 5
+    assert summary.suspect_entries == 5
+    assert summary.gate_safe_entries == 0
+    assert summary.gate_safe_primary_entries == 0
+    assert summary.status == "EVIDENCE_NEEDS_VERIFICATION"
+    assert "Replace placeholder" in summary.recommended_next_action
+
+
+def test_validation_evidence_summary_can_pass_with_enough_gate_safe_evidence():
+    real_entries = [
+        make_entry(source_reference=f"Interview {index}")
+        for index in range(5)
+    ]
+
+    placeholder_entry = make_entry(
+        source_reference="manual_test_interview_extra",
+        notes="Primary evidence placeholder. Replace with real interview reference.",
+    )
+
+    summary = ValidationEvidenceSummarizer().summarize_entries(
+        theme="lead + follow up",
+        entries=[*real_entries, placeholder_entry],
+    )
+
+    assert summary.total_entries == 6
+    assert summary.suspect_entries == 1
+    assert summary.gate_safe_entries == 5
+    assert summary.gate_safe_primary_entries == 5
     assert summary.status == "READY_FOR_HUMAN_REVIEW"

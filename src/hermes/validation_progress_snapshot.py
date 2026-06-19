@@ -32,6 +32,10 @@ class ValidationProgressSnapshot:
     primary_entries_needed: int
     secondary_entries: int
     risk_entries: int
+    gate_safe_entries: int
+    gate_safe_supporting_entries: int
+    gate_safe_primary_entries: int
+    suspect_entries: int
     recommended_next_action: str
     policy_version: str
     run_id: str
@@ -46,6 +50,7 @@ class ValidationProgressSnapshotGenerator:
     - show the current validation position in one place
     - explain why a theme is blocked or ready for gate execution
     - combine theme state, evidence summary, and gate conditions
+    - separate raw evidence from gate-safe evidence
     - avoid accidental state changes
 
     This does not approve human review or building.
@@ -118,6 +123,12 @@ class ValidationProgressSnapshotGenerator:
             ),
             secondary_entries=evidence_summary.secondary_entries,
             risk_entries=evidence_summary.risk_entries,
+            gate_safe_entries=evidence_summary.gate_safe_entries,
+            gate_safe_supporting_entries=(
+                evidence_summary.gate_safe_supporting_entries
+            ),
+            gate_safe_primary_entries=evidence_summary.gate_safe_primary_entries,
+            suspect_entries=evidence_summary.suspect_entries,
             recommended_next_action=recommended_next_action,
             policy_version=policy_version,
             run_id=run_id,
@@ -147,6 +158,13 @@ class ValidationProgressSnapshotGenerator:
 - Risk Evidence: {snapshot.risk_entries}
 - Supporting Entries: {snapshot.supporting_entries}
 - Opposing Entries: {snapshot.opposing_entries}
+
+## Gate-Safe Evidence Position
+
+- Gate-Safe Evidence: {snapshot.gate_safe_entries} / {snapshot.required_total_entries}
+- Gate-Safe Primary Evidence: {snapshot.gate_safe_primary_entries} / {snapshot.required_primary_entries}
+- Gate-Safe Supporting Evidence: {snapshot.gate_safe_supporting_entries}
+- Suspect / Placeholder Evidence: {snapshot.suspect_entries}
 
 ## Gate Position
 
@@ -230,23 +248,25 @@ This snapshot is read-only. It does not approve human review, does not approve b
     ) -> list[str]:
         blockers = []
 
-        if evidence_summary.total_entries < self.MIN_READY_ENTRIES:
+        if evidence_summary.gate_safe_entries < self.MIN_READY_ENTRIES:
             blockers.append(
-                f"total evidence "
-                f"{evidence_summary.total_entries}/{self.MIN_READY_ENTRIES}"
+                f"gate-safe evidence "
+                f"{evidence_summary.gate_safe_entries}/{self.MIN_READY_ENTRIES}"
             )
 
-        if evidence_summary.primary_entries < self.MIN_PRIMARY_EVIDENCE_ENTRIES:
+        if evidence_summary.gate_safe_primary_entries < (
+            self.MIN_PRIMARY_EVIDENCE_ENTRIES
+        ):
             blockers.append(
-                f"primary evidence "
-                f"{evidence_summary.primary_entries}/"
+                f"gate-safe primary evidence "
+                f"{evidence_summary.gate_safe_primary_entries}/"
                 f"{self.MIN_PRIMARY_EVIDENCE_ENTRIES}"
             )
 
-        if evidence_summary.supporting_entries < self.MIN_READY_SUPPORTING:
+        if evidence_summary.gate_safe_supporting_entries < self.MIN_READY_SUPPORTING:
             blockers.append(
-                f"supporting evidence "
-                f"{evidence_summary.supporting_entries}/"
+                f"gate-safe supporting evidence "
+                f"{evidence_summary.gate_safe_supporting_entries}/"
                 f"{self.MIN_READY_SUPPORTING}"
             )
 
@@ -264,6 +284,12 @@ This snapshot is read-only. It does not approve human review, does not approve b
 
         if evidence_summary.opposing_entries > evidence_summary.supporting_entries:
             blockers.append("opposing evidence exceeds supporting evidence")
+
+        if evidence_summary.suspect_entries > 0:
+            blockers.append(
+                f"suspect evidence "
+                f"{evidence_summary.suspect_entries} entries require replacement"
+            )
 
         return blockers
 
