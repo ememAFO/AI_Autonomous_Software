@@ -119,7 +119,8 @@ reports/intelligence/test_validation_progress_snapshot_suspect_state_registry.js
 reports/intelligence/test_validation_progress_snapshot_suspect_evidence_log.json
 reports/intelligence/test_validation_progress_snapshot_suspect_state_registry.json
 reports/intelligence/test_validation_progress_snapshot_suspect_evidence_log.json
-
+reports/intelligence/test_validation_evidence_verification_log.json
+reports/intelligence/test_validation_evidence_verification_reports/
 
 # Test-generated artifacts
 reports/intelligence/runs/test_runs/
