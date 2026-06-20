@@ -206,6 +206,19 @@ This snapshot is read-only. It does not approve human review, does not approve b
                 "Register the theme and move it through the validation workflow.",
             )
 
+        if current_state == "READY_FOR_REVIEW":
+            return (
+                "ALREADY_READY_FOR_REVIEW",
+                (
+                    "Theme has already passed the validation gate and is ready "
+                    "for human review."
+                ),
+                (
+                    "Generate the human review packet. This still does not "
+                    "approve building."
+                ),
+            )
+
         if current_state != self.REQUIRED_GATE_STATE:
             return (
                 "BLOCKED",

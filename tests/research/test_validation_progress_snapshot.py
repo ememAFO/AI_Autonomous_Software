@@ -183,6 +183,46 @@ def test_validation_progress_snapshot_ready_result_is_read_only():
     assert snapshot.current_state == "VALIDATING"
     assert registry.get_current_state(THEME_ID) == "VALIDATING"
 
+def test_validation_progress_snapshot_reports_already_ready_for_review():
+    generator, registry, evidence_log = make_generator(
+        registry_path=(
+            "reports/intelligence/"
+            "test_validation_progress_snapshot_already_ready_state_registry.json"
+        ),
+        evidence_log_path=(
+            "reports/intelligence/"
+            "test_validation_progress_snapshot_already_ready_evidence_log.json"
+        ),
+    )
+
+    register_theme_as_validating(registry)
+    add_ready_evidence(evidence_log)
+
+    registry.transition(
+        theme_id=THEME_ID,
+        theme_name=THEME_NAME,
+        new_state="READY_FOR_REVIEW",
+        trigger="validation_gate_passed",
+        reason="Validation evidence met human review threshold.",
+        changed_by="ValidationGate",
+        related_artifact_id="validation_progress_snapshot_001",
+        policy_version=POLICY_VERSION,
+        run_id="validation_progress_snapshot_already_ready_001",
+    )
+
+    snapshot = generator.generate(
+        theme_id=THEME_ID,
+        theme_name=THEME_NAME,
+        policy_version=POLICY_VERSION,
+        run_id="validation_progress_snapshot_already_ready_002",
+    )
+
+    assert snapshot.current_state == "READY_FOR_REVIEW"
+    assert snapshot.evidence_status == "READY_FOR_HUMAN_REVIEW"
+    assert snapshot.gate_status == "ALREADY_READY_FOR_REVIEW"
+    assert "already passed the validation gate" in snapshot.gate_reason
+    assert "human review packet" in snapshot.recommended_next_action
+
 
 def test_validation_progress_snapshot_blocks_unregistered_theme():
     generator, _, _ = make_generator(
