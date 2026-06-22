@@ -124,6 +124,13 @@ reports/intelligence/test_validation_evidence_verification_reports/
 reports/intelligence/test_validation_progress_snapshot_already_ready_state_registry.json
 reports/intelligence/test_validation_progress_snapshot_already_ready_evidence_log.json
 
+# Human review packet runtime artifacts
+reports/intelligence/human_review_packets/
+reports/intelligence/human_review_packet_index.json
+reports/intelligence/test_human_review_packet_plans/
+reports/intelligence/test_human_review_packets/
+
+
 # Test-generated artifacts
 reports/intelligence/runs/test_runs/
 reports/intelligence/test_runs/

@@ -199,6 +199,40 @@ def test_validation_evidence_summary_blocks_placeholder_evidence_from_readiness(
     assert "Replace placeholder" in summary.recommended_next_action
 
 
+def test_validation_evidence_summary_blocks_normalized_template_markers():
+    entries = [
+        make_entry(
+            evidence_summary=(
+                "Participant/Signal: small_business_owner_003. "
+                "Finding: REPLACE_WITH_REAL_FINDING"
+            ),
+            source_reference="interview_003",
+        ),
+        make_entry(
+            evidence_type="competitor_check",
+            evidence_summary=(
+                "Competitor: COMPETITOR_NAME_HERE. Finding: "
+                "Describe what the competitor offers, where it is too broad, "
+                "too expensive, or too complex for small businesses."
+            ),
+            source_reference="competitor_review_001",
+        ),
+    ]
+
+    summary = ValidationEvidenceSummarizer().summarize_entries(
+        theme="lead + follow up",
+        entries=entries,
+    )
+
+    assert summary.total_entries == 2
+    assert summary.suspect_entries == 2
+    assert summary.gate_safe_entries == 0
+    assert summary.status == "EVIDENCE_NEEDS_VERIFICATION"
+
+
+
+
+
 def test_validation_evidence_summary_can_pass_with_enough_gate_safe_evidence():
     real_entries = [
         make_entry(source_reference=f"Interview {index}")

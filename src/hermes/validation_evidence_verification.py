@@ -199,13 +199,10 @@ class ValidationEvidenceVerifier:
         return path
 
     def _matched_markers(self, entry: ValidationEvidenceEntry) -> list[str]:
-        searchable_text = " ".join(
-            [
-                entry.evidence_summary,
-                entry.source_reference,
-                entry.notes,
-            ]
-        ).lower()
+        return ValidationEvidenceSummarizer.find_suspect_markers(
+            entry,
+            markers=self.suspect_markers,
+        )
 
         return sorted(
             marker

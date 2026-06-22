@@ -69,6 +69,8 @@ class ValidationEvidenceSummarizer:
         "dummy",
         "mock",
         "needs real",
+        "competitor name here",
+        "describe what the competitor offers",
     }
 
 
@@ -80,19 +82,45 @@ class ValidationEvidenceSummarizer:
 
         return self.summarize_entries(theme=theme, entries=entries)
 
-    def _is_suspect_entry(self, entry: ValidationEvidenceEntry) -> bool:
-        searchable_text = " ".join(
-            [
-                entry.evidence_summary,
-                entry.source_reference,
-                entry.notes,
-            ]
-        ).lower()
-
-        return any(
-            marker in searchable_text
-            for marker in self.SUSPECT_EVIDENCE_MARKERS
+    @classmethod
+    def find_suspect_markers(
+        cls,
+        entry: ValidationEvidenceEntry,
+        *,
+        markers: set[str] | None = None,
+    ) -> list[str]:
+        searchable_text = cls._normalize_marker_text(
+            " ".join(
+                [
+                    entry.evidence_summary,
+                    entry.source_reference,
+                    entry.notes,
+                ]
+            )
         )
+
+        active_markers = markers or cls.SUSPECT_EVIDENCE_MARKERS
+        matched_markers = []
+
+        for marker in active_markers:
+            normalized_marker = cls._normalize_marker_text(marker)
+
+            if normalized_marker and normalized_marker in searchable_text:
+                matched_markers.append(marker)
+
+        return sorted(matched_markers)
+
+    @staticmethod
+    def _normalize_marker_text(value: str) -> str:
+        normalized = "".join(
+            character.lower() if character.isalnum() else " "
+            for character in value
+        )
+
+        return " ".join(normalized.split())
+
+    def _is_suspect_entry(self, entry: ValidationEvidenceEntry) -> bool:
+        return bool(self.find_suspect_markers(entry))
 
     def summarize_entries(
         self,

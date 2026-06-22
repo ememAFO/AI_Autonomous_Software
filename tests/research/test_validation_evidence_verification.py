@@ -175,3 +175,35 @@ def test_validation_evidence_verifier_blocks_non_markdown_output_path():
             report=report,
             output_path="reports/intelligence/unsafe.txt",
         )
+
+def test_validation_evidence_verifier_matches_normalized_template_markers():
+    entries = [
+        make_entry(
+            evidence_summary=(
+                "Participant/Signal: small_business_owner_003. "
+                "Finding: REPLACE_WITH_REAL_FINDING"
+            ),
+            source_reference="interview_003",
+        ),
+        make_entry(
+            evidence_type="competitor_check",
+            evidence_summary=(
+                "Competitor: COMPETITOR_NAME_HERE. Finding: "
+                "Describe what the competitor offers, where it is too broad."
+            ),
+            source_reference="competitor_review_001",
+        ),
+    ]
+
+    report = ValidationEvidenceVerifier().generate_for_entries(
+        theme=THEME,
+        entries=entries,
+    )
+
+    assert report.suspect_entries == 2
+    assert "replace with real" in report.findings[0].matched_markers
+    assert "competitor name here" in report.findings[1].matched_markers
+    assert (
+        "describe what the competitor offers"
+        in report.findings[1].matched_markers
+    )

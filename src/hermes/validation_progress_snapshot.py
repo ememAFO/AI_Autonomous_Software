@@ -207,15 +207,36 @@ This snapshot is read-only. It does not approve human review, does not approve b
             )
 
         if current_state == "READY_FOR_REVIEW":
+            if evidence_summary.status == self.REQUIRED_EVIDENCE_STATUS:
+                return (
+                    "ALREADY_READY_FOR_REVIEW",
+                    (
+                        "Theme has already passed the validation gate and is ready "
+                        "for human review."
+                    ),
+                    (
+                        "Generate the human review packet. This still does not "
+                        "approve building."
+                    ),
+                )
+
+            blockers = self._evidence_blockers(evidence_summary)
+
+            blocker_text = ""
+            if blockers:
+                blocker_text = " Blockers: " + "; ".join(blockers) + "."
+
             return (
-                "ALREADY_READY_FOR_REVIEW",
+                "REVIEW_REQUIRES_EVIDENCE_REPAIR",
                 (
-                    "Theme has already passed the validation gate and is ready "
-                    "for human review."
+                    "Theme previously passed the validation gate, but current "
+                    "evidence no longer meets the human-review threshold: "
+                    f"{evidence_summary.status}.{blocker_text}"
                 ),
                 (
-                    "Generate the human review packet. This still does not "
-                    "approve building."
+                    "Do not approve MVP planning. Repair or verify evidence, then "
+                    "record a human decision to return the theme to validation "
+                    "or reject/archive."
                 ),
             )
 
