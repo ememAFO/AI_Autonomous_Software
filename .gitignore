@@ -130,6 +130,12 @@ reports/intelligence/human_review_packet_index.json
 reports/intelligence/test_human_review_packet_plans/
 reports/intelligence/test_human_review_packets/
 
+# Human review return test artifacts
+reports/intelligence/test_human_review_decision_contexts/
+reports/intelligence/test_theme_state_registry_generic_review_return.json
+reports/intelligence/test_return_theme_to_validation_state_registry.json
+reports/intelligence/test_return_theme_to_validation_evidence_log.json
+
 
 # Test-generated artifacts
 reports/intelligence/runs/test_runs/

@@ -79,6 +79,9 @@ class ThemeStateRegistry:
 
     INITIAL_STATE = "RESEARCHED"
 
+    HUMAN_REVIEW_RETURN_TRIGGER = "human_review_returned_to_validation"
+    HUMAN_REVIEW_RETURN_ACTOR = "HumanReviewDecisionService"
+
     TERMINAL_STATES = {
         "READY_FOR_REVIEW",
         "ARCHIVED",
@@ -161,6 +164,56 @@ class ThemeStateRegistry:
             trigger=trigger,
             reason=reason,
             changed_by=changed_by,
+            related_artifact_id=related_artifact_id,
+            policy_version=policy_version,
+            run_id=run_id,
+        )
+
+        self._append_event(event)
+        return event
+    def return_to_validation_after_human_review(
+        self,
+        *,
+        theme_id: str,
+        theme_name: str,
+        reason: str,
+        related_artifact_id: str,
+        policy_version: str,
+        run_id: str,
+    ) -> ThemeStateEvent:
+        """
+        Records the single controlled reopening path:
+
+        READY_FOR_REVIEW -> VALIDATING
+
+        Generic transitions remain blocked from READY_FOR_REVIEW.
+        """
+        current_state = self.get_current_state(theme_id)
+
+        if current_state is None:
+            raise ThemeNotFoundError(
+                f"Theme must be registered before human review return: {theme_id}"
+            )
+
+        if current_state != "READY_FOR_REVIEW":
+            raise InvalidTransitionError(
+                "Human review return requires current state READY_FOR_REVIEW, "
+                f"got {current_state}"
+            )
+
+        self._validate_theme_name(
+            theme_id=theme_id,
+            theme_name=theme_name,
+        )
+
+        event = self._build_event(
+            theme_id=theme_id,
+            theme_name=theme_name,
+            previous_state=current_state,
+            new_state="VALIDATING",
+            trigger=self.HUMAN_REVIEW_RETURN_TRIGGER,
+            reason=reason,
+            changed_by=self.HUMAN_REVIEW_RETURN_ACTOR,
             related_artifact_id=related_artifact_id,
             policy_version=policy_version,
             run_id=run_id,

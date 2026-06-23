@@ -315,6 +315,61 @@ def test_theme_state_registry_verify_integrity_detects_modified_record():
     with pytest.raises(RegistryIntegrityError):
         registry.verify_integrity()
 
+def test_theme_state_registry_blocks_generic_return_from_ready_for_review():
+    registry = make_registry(
+        "reports/intelligence/"
+        "test_theme_state_registry_generic_review_return.json"
+    )
+    register_theme(registry)
+
+    registry.transition(
+        theme_id="lead_follow_up_001",
+        theme_name="Lead follow-up automation",
+        new_state="VALIDATION_READY",
+        trigger="validation_readiness_passed",
+        reason="Theme met validation readiness criteria.",
+        changed_by="ThemeValidationReadinessEvaluator",
+        related_artifact_id="readiness_report_001",
+        policy_version="2026-06-08.v1",
+        run_id="pipeline_test_review_return_001",
+    )
+
+    registry.transition(
+        theme_id="lead_follow_up_001",
+        theme_name="Lead follow-up automation",
+        new_state="VALIDATING",
+        trigger="validation_plan_created",
+        reason="Validation plan created.",
+        changed_by="ThemeValidationPlanGenerator",
+        related_artifact_id="validation_plan_001",
+        policy_version="2026-06-08.v1",
+        run_id="pipeline_test_review_return_002",
+    )
+
+    registry.transition(
+        theme_id="lead_follow_up_001",
+        theme_name="Lead follow-up automation",
+        new_state="READY_FOR_REVIEW",
+        trigger="validation_gate_passed",
+        reason="Validation evidence met human review threshold.",
+        changed_by="ValidationGate",
+        related_artifact_id="validation_summary_001",
+        policy_version="2026-06-08.v1",
+        run_id="pipeline_test_review_return_003",
+    )
+
+    with pytest.raises(InvalidTransitionError):
+        registry.transition(
+            theme_id="lead_follow_up_001",
+            theme_name="Lead follow-up automation",
+            new_state="VALIDATING",
+            trigger="manual_state_update",
+            reason="Unsafe direct return attempt.",
+            changed_by="update_theme_state_cli",
+            related_artifact_id="manual_cli_update",
+            policy_version="2026-06-08.v1",
+            run_id="pipeline_test_review_return_004",
+        )
 
 def test_theme_state_registry_blocks_terminal_state_transition():
     registry = make_registry(
