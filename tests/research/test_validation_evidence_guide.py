@@ -42,6 +42,7 @@ def test_validation_evidence_guide_marks_missing_entries_for_early_signal():
         source_reference="Interview 1",
         signal_strength="strong",
         supports_validation=True,
+        source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
     )
 
     guide = make_generator(log).generate("lead + follow up")
@@ -49,8 +50,8 @@ def test_validation_evidence_guide_marks_missing_entries_for_early_signal():
     assert guide.evidence_status == "EARLY_SUPPORTING_SIGNAL"
     assert guide.total_entries == 1
     assert guide.additional_entries_needed == 4
-    assert "customer_interview" in guide.recommended_evidence_types
-    assert "willingness_to_pay" in guide.recommended_evidence_types
+    assert "human_attested_first_party:customer_interview" in guide.recommended_evidence_types
+    assert "human_attested_first_party:willingness_to_pay" in guide.recommended_evidence_types
 
 
 def test_validation_evidence_guide_handles_no_evidence():
@@ -137,6 +138,7 @@ def test_validation_evidence_guide_shows_primary_secondary_and_risk_counts():
         source_reference="Interview 1",
         signal_strength="strong",
         supports_validation=True,
+        source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
     )
 
     log.add_entry(
@@ -150,6 +152,7 @@ def test_validation_evidence_guide_shows_primary_secondary_and_risk_counts():
         source_reference="manual_competitor_check_001",
         signal_strength="medium",
         supports_validation=True,
+        source_trust=ValidationEvidenceLog.PUBLIC_COMPETITOR,
     )
 
     guide = make_generator(log).generate("lead + follow up")
@@ -159,8 +162,8 @@ def test_validation_evidence_guide_shows_primary_secondary_and_risk_counts():
     assert guide.secondary_entries == 1
     assert guide.risk_entries == 0
     assert guide.primary_entries_needed == 1
-    assert "Primary Entries: 1" in markdown
+    assert "Raw Primary-Type Entries: 1" in markdown
     assert "Secondary Entries: 1" in markdown
     assert "Risk Entries: 0" in markdown
-    assert "Primary Entries Needed Before Human Review: 1" in markdown
-    assert "cannot replace primary customer" in guide.warning
+    assert "First-Party Primary Entries Needed Before Human Review: 1" in markdown
+    assert "not enough for human review" in guide.warning

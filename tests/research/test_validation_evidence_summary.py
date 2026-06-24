@@ -25,6 +25,7 @@ def make_entry(
     evidence_summary: str = "User confirmed delayed follow-up causes lost leads.",
     source_reference: str = "Interview",
     notes: str = "",
+    source_trust: str = ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
 ) -> ValidationEvidenceEntry:
     return ValidationEvidenceEntry(
         theme="lead + follow up",
@@ -39,6 +40,7 @@ def make_entry(
         supports_validation=supports_validation,
         timestamp="2026-06-08T00:00:00+00:00",
         notes=notes,
+        source_trust=source_trust,
     )
 
 def test_validation_evidence_summary_returns_no_evidence():
@@ -128,6 +130,7 @@ def test_validation_evidence_summary_does_not_pass_with_only_secondary_evidence(
             source_reference=f"competitor_source_{index}",
             signal_strength="medium",
             supports_validation=True,
+            source_trust=ValidationEvidenceLog.PUBLIC_COMPETITOR,
         )
 
     summary = ValidationEvidenceSummarizer(log).summarize_theme(
@@ -138,7 +141,7 @@ def test_validation_evidence_summary_does_not_pass_with_only_secondary_evidence(
     assert summary.secondary_entries == 5
     assert summary.primary_entries == 0
     assert summary.status != "READY_FOR_HUMAN_REVIEW"
-    assert summary.status == "NEEDS_MORE_EVIDENCE"
+    assert summary.status == "NEEDS_FIRST_PARTY_VALIDATION"
 
 def test_validation_evidence_summary_can_pass_with_enough_primary_evidence():
     log = make_log(
@@ -165,6 +168,16 @@ def test_validation_evidence_summary_can_pass_with_enough_primary_evidence():
             source_reference=f"validation_source_{index}",
             signal_strength="strong" if index < 2 else "medium",
             supports_validation=True,
+            source_trust=(
+                ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY
+                if evidence_type in {
+                    "customer_interview",
+                    "willingness_to_pay",
+                }
+                else ValidationEvidenceLog.PUBLIC_COMPETITOR
+                if evidence_type == "competitor_check"
+                else ValidationEvidenceLog.PUBLIC_DATASET
+            ),
         )
 
     summary = ValidationEvidenceSummarizer(log).summarize_theme(
@@ -254,3 +267,42 @@ def test_validation_evidence_summary_can_pass_with_enough_gate_safe_evidence():
     assert summary.gate_safe_entries == 5
     assert summary.gate_safe_primary_entries == 5
     assert summary.status == "READY_FOR_HUMAN_REVIEW"
+
+
+def test_validation_evidence_summary_excludes_legacy_unverified_history():
+    summary = ValidationEvidenceSummarizer().summarize_entries(
+        theme="lead + follow up",
+        entries=[
+            make_entry(
+                source_trust=ValidationEvidenceLog.LEGACY_UNVERIFIED
+            )
+        ],
+    )
+
+    assert summary.status == "EVIDENCE_NEEDS_VERIFICATION"
+    assert summary.total_entries == 1
+    assert summary.gate_safe_entries == 0
+    assert summary.gate_excluded_entries == 1
+    assert summary.legacy_unverified_entries == 1
+
+
+def test_validation_evidence_summary_counts_public_dataset_but_not_primary():
+    entries = [
+        make_entry(
+            evidence_type="manual_research",
+            source_trust=ValidationEvidenceLog.PUBLIC_DATASET,
+        ),
+        make_entry(
+            evidence_type="manual_research",
+            source_trust=ValidationEvidenceLog.PUBLIC_DATASET,
+        ),
+    ]
+
+    summary = ValidationEvidenceSummarizer().summarize_entries(
+        theme="lead + follow up",
+        entries=entries,
+    )
+
+    assert summary.gate_safe_entries == 2
+    assert summary.gate_safe_primary_entries == 0
+    assert summary.status == "EARLY_SUPPORTING_SIGNAL"

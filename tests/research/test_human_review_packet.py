@@ -182,6 +182,7 @@ def add_ready_evidence(
             signal_strength="strong" if index < 3 else "medium",
             supports_validation=True,
             notes="Primary customer interview evidence.",
+            source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
         )
 
 
@@ -316,6 +317,7 @@ def test_human_review_packet_separates_excluded_evidence_from_gate_safe_evidence
         signal_strength="strong",
         supports_validation=True,
         notes="Primary customer interview evidence.",
+        source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
     )
 
     evidence_log.add_entry(
@@ -330,6 +332,7 @@ def test_human_review_packet_separates_excluded_evidence_from_gate_safe_evidence
         signal_strength="medium",
         supports_validation=True,
         notes="Secondary competitor evidence.",
+        source_trust=ValidationEvidenceLog.PUBLIC_COMPETITOR,
     )
 
     gate = ValidationGate(
@@ -423,6 +426,7 @@ def test_human_review_packet_blocks_legacy_ready_state_after_template_reclassifi
             signal_strength="strong",
             supports_validation=True,
             notes="Primary customer interview evidence.",
+            source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
         )
 
     state_registry.transition(

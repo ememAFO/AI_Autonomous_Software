@@ -25,15 +25,10 @@ class CompetitorEvidenceInput:
 
 class ValidationCompetitorEvidenceLogger:
     """
-    Logs competitor-check findings into the validation evidence log.
+    Logs public competitor research as secondary evidence.
 
-    Purpose:
-    - record agent/user competitor research as secondary evidence
-    - clearly separate competitor evidence from customer interviews
-    - support both validating and weakening findings
-    - avoid treating competitor research as direct customer proof
-
-    This does not approve human review or build planning.
+    Competitor research can support or weaken a theme, but it never counts as
+    first-party customer validation.
     """
 
     def __init__(self, evidence_log: ValidationEvidenceLog | None = None):
@@ -46,11 +41,9 @@ class ValidationCompetitorEvidenceLogger:
         self._validate_input(evidence)
 
         summary = (
-            f"Competitor: {evidence.competitor_name}. "
-            f"Finding: {evidence.finding_summary}"
+            f"Competitor: {evidence.competitor_name.strip()}. "
+            f"Finding: {evidence.finding_summary.strip()}"
         )
-
-        notes = self._build_notes(evidence)
 
         try:
             return self.evidence_log.add_entry(
@@ -61,7 +54,8 @@ class ValidationCompetitorEvidenceLogger:
                 source_reference=evidence.source_reference,
                 signal_strength=evidence.signal_strength,
                 supports_validation=evidence.supports_validation,
-                notes=notes,
+                source_trust=ValidationEvidenceLog.PUBLIC_COMPETITOR,
+                notes=self._build_notes(evidence),
             )
         except ValidationEvidenceLogError as exc:
             raise ValidationCompetitorEvidenceError(
@@ -69,25 +63,37 @@ class ValidationCompetitorEvidenceLogger:
             ) from exc
 
     def _validate_input(self, evidence: CompetitorEvidenceInput) -> None:
-        if not evidence.theme.strip():
-            raise ValidationCompetitorEvidenceError("Theme is required")
+        self._validate_required_text("theme", evidence.theme)
+        self._validate_required_text(
+            "validation_plan_path",
+            evidence.validation_plan_path,
+        )
+        self._validate_required_text(
+            "competitor_name",
+            evidence.competitor_name,
+        )
+        self._validate_required_text(
+            "finding_summary",
+            evidence.finding_summary,
+        )
+        self._validate_required_text(
+            "source_reference",
+            evidence.source_reference,
+        )
 
-        if not evidence.validation_plan_path.strip():
-            raise ValidationCompetitorEvidenceError("Validation plan path is required")
-
-        if not evidence.competitor_name.strip():
-            raise ValidationCompetitorEvidenceError("Competitor name is required")
-
-        if not evidence.finding_summary.strip():
-            raise ValidationCompetitorEvidenceError("Finding summary is required")
-
-        if not evidence.source_reference.strip():
-            raise ValidationCompetitorEvidenceError("Source reference is required")
+    @staticmethod
+    def _validate_required_text(field_name: str, value: str) -> None:
+        if not isinstance(value, str) or not value.strip():
+            raise ValidationCompetitorEvidenceError(
+                f"{field_name} is required"
+            )
 
     def _build_notes(self, evidence: CompetitorEvidenceInput) -> str:
         base_note = (
             "Secondary competitor-check evidence. "
-            "Do not treat as direct customer validation."
+            "Source trust: public_competitor. "
+            "Do not treat as direct customer "
+            "validation."
         )
 
         if evidence.notes.strip():

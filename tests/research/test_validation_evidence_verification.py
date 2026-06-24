@@ -35,6 +35,7 @@ def make_entry(
     source_reference: str = "Interview 001",
     notes: str = "",
     evidence_type: str = "customer_interview",
+    source_trust: str = ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
 ) -> ValidationEvidenceEntry:
     return ValidationEvidenceEntry(
         theme=THEME,
@@ -49,6 +50,7 @@ def make_entry(
         supports_validation=True,
         timestamp="2026-06-08T00:00:00+00:00",
         notes=notes,
+        source_trust=source_trust,
     )
 
 
@@ -110,6 +112,7 @@ def test_validation_evidence_verifier_reads_entries_from_log():
         signal_strength="strong",
         supports_validation=True,
         notes="Replace with real source reference.",
+        source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
     )
 
     report = ValidationEvidenceVerifier(log).generate(theme=THEME)
@@ -207,3 +210,20 @@ def test_validation_evidence_verifier_matches_normalized_template_markers():
         "describe what the competitor offers"
         in report.findings[1].matched_markers
     )
+
+
+def test_validation_evidence_verifier_excludes_legacy_unverified_history():
+    report = ValidationEvidenceVerifier().generate_for_entries(
+        theme=THEME,
+        entries=[
+            make_entry(
+                source_trust=ValidationEvidenceLog.LEGACY_UNVERIFIED
+            )
+        ],
+    )
+
+    assert report.gate_safe_entries == 0
+    assert report.gate_excluded_entries == 1
+    assert report.legacy_unverified_entries == 1
+    assert report.findings[0].source_trust == "legacy_unverified"
+    assert "legacy_unverified" in report.findings[0].exclusion_reasons

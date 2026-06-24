@@ -17,7 +17,7 @@ from src.hermes.validation_evidence_log import ValidationEvidenceLog
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Add competitor-check evidence to the validation evidence log."
+        description="Add public competitor evidence to the validation log."
     )
 
     parser.add_argument("--theme", required=True)
@@ -32,19 +32,16 @@ def parse_args() -> argparse.Namespace:
         help="Mark the competitor finding as supporting the validation theme.",
     )
     parser.add_argument("--notes", default="")
-
     parser.add_argument(
         "--evidence-log-path",
         default="reports/intelligence/validation_evidence_log.json",
         help="Path to the validation evidence log JSON file.",
     )
-
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-
     logger = ValidationCompetitorEvidenceLogger(
         ValidationEvidenceLog(log_path=args.evidence_log_path)
     )
@@ -70,11 +67,11 @@ def main() -> int:
     print("-------------------------")
     print(f"Theme: {entry.theme}")
     print(f"Evidence Type: {entry.evidence_type}")
+    print(f"Source Trust: {entry.source_trust}")
     print(f"Signal Strength: {entry.signal_strength}")
     print(f"Supports Validation: {entry.supports_validation}")
     print(f"Source Reference: {entry.source_reference}")
     print(f"Timestamp: {entry.timestamp}")
-
     return 0
 
 

@@ -92,6 +92,7 @@ def add_ready_evidence(log: ValidationEvidenceLog) -> None:
             source_reference=f"Interview {index + 1}",
             signal_strength=signal_strength,
             supports_validation=True,
+            source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
         )
 
 
@@ -195,6 +196,7 @@ def test_validation_gate_blocks_when_evidence_is_early_signal():
         source_reference="Interview 1",
         signal_strength="strong",
         supports_validation=True,
+        source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
     )
 
     result = gate.evaluate(
@@ -237,6 +239,7 @@ def test_validation_gate_blocks_when_evidence_is_negative():
             source_reference=f"Interview {index + 1}",
             signal_strength="negative",
             supports_validation=False,
+            source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
         )
 
     result = gate.evaluate(

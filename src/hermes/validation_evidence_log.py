@@ -21,24 +21,37 @@ class ValidationEvidenceEntry:
     supports_validation: bool
     timestamp: str
     notes: str = ""
+    source_trust: str = "legacy_unverified"
 
 
 class ValidationEvidenceLog:
     """
-    Stores validation evidence for a validation plan.
+    Stores traceable validation evidence for a validation plan.
 
-    Purpose:
-    - record interviews, waitlist signals, competitor checks, landing page results, and risk findings
-    - keep validation evidence traceable before any build planning
-    - prevent VALIDATION_READY from becoming BUILD_NOW without evidence
+    New records must declare their source-trust class. Missing source trust in
+    older JSON records is retained as legacy_unverified history and excluded
+    from gate-safe evidence counts.
 
     Security:
     - writes only inside reports/intelligence
     - stores metadata and summaries only
+    - keeps raw source material outside the repository
     - does not approve building
     """
 
     DEFAULT_LOG_PATH = Path("reports/intelligence/validation_evidence_log.json")
+
+    HUMAN_ATTESTED_FIRST_PARTY = "human_attested_first_party"
+    PUBLIC_DATASET = "public_dataset"
+    PUBLIC_COMPETITOR = "public_competitor"
+    LEGACY_UNVERIFIED = "legacy_unverified"
+
+    ALLOWED_SOURCE_TRUSTS = {
+        HUMAN_ATTESTED_FIRST_PARTY,
+        PUBLIC_DATASET,
+        PUBLIC_COMPETITOR,
+        LEGACY_UNVERIFIED,
+    }
 
     ALLOWED_EVIDENCE_TYPES = {
         "customer_interview",
@@ -50,6 +63,27 @@ class ValidationEvidenceLog:
         "manual_research",
     }
 
+    PRIMARY_EVIDENCE_TYPES = {
+        "customer_interview",
+        "landing_page_result",
+        "waitlist_signup",
+        "willingness_to_pay",
+    }
+
+    PUBLIC_DATASET_EVIDENCE_TYPES = {
+        "manual_research",
+        "risk_finding",
+    }
+
+    PUBLIC_COMPETITOR_EVIDENCE_TYPES = {
+        "competitor_check",
+        "risk_finding",
+    }
+
+    HUMAN_FIRST_PARTY_EVIDENCE_TYPES = (
+        PRIMARY_EVIDENCE_TYPES | {"risk_finding"}
+    )
+
     ALLOWED_SIGNAL_STRENGTHS = {
         "strong",
         "medium",
@@ -57,7 +91,10 @@ class ValidationEvidenceLog:
         "negative",
     }
 
-    def __init__(self, log_path: str | Path = DEFAULT_LOG_PATH):
+    def __init__(
+        self,
+        log_path: str | Path = DEFAULT_LOG_PATH,
+    ):
         self.log_path = self._validate_log_path(Path(log_path))
         self.path_normalizer = ProjectPathNormalizer()
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -72,29 +109,20 @@ class ValidationEvidenceLog:
         source_reference: str,
         signal_strength: str,
         supports_validation: bool,
+        source_trust: str | None = None,
         notes: str = "",
     ) -> ValidationEvidenceEntry:
-        evidence_type = evidence_type.strip().lower()
-        signal_strength = signal_strength.strip().lower()
+        evidence_type = self._normalize_evidence_type(evidence_type)
+        signal_strength = self._normalize_signal_strength(signal_strength)
+        source_trust = self._resolve_new_source_trust(source_trust)
 
-        if evidence_type not in self.ALLOWED_EVIDENCE_TYPES:
-            raise ValidationEvidenceLogError(
-                f"Unsupported evidence type: {evidence_type}"
-            )
-
-        if signal_strength not in self.ALLOWED_SIGNAL_STRENGTHS:
-            raise ValidationEvidenceLogError(
-                f"Unsupported signal strength: {signal_strength}"
-            )
-
-        if not theme.strip():
-            raise ValidationEvidenceLogError("Evidence entry requires a theme")
-
-        if not evidence_summary.strip():
-            raise ValidationEvidenceLogError("Evidence entry requires a summary")
-
-        if not source_reference.strip():
-            raise ValidationEvidenceLogError("Evidence entry requires a source reference")
+        self._validate_required_text("theme", theme)
+        self._validate_required_text("evidence_summary", evidence_summary)
+        self._validate_required_text("source_reference", source_reference)
+        self._validate_source_trust_for_evidence(
+            evidence_type=evidence_type,
+            source_trust=source_trust,
+        )
 
         entry = ValidationEvidenceEntry(
             theme=theme.strip(),
@@ -108,6 +136,7 @@ class ValidationEvidenceLog:
             supports_validation=bool(supports_validation),
             timestamp=datetime.now(UTC).isoformat(),
             notes=notes.strip(),
+            source_trust=source_trust,
         )
 
         data = self._load_log()
@@ -123,24 +152,79 @@ class ValidationEvidenceLog:
             ValidationEvidenceEntry(
                 theme=str(item["theme"]),
                 validation_plan_path=str(item["validation_plan_path"]),
-                evidence_type=str(item["evidence_type"]),
+                evidence_type=self._normalize_evidence_type(
+                    str(item["evidence_type"])
+                ),
                 evidence_summary=str(item["evidence_summary"]),
                 source_reference=str(item["source_reference"]),
-                signal_strength=str(item["signal_strength"]),
+                signal_strength=self._normalize_signal_strength(
+                    str(item["signal_strength"])
+                ),
                 supports_validation=bool(item["supports_validation"]),
                 timestamp=str(item["timestamp"]),
                 notes=str(item.get("notes", "")),
+                source_trust=self._normalize_source_trust(
+                    item.get("source_trust", self.LEGACY_UNVERIFIED),
+                    allow_legacy=True,
+                ),
             )
             for item in data["evidence"]
         ]
 
     def list_entries_for_theme(self, theme: str) -> list[ValidationEvidenceEntry]:
-        expected = theme.strip().lower()
+        expected = self._validate_required_text("theme", theme).lower()
 
         return [
-            entry for entry in self.list_entries()
+            entry
+            for entry in self.list_entries()
             if entry.theme.lower() == expected
         ]
+
+    def _resolve_new_source_trust(self, value: str | None) -> str:
+        if value is None:
+            raise ValidationEvidenceLogError(
+                "New validation evidence requires source_trust"
+            )
+
+        return self._normalize_source_trust(
+            value,
+            allow_legacy=False,
+        )
+
+    def _validate_source_trust_for_evidence(
+        self,
+        *,
+        evidence_type: str,
+        source_trust: str,
+    ) -> None:
+        if source_trust == self.PUBLIC_DATASET:
+            if evidence_type not in self.PUBLIC_DATASET_EVIDENCE_TYPES:
+                raise ValidationEvidenceLogError(
+                    "public_dataset evidence may only use manual_research "
+                    "or risk_finding"
+                )
+            return
+
+        if source_trust == self.PUBLIC_COMPETITOR:
+            if evidence_type not in self.PUBLIC_COMPETITOR_EVIDENCE_TYPES:
+                raise ValidationEvidenceLogError(
+                    "public_competitor evidence may only use competitor_check "
+                    "or risk_finding"
+                )
+            return
+
+        if source_trust == self.HUMAN_ATTESTED_FIRST_PARTY:
+            if evidence_type not in self.HUMAN_FIRST_PARTY_EVIDENCE_TYPES:
+                raise ValidationEvidenceLogError(
+                    "human_attested_first_party evidence must be direct "
+                    "customer/behavioural evidence or a direct risk finding"
+                )
+            return
+
+        raise ValidationEvidenceLogError(
+            "legacy_unverified is reserved for historical records and "
+            "cannot be used for new validation evidence"
+        )
 
     def _load_log(self) -> dict:
         if not self.log_path.exists():
@@ -174,6 +258,64 @@ class ValidationEvidenceLog:
             encoding="utf-8",
         )
 
+    def _normalize_evidence_type(self, value: str) -> str:
+        evidence_type = self._validate_required_text(
+            "evidence_type",
+            value,
+        ).lower()
+
+        if evidence_type not in self.ALLOWED_EVIDENCE_TYPES:
+            raise ValidationEvidenceLogError(
+                f"Unsupported evidence type: {evidence_type}"
+            )
+
+        return evidence_type
+
+    def _normalize_signal_strength(self, value: str) -> str:
+        signal_strength = self._validate_required_text(
+            "signal_strength",
+            value,
+        ).lower()
+
+        if signal_strength not in self.ALLOWED_SIGNAL_STRENGTHS:
+            raise ValidationEvidenceLogError(
+                f"Unsupported signal strength: {signal_strength}"
+            )
+
+        return signal_strength
+
+    def _normalize_source_trust(
+        self,
+        value: object,
+        *,
+        allow_legacy: bool,
+    ) -> str:
+        if not isinstance(value, str) or not value.strip():
+            raise ValidationEvidenceLogError("source_trust is required")
+
+        source_trust = value.strip().lower()
+
+        if source_trust not in self.ALLOWED_SOURCE_TRUSTS:
+            raise ValidationEvidenceLogError(
+                f"Unsupported source trust: {source_trust}"
+            )
+
+        if source_trust == self.LEGACY_UNVERIFIED and not allow_legacy:
+            raise ValidationEvidenceLogError(
+                "legacy_unverified cannot be used for new validation evidence"
+            )
+
+        return source_trust
+
+    @staticmethod
+    def _validate_required_text(field_name: str, value: object) -> str:
+        if not isinstance(value, str) or not value.strip():
+            raise ValidationEvidenceLogError(
+                f"Evidence entry requires {field_name}"
+            )
+
+        return value.strip()
+
     def _normalize_validation_plan_path(self, validation_plan_path: str) -> str:
         try:
             return self.path_normalizer.normalize(validation_plan_path)
@@ -185,7 +327,9 @@ class ValidationEvidenceLog:
     def _validate_log_path(self, log_path: Path) -> Path:
         resolved = log_path.resolve()
         project_root = Path.cwd().resolve()
-        allowed_root = (project_root / "reports" / "intelligence").resolve()
+        allowed_root = (
+            project_root / "reports" / "intelligence"
+        ).resolve()
 
         if not str(resolved).startswith(str(allowed_root)):
             raise ValidationEvidenceLogError(

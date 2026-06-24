@@ -1,5 +1,5 @@
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from src.hermes.validation_evidence_log import (
     ValidationEvidenceEntry,
@@ -23,19 +23,26 @@ class ValidationEvidenceSummary:
     gate_safe_entries: int = 0
     gate_safe_supporting_entries: int = 0
     gate_safe_primary_entries: int = 0
+    gate_safe_opposing_entries: int = 0
+    gate_safe_signal_strengths: list[tuple[str, int]] = field(
+        default_factory=list
+    )
+    source_trusts: list[tuple[str, int]] = field(default_factory=list)
+    gate_excluded_entries: int = 0
+    legacy_unverified_entries: int = 0
     suspect_entries: int = 0
+
 
 class ValidationEvidenceSummarizer:
     """
     Summarizes validation evidence for a theme.
 
-    Purpose:
-    - evaluate whether validation evidence is strong enough for human review
-    - prevent a single positive signal from becoming build approval
-    - prevent secondary evidence alone from becoming human-review approval
-    - keep evidence assessment separate from MVP planning
+    Gate-safe evidence must have a trusted source class and no placeholder,
+    test, or template markers. Public research can inform the validation
+    decision, but only human-attested first-party evidence can satisfy the
+    primary-evidence threshold for human review.
 
-    This does NOT approve building.
+    This does not approve building.
     """
 
     MIN_READY_ENTRIES = 5
@@ -73,13 +80,11 @@ class ValidationEvidenceSummarizer:
         "describe what the competitor offers",
     }
 
-
-    def __init__(self, evidence_log: ValidationEvidenceLog | None = None):       
-         self.evidence_log = evidence_log or ValidationEvidenceLog()
+    def __init__(self, evidence_log: ValidationEvidenceLog | None = None):
+        self.evidence_log = evidence_log or ValidationEvidenceLog()
 
     def summarize_theme(self, theme: str) -> ValidationEvidenceSummary:
         entries = self.evidence_log.list_entries_for_theme(theme)
-
         return self.summarize_entries(theme=theme, entries=entries)
 
     @classmethod
@@ -104,11 +109,57 @@ class ValidationEvidenceSummarizer:
 
         for marker in active_markers:
             normalized_marker = cls._normalize_marker_text(marker)
-
             if normalized_marker and normalized_marker in searchable_text:
                 matched_markers.append(marker)
 
         return sorted(matched_markers)
+
+    @classmethod
+    def find_exclusion_reasons(
+        cls,
+        entry: ValidationEvidenceEntry,
+        *,
+        markers: set[str] | None = None,
+    ) -> list[str]:
+        reasons = []
+
+        if entry.source_trust == ValidationEvidenceLog.LEGACY_UNVERIFIED:
+            reasons.append(ValidationEvidenceLog.LEGACY_UNVERIFIED)
+        elif entry.source_trust not in ValidationEvidenceLog.ALLOWED_SOURCE_TRUSTS:
+            reasons.append("unsupported_source_trust")
+
+        reasons.extend(
+            f"suspect_marker:{marker}"
+            for marker in cls.find_suspect_markers(
+                entry,
+                markers=markers,
+            )
+        )
+
+        return reasons
+
+    @classmethod
+    def is_gate_safe(
+        cls,
+        entry: ValidationEvidenceEntry,
+        *,
+        markers: set[str] | None = None,
+    ) -> bool:
+        return not cls.find_exclusion_reasons(entry, markers=markers)
+
+    @classmethod
+    def is_gate_safe_primary(
+        cls,
+        entry: ValidationEvidenceEntry,
+        *,
+        markers: set[str] | None = None,
+    ) -> bool:
+        return (
+            entry.evidence_type in cls.PRIMARY_EVIDENCE_TYPES
+            and entry.source_trust
+            == ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY
+            and cls.is_gate_safe(entry, markers=markers)
+        )
 
     @staticmethod
     def _normalize_marker_text(value: str) -> str:
@@ -116,11 +167,7 @@ class ValidationEvidenceSummarizer:
             character.lower() if character.isalnum() else " "
             for character in value
         )
-
         return " ".join(normalized.split())
-
-    def _is_suspect_entry(self, entry: ValidationEvidenceEntry) -> bool:
-        return bool(self.find_suspect_markers(entry))
 
     def summarize_entries(
         self,
@@ -130,11 +177,11 @@ class ValidationEvidenceSummarizer:
     ) -> ValidationEvidenceSummary:
         signal_counter = Counter(entry.signal_strength for entry in entries)
         evidence_type_counter = Counter(entry.evidence_type for entry in entries)
+        source_trust_counter = Counter(entry.source_trust for entry in entries)
 
         supporting_entries = sum(
             1 for entry in entries if entry.supports_validation
         )
-
         opposing_entries = sum(
             1 for entry in entries if not entry.supports_validation
         )
@@ -144,52 +191,70 @@ class ValidationEvidenceSummarizer:
             for entry in entries
             if entry.evidence_type in self.PRIMARY_EVIDENCE_TYPES
         )
-
         secondary_entries = sum(
             1
             for entry in entries
             if entry.evidence_type in self.SECONDARY_EVIDENCE_TYPES
         )
-
         risk_entries = sum(
             1
             for entry in entries
             if entry.evidence_type in self.RISK_EVIDENCE_TYPES
         )
 
-        suspect_entries_list = [
-            entry for entry in entries
-            if self._is_suspect_entry(entry)
-        ]
-
+        exclusion_reasons_by_entry = {
+            index: self.find_exclusion_reasons(entry)
+            for index, entry in enumerate(entries)
+        }
         gate_safe_entries_list = [
-            entry for entry in entries
-            if not self._is_suspect_entry(entry)
+            entry
+            for index, entry in enumerate(entries)
+            if not exclusion_reasons_by_entry[index]
         ]
 
         gate_safe_signal_counter = Counter(
             entry.signal_strength for entry in gate_safe_entries_list
         )
-
         gate_safe_supporting_entries = sum(
-            1 for entry in gate_safe_entries_list if entry.supports_validation
+            1
+            for entry in gate_safe_entries_list
+            if entry.supports_validation
         )
-
+        gate_safe_opposing_entries = sum(
+            1
+            for entry in gate_safe_entries_list
+            if not entry.supports_validation
+        )
         gate_safe_primary_entries = sum(
             1
             for entry in gate_safe_entries_list
-            if entry.evidence_type in self.PRIMARY_EVIDENCE_TYPES
+            if self.is_gate_safe_primary(entry)
+        )
+
+        suspect_entries = sum(
+            1
+            for entry in entries
+            if self.find_suspect_markers(entry)
+        )
+        legacy_unverified_entries = sum(
+            1
+            for entry in entries
+            if entry.source_trust == ValidationEvidenceLog.LEGACY_UNVERIFIED
+        )
+        gate_excluded_entries = sum(
+            1
+            for reasons in exclusion_reasons_by_entry.values()
+            if reasons
         )
 
         status = self._status(
             total_entries=len(entries),
-            supporting_entries=supporting_entries,
-            opposing_entries=opposing_entries,
             gate_safe_entries=len(gate_safe_entries_list),
             gate_safe_supporting_entries=gate_safe_supporting_entries,
+            gate_safe_opposing_entries=gate_safe_opposing_entries,
             gate_safe_primary_entries=gate_safe_primary_entries,
             gate_safe_signal_counter=gate_safe_signal_counter,
-            suspect_entries=len(suspect_entries_list),
+            gate_excluded_entries=gate_excluded_entries,
         )
 
         return ValidationEvidenceSummary(
@@ -200,38 +265,45 @@ class ValidationEvidenceSummarizer:
             signal_strengths=signal_counter.most_common(),
             evidence_types=evidence_type_counter.most_common(),
             status=status,
-            gate_safe_entries=len(gate_safe_entries_list),
-            gate_safe_supporting_entries=gate_safe_supporting_entries,
-            gate_safe_primary_entries=gate_safe_primary_entries,
-            suspect_entries=len(suspect_entries_list),
-
             recommended_next_action=self._recommended_next_action(
                 status=status,
-                primary_entries=primary_entries,
-                suspect_entries=len(suspect_entries_list),
+                gate_safe_primary_entries=gate_safe_primary_entries,
+                gate_excluded_entries=gate_excluded_entries,
+                legacy_unverified_entries=legacy_unverified_entries,
+                suspect_entries=suspect_entries,
             ),
-
             primary_entries=primary_entries,
             secondary_entries=secondary_entries,
             risk_entries=risk_entries,
+            gate_safe_entries=len(gate_safe_entries_list),
+            gate_safe_supporting_entries=gate_safe_supporting_entries,
+            gate_safe_primary_entries=gate_safe_primary_entries,
+            gate_safe_opposing_entries=gate_safe_opposing_entries,
+            gate_safe_signal_strengths=gate_safe_signal_counter.most_common(),
+            source_trusts=source_trust_counter.most_common(),
+            gate_excluded_entries=gate_excluded_entries,
+            legacy_unverified_entries=legacy_unverified_entries,
+            suspect_entries=suspect_entries,
         )
 
     def _status(
         self,
         *,
         total_entries: int,
-        supporting_entries: int,
-        opposing_entries: int,
         gate_safe_entries: int,
         gate_safe_supporting_entries: int,
+        gate_safe_opposing_entries: int,
         gate_safe_primary_entries: int,
         gate_safe_signal_counter: Counter[str],
-        suspect_entries: int,
+        gate_excluded_entries: int,
     ) -> str:
         if total_entries == 0:
             return "NO_EVIDENCE"
 
-        if opposing_entries > supporting_entries:
+        if gate_safe_entries == 0 and gate_excluded_entries > 0:
+            return "EVIDENCE_NEEDS_VERIFICATION"
+
+        if gate_safe_opposing_entries > gate_safe_supporting_entries:
             return "NEGATIVE_OR_WEAK_SIGNAL"
 
         medium_or_strong = (
@@ -239,33 +311,24 @@ class ValidationEvidenceSummarizer:
             + gate_safe_signal_counter.get("medium", 0)
         )
 
-        has_enough_total_entries = gate_safe_entries >= self.MIN_READY_ENTRIES
-        has_enough_supporting_entries = (
-            gate_safe_supporting_entries >= self.MIN_READY_SUPPORTING
-        )
-        has_enough_medium_or_strong = (
-            medium_or_strong >= self.MIN_READY_MEDIUM_OR_STRONG
-        )
-        has_enough_primary_evidence = (
-            gate_safe_primary_entries >= self.MIN_PRIMARY_EVIDENCE_ENTRIES
-        )
-
         if (
-            has_enough_total_entries
-            and has_enough_supporting_entries
-            and has_enough_medium_or_strong
-            and has_enough_primary_evidence
+            gate_safe_entries >= self.MIN_READY_ENTRIES
+            and gate_safe_supporting_entries >= self.MIN_READY_SUPPORTING
+            and medium_or_strong >= self.MIN_READY_MEDIUM_OR_STRONG
+            and gate_safe_primary_entries >= self.MIN_PRIMARY_EVIDENCE_ENTRIES
         ):
             return "READY_FOR_HUMAN_REVIEW"
 
-        if suspect_entries > 0:
-            return "EVIDENCE_NEEDS_VERIFICATION"
-
-        if has_enough_total_entries:
+        if gate_safe_entries >= self.MIN_READY_ENTRIES:
+            if gate_safe_primary_entries < self.MIN_PRIMARY_EVIDENCE_ENTRIES:
+                return "NEEDS_FIRST_PARTY_VALIDATION"
             return "NEEDS_MORE_EVIDENCE"
 
-        if supporting_entries > 0:
+        if gate_safe_supporting_entries > 0:
             return "EARLY_SUPPORTING_SIGNAL"
+
+        if gate_safe_primary_entries < self.MIN_PRIMARY_EVIDENCE_ENTRIES:
+            return "NEEDS_FIRST_PARTY_VALIDATION"
 
         return "NEEDS_MORE_EVIDENCE"
 
@@ -273,7 +336,9 @@ class ValidationEvidenceSummarizer:
         self,
         *,
         status: str,
-        primary_entries: int,
+        gate_safe_primary_entries: int,
+        gate_excluded_entries: int,
+        legacy_unverified_entries: int,
         suspect_entries: int,
     ) -> str:
         if status == "NO_EVIDENCE":
@@ -287,20 +352,43 @@ class ValidationEvidenceSummarizer:
 
         if status == "NEGATIVE_OR_WEAK_SIGNAL":
             return (
-                "Review whether the validation plan should be rejected, revised, "
-                "or paused."
+                "Review the negative public or first-party signal, collect "
+                "counter-evidence, and decide whether the theme should be "
+                "revised, paused, rejected, or archived."
             )
 
-        if status == "EVIDENCE_NEEDS_VERIFICATION" or suspect_entries > 0:
+        if status == "EVIDENCE_NEEDS_VERIFICATION":
+            if suspect_entries > 0:
+                return (
+                    "Replace placeholder, test, or template-like evidence with "
+                    "new source-classified evidence before human review."
+                )
             return (
-                "Replace placeholder, test, or unverified evidence with real "
-                "validation evidence before human review."
+                "Current records are historical or unverified. Keep them as "
+                "audit history and collect new source-classified evidence "
+                "before human review."
             )
 
-        if primary_entries < self.MIN_PRIMARY_EVIDENCE_ENTRIES:
-            return "Collect more primary validation evidence before human review."
+        if status == "NEEDS_FIRST_PARTY_VALIDATION":
+            return (
+                "Public research may inform the theme, but collect "
+                "human-attested first-party evidence before human review."
+            )
+
+        if gate_safe_primary_entries < self.MIN_PRIMARY_EVIDENCE_ENTRIES:
+            return (
+                "Collect more human-attested first-party validation evidence "
+                "before human review."
+            )
+
+        if gate_excluded_entries or legacy_unverified_entries:
+            return (
+                "Continue with gate-safe evidence collection. Excluded legacy "
+                "records remain historical audit evidence and do not count "
+                "toward the gate."
+            )
 
         if status == "EARLY_SUPPORTING_SIGNAL":
-            return "Collect more real validation evidence before human review."
+            return "Collect more gate-safe validation evidence before human review."
 
-        return "Continue collecting validation evidence."
+        return "Continue collecting gate-safe validation evidence."

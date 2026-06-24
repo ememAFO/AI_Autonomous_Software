@@ -103,6 +103,7 @@ def add_ready_evidence(log: ValidationEvidenceLog) -> None:
             source_reference=f"Interview {index + 1}",
             signal_strength="strong" if index < 3 else "medium",
             supports_validation=True,
+            source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
         )
 
 
@@ -122,6 +123,7 @@ def test_validation_progress_snapshot_reports_blocked_early_signal():
         source_reference="Interview 1",
         signal_strength="strong",
         supports_validation=True,
+        source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
     )
 
     evidence_log.add_entry(
@@ -135,6 +137,7 @@ def test_validation_progress_snapshot_reports_blocked_early_signal():
         source_reference="manual_competitor_check_001",
         signal_strength="medium",
         supports_validation=True,
+        source_trust=ValidationEvidenceLog.PUBLIC_COMPETITOR,
     )
 
     snapshot = generator.generate(
@@ -350,6 +353,7 @@ def test_validation_progress_snapshot_reports_suspect_evidence_blocker():
                 "Primary evidence placeholder. "
                 "Replace with real interview reference."
             ),
+            source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
         )
 
     snapshot = generator.generate(
@@ -366,7 +370,7 @@ def test_validation_progress_snapshot_reports_suspect_evidence_blocker():
     assert snapshot.gate_safe_primary_entries == 0
     assert snapshot.suspect_entries == 5
     assert "gate-safe evidence 0/5" in snapshot.gate_reason
-    assert "suspect evidence 5" in snapshot.gate_reason
+    assert "excluded historical/template evidence 5" in snapshot.gate_reason
 
 def test_validation_progress_snapshot_flags_evidence_repair_after_ready_state():
     generator, registry, evidence_log = make_generator(
@@ -398,6 +402,7 @@ def test_validation_progress_snapshot_flags_evidence_repair_after_ready_state():
             signal_strength="strong",
             supports_validation=True,
             notes="Primary customer interview evidence.",
+            source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
         )
 
     registry.transition(

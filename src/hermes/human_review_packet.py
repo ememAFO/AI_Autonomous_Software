@@ -226,13 +226,13 @@ class HumanReviewPacketGenerator:
 
         risk_evidence = [
             entry
-            for entry in entries
+            for entry in gate_safe_evidence
             if entry.evidence_type == "risk_finding"
         ]
 
         opposing_evidence = [
             entry
-            for entry in entries
+            for entry in gate_safe_evidence
             if not entry.supports_validation
         ]
 
@@ -331,7 +331,15 @@ class HumanReviewPacketGenerator:
                     f"{packet.evidence_summary.gate_safe_entries}"
                 ),
                 (
-                    "- Excluded / Suspect Evidence Entries: "
+                    "- Gate-Excluded Evidence Entries: "
+                    f"{packet.evidence_summary.gate_excluded_entries}"
+                ),
+                (
+                    "- Legacy Unverified Evidence Entries: "
+                    f"{packet.evidence_summary.legacy_unverified_entries}"
+                ),
+                (
+                    "- Suspect / Placeholder Evidence Entries: "
                     f"{packet.evidence_summary.suspect_entries}"
                 ),
                 (
@@ -557,12 +565,12 @@ class HumanReviewPacketGenerator:
 
         if excluded_evidence:
             reasons.append(
-                f"{len(excluded_evidence)} suspect or placeholder evidence "
-                "entries were excluded from gate-safe counts and must not be "
-                "used as supporting proof."
+                f"{len(excluded_evidence)} historical, untrusted, or "
+                "template-like evidence entries were excluded from gate-safe "
+                "counts and must not be used as supporting proof."
             )
 
-        if evidence_summary.suspect_entries != len(excluded_evidence):
+        if evidence_summary.gate_excluded_entries != len(excluded_evidence):
             reasons.append(
                 "Evidence-verification counts require manual review because "
                 "the packet and summary disagree."
@@ -621,6 +629,10 @@ class HumanReviewPacketGenerator:
                         f"supports_validation={entry.supports_validation}"
                     ),
                     (
+                        "   - Source Trust: "
+                        f"{self._single_line(entry.source_trust)}"
+                    ),
+                    (
                         "   - Source Reference: "
                         f"{self._single_line(entry.source_reference)}"
                     ),
@@ -645,7 +657,7 @@ class HumanReviewPacketGenerator:
     ) -> list[str]:
         if not findings:
             return [
-                "- No suspect evidence was detected by the verification rules."
+                "- No evidence was excluded by the verification rules."
             ]
 
         lines = []
@@ -663,8 +675,16 @@ class HumanReviewPacketGenerator:
                         f"{self._single_line(finding.source_reference)}"
                     ),
                     (
+                        "   - Source Trust: "
+                        f"{self._single_line(finding.source_trust)}"
+                    ),
+                    (
                         "   - Matched Markers: "
-                        f"{', '.join(finding.matched_markers)}"
+                        f"{', '.join(finding.matched_markers) or 'None'}"
+                    ),
+                    (
+                        "   - Exclusion Reasons: "
+                        f"{', '.join(finding.exclusion_reasons)}"
                     ),
                     (
                         "   - Summary: "

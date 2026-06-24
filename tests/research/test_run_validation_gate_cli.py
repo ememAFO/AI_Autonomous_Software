@@ -73,6 +73,7 @@ def add_ready_evidence() -> None:
             source_reference=f"Interview {index + 1}",
             signal_strength="strong" if index < 3 else "medium",
             supports_validation=True,
+            source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
         )
 
 

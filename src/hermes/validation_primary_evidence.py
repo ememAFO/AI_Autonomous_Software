@@ -26,14 +26,11 @@ class PrimaryEvidenceInput:
 
 class ValidationPrimaryEvidenceLogger:
     """
-    Logs primary validation evidence into the validation evidence log.
+    Logs human-attested first-party evidence.
 
-    Purpose:
-    - record direct customer or behavioural validation evidence
-    - separate primary validation evidence from competitor/research evidence
-    - prevent secondary evidence from being treated as customer proof
-
-    This does not approve human review or building.
+    The caller attests that the underlying interaction happened. This logger
+    stores anonymised identifiers and summaries only; it does not store the
+    participant's personal data or raw conversation.
     """
 
     PRIMARY_EVIDENCE_TYPES = {
@@ -53,13 +50,10 @@ class ValidationPrimaryEvidenceLogger:
         self._validate_input(evidence)
 
         evidence_type = evidence.evidence_type.strip().lower()
-
         summary = (
-            f"Participant/Signal: {evidence.participant_reference}. "
-            f"Finding: {evidence.finding_summary}"
+            f"Participant/Signal: {evidence.participant_reference.strip()}. "
+            f"Finding: {evidence.finding_summary.strip()}"
         )
-
-        notes = self._build_notes(evidence)
 
         try:
             return self.evidence_log.add_entry(
@@ -70,7 +64,10 @@ class ValidationPrimaryEvidenceLogger:
                 source_reference=evidence.source_reference,
                 signal_strength=evidence.signal_strength,
                 supports_validation=evidence.supports_validation,
-                notes=notes,
+                source_trust=(
+                    ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY
+                ),
+                notes=self._build_notes(evidence),
             )
         except ValidationEvidenceLogError as exc:
             raise ValidationPrimaryEvidenceError(
@@ -85,25 +82,42 @@ class ValidationPrimaryEvidenceLogger:
                 f"Unsupported primary evidence type: {evidence.evidence_type}"
             )
 
-        if not evidence.theme.strip():
-            raise ValidationPrimaryEvidenceError("Theme is required")
+        self._validate_required_text("theme", evidence.theme)
+        self._validate_required_text(
+            "validation_plan_path",
+            evidence.validation_plan_path,
+        )
+        self._validate_reference(
+            "participant_reference",
+            evidence.participant_reference,
+        )
+        self._validate_required_text(
+            "finding_summary",
+            evidence.finding_summary,
+        )
+        self._validate_reference("source_reference", evidence.source_reference)
 
-        if not evidence.validation_plan_path.strip():
-            raise ValidationPrimaryEvidenceError("Validation plan path is required")
+    @staticmethod
+    def _validate_required_text(field_name: str, value: str) -> None:
+        if not isinstance(value, str) or not value.strip():
+            raise ValidationPrimaryEvidenceError(f"{field_name} is required")
 
-        if not evidence.participant_reference.strip():
-            raise ValidationPrimaryEvidenceError("Participant reference is required")
+    @staticmethod
+    def _validate_reference(field_name: str, value: str) -> None:
+        if not isinstance(value, str) or not value.strip():
+            raise ValidationPrimaryEvidenceError(f"{field_name} is required")
 
-        if not evidence.finding_summary.strip():
-            raise ValidationPrimaryEvidenceError("Finding summary is required")
-
-        if not evidence.source_reference.strip():
-            raise ValidationPrimaryEvidenceError("Source reference is required")
+        if len(value.strip()) > 160:
+            raise ValidationPrimaryEvidenceError(
+                f"{field_name} must be 160 characters or fewer"
+            )
 
     def _build_notes(self, evidence: PrimaryEvidenceInput) -> str:
         base_note = (
             "Primary validation evidence. "
-            "Treat as direct customer or behavioural validation signal."
+            "Source trust: human_attested_first_party. "
+            "Human-attested direct customer or behavioural evidence. "
+            "Do not store personal data or raw conversations in this log."
         )
 
         if evidence.notes.strip():

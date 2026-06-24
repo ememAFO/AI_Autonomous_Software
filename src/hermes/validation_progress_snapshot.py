@@ -34,8 +34,12 @@ class ValidationProgressSnapshot:
     risk_entries: int
     gate_safe_entries: int
     gate_safe_supporting_entries: int
+    gate_safe_opposing_entries: int
     gate_safe_primary_entries: int
+    gate_excluded_entries: int
+    legacy_unverified_entries: int
     suspect_entries: int
+    source_trusts: list[tuple[str, int]]
     recommended_next_action: str
     policy_version: str
     run_id: str
@@ -46,15 +50,8 @@ class ValidationProgressSnapshotGenerator:
     """
     Builds a read-only validation progress snapshot for a theme.
 
-    Purpose:
-    - show the current validation position in one place
-    - explain why a theme is blocked or ready for gate execution
-    - combine theme state, evidence summary, and gate conditions
-    - separate raw evidence from gate-safe evidence
-    - avoid accidental state changes
-
-    This does not approve human review or building.
-    This does not write state transitions.
+    It separates raw evidence history from source-classified gate-safe evidence
+    and never writes a state transition.
     """
 
     REQUIRED_GATE_STATE = ValidationGate.REQUIRED_CURRENT_STATE
@@ -76,7 +73,9 @@ class ValidationProgressSnapshotGenerator:
         evidence_summarizer: ValidationEvidenceSummarizer | None = None,
     ):
         self.state_registry = state_registry or ThemeStateRegistry()
-        self.evidence_summarizer = evidence_summarizer or ValidationEvidenceSummarizer()
+        self.evidence_summarizer = (
+            evidence_summarizer or ValidationEvidenceSummarizer()
+        )
 
     def generate(
         self,
@@ -94,9 +93,11 @@ class ValidationProgressSnapshotGenerator:
         current_state = self.state_registry.get_current_state(theme_id)
         evidence_summary = self.evidence_summarizer.summarize_theme(theme_name)
 
-        gate_status, gate_reason, recommended_next_action = self._gate_position(
-            current_state=current_state,
-            evidence_summary=evidence_summary,
+        gate_status, gate_reason, recommended_next_action = (
+            self._gate_position(
+                current_state=current_state,
+                evidence_summary=evidence_summary,
+            )
         )
 
         return ValidationProgressSnapshot(
@@ -109,7 +110,8 @@ class ValidationProgressSnapshotGenerator:
             total_entries=evidence_summary.total_entries,
             required_total_entries=self.MIN_READY_ENTRIES,
             total_entries_needed=max(
-                self.MIN_READY_ENTRIES - evidence_summary.total_entries,
+                self.MIN_READY_ENTRIES
+                - evidence_summary.gate_safe_entries,
                 0,
             ),
             supporting_entries=evidence_summary.supporting_entries,
@@ -118,7 +120,7 @@ class ValidationProgressSnapshotGenerator:
             required_primary_entries=self.MIN_PRIMARY_EVIDENCE_ENTRIES,
             primary_entries_needed=max(
                 self.MIN_PRIMARY_EVIDENCE_ENTRIES
-                - evidence_summary.primary_entries,
+                - evidence_summary.gate_safe_primary_entries,
                 0,
             ),
             secondary_entries=evidence_summary.secondary_entries,
@@ -127,8 +129,18 @@ class ValidationProgressSnapshotGenerator:
             gate_safe_supporting_entries=(
                 evidence_summary.gate_safe_supporting_entries
             ),
-            gate_safe_primary_entries=evidence_summary.gate_safe_primary_entries,
+            gate_safe_opposing_entries=(
+                evidence_summary.gate_safe_opposing_entries
+            ),
+            gate_safe_primary_entries=(
+                evidence_summary.gate_safe_primary_entries
+            ),
+            gate_excluded_entries=evidence_summary.gate_excluded_entries,
+            legacy_unverified_entries=(
+                evidence_summary.legacy_unverified_entries
+            ),
             suspect_entries=evidence_summary.suspect_entries,
+            source_trusts=evidence_summary.source_trusts,
             recommended_next_action=recommended_next_action,
             policy_version=policy_version,
             run_id=run_id,
@@ -147,23 +159,30 @@ class ValidationProgressSnapshotGenerator:
 - Run ID: {snapshot.run_id}
 - Timestamp: {snapshot.timestamp}
 
-## Evidence Position
+## Raw Evidence History
 
-- Evidence Status: {snapshot.evidence_status}
-- Total Evidence: {snapshot.total_entries} / {snapshot.required_total_entries}
-- Total Evidence Still Needed: {snapshot.total_entries_needed}
-- Primary Evidence: {snapshot.primary_entries} / {snapshot.required_primary_entries}
-- Primary Evidence Still Needed: {snapshot.primary_entries_needed}
-- Secondary Evidence: {snapshot.secondary_entries}
-- Risk Evidence: {snapshot.risk_entries}
-- Supporting Entries: {snapshot.supporting_entries}
-- Opposing Entries: {snapshot.opposing_entries}
+- Raw Evidence Entries: {snapshot.total_entries}
+- Raw Primary-Type Entries: {snapshot.primary_entries}
+- Raw Secondary Entries: {snapshot.secondary_entries}
+- Raw Risk Entries: {snapshot.risk_entries}
+- Raw Supporting Entries: {snapshot.supporting_entries}
+- Raw Opposing Entries: {snapshot.opposing_entries}
+
+## Source Trust
+
+{self._format_source_trusts(snapshot.source_trusts)}
 
 ## Gate-Safe Evidence Position
 
+- Evidence Status: {snapshot.evidence_status}
 - Gate-Safe Evidence: {snapshot.gate_safe_entries} / {snapshot.required_total_entries}
+- Gate-Safe Evidence Still Needed: {snapshot.total_entries_needed}
 - Gate-Safe Primary Evidence: {snapshot.gate_safe_primary_entries} / {snapshot.required_primary_entries}
+- Gate-Safe Primary Evidence Still Needed: {snapshot.primary_entries_needed}
 - Gate-Safe Supporting Evidence: {snapshot.gate_safe_supporting_entries}
+- Gate-Safe Opposing Evidence: {snapshot.gate_safe_opposing_entries}
+- Gate-Excluded Evidence: {snapshot.gate_excluded_entries}
+- Legacy Unverified Evidence: {snapshot.legacy_unverified_entries}
 - Suspect / Placeholder Evidence: {snapshot.suspect_entries}
 
 ## Gate Position
@@ -190,7 +209,6 @@ This snapshot is read-only. It does not approve human review, does not approve b
         self._validate_output_path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(self.format_markdown(snapshot), encoding="utf-8")
-
         return path
 
     def _gate_position(
@@ -211,21 +229,21 @@ This snapshot is read-only. It does not approve human review, does not approve b
                 return (
                     "ALREADY_READY_FOR_REVIEW",
                     (
-                        "Theme has already passed the validation gate and is ready "
-                        "for human review."
+                        "Theme has already passed the validation gate and is "
+                        "ready for human review."
                     ),
                     (
-                        "Generate the human review packet. This still does not "
-                        "approve building."
+                        "Generate the human review packet. This still does "
+                        "not approve building."
                     ),
                 )
 
             blockers = self._evidence_blockers(evidence_summary)
-
-            blocker_text = ""
-            if blockers:
-                blocker_text = " Blockers: " + "; ".join(blockers) + "."
-
+            blocker_text = (
+                " Blockers: " + "; ".join(blockers) + "."
+                if blockers
+                else ""
+            )
             return (
                 "REVIEW_REQUIRES_EVIDENCE_REPAIR",
                 (
@@ -234,9 +252,9 @@ This snapshot is read-only. It does not approve human review, does not approve b
                     f"{evidence_summary.status}.{blocker_text}"
                 ),
                 (
-                    "Do not approve MVP planning. Repair or verify evidence, then "
-                    "record a human decision to return the theme to validation "
-                    "or reject/archive."
+                    "Do not approve MVP planning. Repair or verify evidence, "
+                    "then record a human decision to return the theme to "
+                    "validation or reject/archive."
                 ),
             )
 
@@ -247,22 +265,24 @@ This snapshot is read-only. It does not approve human review, does not approve b
                     f"Validation gate requires current state "
                     f"{self.REQUIRED_GATE_STATE}, got {current_state}."
                 ),
-                "Move the theme through the required validation workflow before gate review.",
+                (
+                    "Move the theme through the required validation workflow "
+                    "before gate review."
+                ),
             )
 
         if evidence_summary.status != self.REQUIRED_EVIDENCE_STATUS:
             blockers = self._evidence_blockers(evidence_summary)
-
-            blocker_text = ""
-            if blockers:
-                blocker_text = " Blockers: " + "; ".join(blockers) + "."
-
+            blocker_text = (
+                " Blockers: " + "; ".join(blockers) + "."
+                if blockers
+                else ""
+            )
             return (
                 "BLOCKED",
                 (
-                    f"Validation evidence is not ready for human review: "
-                    f"{evidence_summary.status}."
-                    f"{blocker_text}"
+                    "Validation evidence is not ready for human review: "
+                    f"{evidence_summary.status}.{blocker_text}"
                 ),
                 evidence_summary.recommended_next_action,
             )
@@ -271,9 +291,13 @@ This snapshot is read-only. It does not approve human review, does not approve b
             "READY_FOR_HUMAN_REVIEW",
             (
                 "Snapshot indicates the validation gate conditions are met. "
-                "Run the ValidationGate to record the READY_FOR_REVIEW transition."
+                "Run the ValidationGate to record the READY_FOR_REVIEW "
+                "transition."
             ),
-            "Run the ValidationGate and prepare a human review request if it passes.",
+            (
+                "Run the ValidationGate and prepare a human review request "
+                "if it passes."
+            ),
         )
 
     def _evidence_blockers(
@@ -284,61 +308,88 @@ This snapshot is read-only. It does not approve human review, does not approve b
 
         if evidence_summary.gate_safe_entries < self.MIN_READY_ENTRIES:
             blockers.append(
-                f"gate-safe evidence "
-                f"{evidence_summary.gate_safe_entries}/{self.MIN_READY_ENTRIES}"
+                "gate-safe evidence "
+                f"{evidence_summary.gate_safe_entries}/"
+                f"{self.MIN_READY_ENTRIES}"
             )
 
         if evidence_summary.gate_safe_primary_entries < (
             self.MIN_PRIMARY_EVIDENCE_ENTRIES
         ):
             blockers.append(
-                f"gate-safe primary evidence "
+                "gate-safe primary evidence "
                 f"{evidence_summary.gate_safe_primary_entries}/"
                 f"{self.MIN_PRIMARY_EVIDENCE_ENTRIES}"
             )
 
-        if evidence_summary.gate_safe_supporting_entries < self.MIN_READY_SUPPORTING:
+        if (
+            evidence_summary.gate_safe_supporting_entries
+            < self.MIN_READY_SUPPORTING
+        ):
             blockers.append(
-                f"gate-safe supporting evidence "
+                "gate-safe supporting evidence "
                 f"{evidence_summary.gate_safe_supporting_entries}/"
                 f"{self.MIN_READY_SUPPORTING}"
             )
 
-        signal_strengths = dict(evidence_summary.signal_strengths)
-        medium_or_strong = (
-            signal_strengths.get("strong", 0)
-            + signal_strengths.get("medium", 0)
+        gate_safe_signal_strengths = dict(
+            evidence_summary.gate_safe_signal_strengths
         )
-
+        medium_or_strong = (
+            gate_safe_signal_strengths.get("strong", 0)
+            + gate_safe_signal_strengths.get("medium", 0)
+        )
         if medium_or_strong < self.MIN_READY_MEDIUM_OR_STRONG:
             blockers.append(
-                f"medium-or-strong signals "
+                "gate-safe medium-or-strong signals "
                 f"{medium_or_strong}/{self.MIN_READY_MEDIUM_OR_STRONG}"
             )
 
-        if evidence_summary.opposing_entries > evidence_summary.supporting_entries:
-            blockers.append("opposing evidence exceeds supporting evidence")
-
-        if evidence_summary.suspect_entries > 0:
+        if (
+            evidence_summary.gate_safe_opposing_entries
+            > evidence_summary.gate_safe_supporting_entries
+        ):
             blockers.append(
-                f"suspect evidence "
-                f"{evidence_summary.suspect_entries} entries require replacement"
+                "gate-safe opposing evidence exceeds supporting evidence"
+            )
+
+        if evidence_summary.gate_excluded_entries > 0:
+            blockers.append(
+                "excluded historical/template evidence "
+                f"{evidence_summary.gate_excluded_entries}"
             )
 
         return blockers
 
-    def _validate_required_text(self, field_name: str, value: str) -> None:
+    @staticmethod
+    def _format_source_trusts(
+        source_trusts: list[tuple[str, int]],
+    ) -> str:
+        if not source_trusts:
+            return "- No evidence source classifications recorded."
+
+        return "\n".join(
+            f"- {source_trust}: {count}"
+            for source_trust, count in source_trusts
+        )
+
+    @staticmethod
+    def _validate_required_text(field_name: str, value: str) -> None:
         if not isinstance(value, str) or not value.strip():
             raise ValidationProgressSnapshotError(f"{field_name} is required")
 
-    def _validate_output_path(self, output_path: Path) -> None:
+    @staticmethod
+    def _validate_output_path(output_path: Path) -> None:
         resolved = output_path.resolve()
         project_root = Path.cwd().resolve()
-        allowed_root = (project_root / "reports" / "intelligence").resolve()
+        allowed_root = (
+            project_root / "reports" / "intelligence"
+        ).resolve()
 
         if not str(resolved).startswith(str(allowed_root)):
             raise ValidationProgressSnapshotError(
-                "Validation progress snapshot must be written inside reports/intelligence"
+                "Validation progress snapshot must be written inside "
+                "reports/intelligence"
             )
 
         if resolved.suffix != ".md":

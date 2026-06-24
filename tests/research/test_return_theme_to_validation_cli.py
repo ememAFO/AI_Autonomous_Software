@@ -105,6 +105,7 @@ def add_template_evidence() -> None:
             signal_strength="strong",
             supports_validation=True,
             notes="Primary customer interview evidence.",
+            source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
         )
 
 

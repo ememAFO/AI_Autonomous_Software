@@ -17,7 +17,7 @@ from src.hermes.validation_primary_evidence import (
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Add primary validation evidence to the validation evidence log."
+        description="Add human-attested first-party validation evidence."
     )
 
     parser.add_argument("--theme", required=True)
@@ -30,22 +30,19 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--supports-validation",
         action="store_true",
-        help="Mark this primary evidence as supporting the validation theme.",
+        help="Mark this first-party evidence as supporting the validation theme.",
     )
     parser.add_argument("--notes", default="")
-
     parser.add_argument(
         "--evidence-log-path",
         default="reports/intelligence/validation_evidence_log.json",
         help="Path to the validation evidence log JSON file.",
     )
-
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-
     logger = ValidationPrimaryEvidenceLogger(
         ValidationEvidenceLog(log_path=args.evidence_log_path)
     )
@@ -72,11 +69,11 @@ def main() -> int:
     print("----------------------")
     print(f"Theme: {entry.theme}")
     print(f"Evidence Type: {entry.evidence_type}")
+    print(f"Source Trust: {entry.source_trust}")
     print(f"Signal Strength: {entry.signal_strength}")
     print(f"Supports Validation: {entry.supports_validation}")
     print(f"Source Reference: {entry.source_reference}")
     print(f"Timestamp: {entry.timestamp}")
-
     return 0
 
 

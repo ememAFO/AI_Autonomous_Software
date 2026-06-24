@@ -89,6 +89,7 @@ def test_factory_health_check_passes_for_valid_registries():
         source_reference="Interview 1",
         signal_strength="strong",
         supports_validation=True,
+        source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
     )
 
     report = FactoryHealthChecker(
@@ -161,6 +162,7 @@ def test_factory_health_check_fails_when_evidence_references_missing_plan():
         source_reference="Interview 1",
         signal_strength="strong",
         supports_validation=True,
+        source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
     )
 
     report = FactoryHealthChecker(
@@ -205,6 +207,7 @@ def test_factory_health_check_reports_primary_evidence_blockage():
         source_reference="Interview 1",
         signal_strength="strong",
         supports_validation=True,
+        source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
     )
 
     evidence_log.add_entry(
@@ -215,6 +218,7 @@ def test_factory_health_check_reports_primary_evidence_blockage():
         source_reference="manual_competitor_check_001",
         signal_strength="medium",
         supports_validation=True,
+        source_trust=ValidationEvidenceLog.PUBLIC_COMPETITOR,
     )
 
     report = FactoryHealthChecker(
@@ -232,7 +236,7 @@ def test_factory_health_check_reports_primary_evidence_blockage():
     assert report.status == "PASS"
     assert readiness_result.status == "PASS"
     assert "EARLY_SUPPORTING_SIGNAL" in readiness_result.message
-    assert "primary=1" in readiness_result.message
+    assert "gate_safe_primary=1" in readiness_result.message
     assert "secondary=1" in readiness_result.message
     assert "risk=0" in readiness_result.message
-    assert "Collect more primary validation evidence" in readiness_result.message
+    assert "Collect more human-attested first-party" in readiness_result.message

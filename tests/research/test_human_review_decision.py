@@ -139,6 +139,7 @@ def add_template_evidence(
             signal_strength="strong",
             supports_validation=True,
             notes="Primary customer interview evidence.",
+            source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
         )
 
 
@@ -160,6 +161,7 @@ def add_clean_evidence(
             signal_strength="strong" if index < 3 else "medium",
             supports_validation=True,
             notes="Primary customer interview evidence.",
+            source_trust=ValidationEvidenceLog.HUMAN_ATTESTED_FIRST_PARTY,
         )
 
 

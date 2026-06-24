@@ -56,11 +56,18 @@ def main() -> int:
     print("-----------------------------------")
     print(f"Theme: {guide.theme}")
     print(f"Evidence Status: {guide.evidence_status}")
-    print(f"Total Entries: {guide.total_entries}")
-    print(f"Primary Entries: {guide.primary_entries}")
+    print(f"Raw Entries: {guide.total_entries}")
+    print(f"Gate-Safe Entries: {guide.gate_safe_entries}")
+    print(f"Raw Primary-Type Entries: {guide.primary_entries}")
+    print(
+        "Gate-Safe First-Party Primary Entries: "
+        f"{guide.gate_safe_primary_entries}"
+    )
     print(f"Secondary Entries: {guide.secondary_entries}")
     print(f"Risk Entries: {guide.risk_entries}")
-    print(f"Primary Entries Needed: {guide.primary_entries_needed}")
+    print(f"Gate-Excluded Entries: {guide.gate_excluded_entries}")
+    print(f"Legacy Unverified Entries: {guide.legacy_unverified_entries}")
+    print(f"First-Party Entries Needed: {guide.primary_entries_needed}")
     print(f"Supporting Entries: {guide.supporting_entries}")
     print(f"Opposing Entries: {guide.opposing_entries}")
     print(f"Additional Entries Needed: {guide.additional_entries_needed}")

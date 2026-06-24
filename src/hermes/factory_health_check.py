@@ -234,10 +234,12 @@ class FactoryHealthChecker:
         summary_messages = [
             (
                 f"{summary.theme}: {summary.status} "
-                f"(total={summary.total_entries}, "
-                f"primary={summary.primary_entries}, "
+                f"(raw_total={summary.total_entries}, "
+                f"gate_safe={summary.gate_safe_entries}, "
+                f"gate_safe_primary={summary.gate_safe_primary_entries}, "
                 f"secondary={summary.secondary_entries}, "
-                f"risk={summary.risk_entries}). "
+                f"risk={summary.risk_entries}, "
+                f"excluded={summary.gate_excluded_entries}). "
                 f"Next action: {summary.recommended_next_action}"
             )
             for summary in summaries
