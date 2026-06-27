@@ -72,20 +72,29 @@ def main() -> int:
     print(f"Theme: {report.theme}")
     print(f"Total Evidence Entries: {report.total_entries}")
     print(f"Gate-Safe Evidence Entries: {report.gate_safe_entries}")
+    print( f"Gate-Excluded Evidence Entries: "f"{report.gate_excluded_entries}")
+    print(f"Legacy Unverified Entries: "f"{report.legacy_unverified_entries}")
     print(f"Suspect / Placeholder Entries: {report.suspect_entries}")
 
     if report.findings:
-        print("\nSuspect Entries:")
+        print("\nGate-Excluded Evidence Entries:")
+
         for finding in report.findings:
+            markers = ", ".join(finding.matched_markers) or "None"
+            exclusion_reasons = ", ".join(
+                finding.exclusion_reasons
+            )
+
             print(
                 f"- Entry {finding.entry_index}: "
                 f"{finding.evidence_type} | "
                 f"{finding.source_reference} | "
-                f"markers={', '.join(finding.matched_markers)}"
+                f"trust={finding.source_trust} | "
+                f"exclusion_reasons={exclusion_reasons} | "
+                f"markers={markers}"
             )
     else:
-        print("\nNo suspect entries detected.")
-
+        print("\nNo gate-excluded entries detected.")
     print(f"\nOutput Path: {written_path}")
 
     return 0
