@@ -116,7 +116,7 @@ class ThemeValidationPlanRegistry:
         project_root = Path.cwd().resolve()
         allowed_root = (project_root / "reports" / "intelligence").resolve()
 
-        if not str(resolved).startswith(str(allowed_root)):
+        if not self._is_within(resolved, allowed_root):
             raise ThemeValidationPlanRegistryError(
                 "Validation plan registry must stay inside reports/intelligence"
             )
@@ -127,3 +127,11 @@ class ThemeValidationPlanRegistry:
             )
 
         return resolved
+
+    @staticmethod
+    def _is_within(path: Path, root: Path) -> bool:
+        try:
+            path.relative_to(root)
+            return True
+        except ValueError:
+            return False

@@ -73,3 +73,12 @@ def test_theme_validation_plan_registry_blocks_invalid_json():
 
     with pytest.raises(ThemeValidationPlanRegistryError):
         registry.list_entries()
+
+def test_theme_validation_plan_registry_blocks_sibling_prefix_registry_path():
+    with pytest.raises(ThemeValidationPlanRegistryError):
+        ThemeValidationPlanRegistry(
+            registry_path=(
+                "reports/intelligence_backup/"
+                "unsafe_validation_plan_index.json"
+            )
+        )

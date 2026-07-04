@@ -69,3 +69,9 @@ def test_theme_validation_plan_generator_blocks_non_ready_theme():
 def test_theme_validation_plan_generator_blocks_unsafe_output_dir():
     with pytest.raises(ThemeValidationPlanError):
         ThemeValidationPlanGenerator(output_dir="../../unsafe")
+
+def test_theme_validation_plan_generator_blocks_sibling_prefix_output_dir():
+    with pytest.raises(ThemeValidationPlanError):
+        ThemeValidationPlanGenerator(
+            output_dir="reports/intelligence_backup/test_validation_plans"
+        )

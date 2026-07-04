@@ -261,7 +261,7 @@ This validation plan does not approve MVP building. It only defines the evidence
 
         report_path = (self.output_dir / f"{safe_theme}_validation_plan.md").resolve()
 
-        if not str(report_path).startswith(str(self.output_dir)):
+        if not self._is_within(report_path, self.output_dir):
             raise ThemeValidationPlanError("Unsafe validation plan path detected")
 
         return report_path
@@ -271,9 +271,17 @@ This validation plan does not approve MVP building. It only defines the evidence
         project_root = Path.cwd().resolve()
         allowed_root = (project_root / "reports" / "intelligence").resolve()
 
-        if not str(resolved).startswith(str(allowed_root)):
+        if not self._is_within(resolved, allowed_root):
             raise ThemeValidationPlanError(
                 "Validation plans must stay inside reports/intelligence"
             )
 
         return resolved
+
+    @staticmethod
+    def _is_within(path: Path, root: Path) -> bool:
+        try:
+            path.relative_to(root)
+            return True
+        except ValueError:
+            return False
