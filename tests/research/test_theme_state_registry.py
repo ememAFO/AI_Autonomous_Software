@@ -425,3 +425,122 @@ def test_theme_state_registry_blocks_terminal_state_transition():
             policy_version="2026-06-08.v1",
             run_id="pipeline_test_terminal_004",
         )
+
+
+def test_theme_state_registry_records_controlled_mvp_planning_approval():
+    registry = make_registry(
+        "reports/intelligence/test_theme_state_registry_mvp_planning.json"
+    )
+    register_theme(registry)
+
+    registry.transition(
+        theme_id="lead_follow_up_001",
+        theme_name="Lead follow-up automation",
+        new_state="VALIDATION_READY",
+        trigger="validation_readiness_passed",
+        reason="Theme met validation readiness criteria.",
+        changed_by="ThemeValidationReadinessEvaluator",
+        related_artifact_id="readiness_report_001",
+        policy_version="2026-06-08.v1",
+        run_id="pipeline_test_mvp_001",
+    )
+    registry.transition(
+        theme_id="lead_follow_up_001",
+        theme_name="Lead follow-up automation",
+        new_state="VALIDATING",
+        trigger="validation_plan_created",
+        reason="Validation plan created.",
+        changed_by="ThemeValidationPlanGenerator",
+        related_artifact_id="validation_plan_001",
+        policy_version="2026-06-08.v1",
+        run_id="pipeline_test_mvp_002",
+    )
+    registry.transition(
+        theme_id="lead_follow_up_001",
+        theme_name="Lead follow-up automation",
+        new_state="READY_FOR_REVIEW",
+        trigger="validation_gate_passed",
+        reason="Validation evidence met human review threshold.",
+        changed_by="ValidationGate",
+        related_artifact_id="human_review_packet_001",
+        policy_version="2026-06-08.v1",
+        run_id="pipeline_test_mvp_003",
+    )
+
+    event = registry.approve_mvp_planning_after_human_review(
+        theme_id="lead_follow_up_001",
+        theme_name="Lead follow-up automation",
+        reason="Human review approved controlled MVP planning.",
+        related_artifact_id="reports/intelligence/human_review_packets/packet.md",
+        policy_version="2026-06-08.v1",
+        run_id="pipeline_test_mvp_004",
+    )
+
+    assert event.previous_state == "READY_FOR_REVIEW"
+    assert event.new_state == "MVP_PLANNING"
+    assert event.trigger == ThemeStateRegistry.HUMAN_REVIEW_APPROVE_TRIGGER
+    assert event.changed_by == ThemeStateRegistry.HUMAN_REVIEW_RETURN_ACTOR
+    assert registry.get_current_state("lead_follow_up_001") == "MVP_PLANNING"
+
+
+def test_theme_state_registry_blocks_generic_mvp_planning_transition():
+    registry = make_registry(
+        "reports/intelligence/test_theme_state_registry_generic_mvp_block.json"
+    )
+    register_theme(registry)
+
+    registry.transition(
+        theme_id="lead_follow_up_001",
+        theme_name="Lead follow-up automation",
+        new_state="VALIDATION_READY",
+        trigger="validation_readiness_passed",
+        reason="Theme met validation readiness criteria.",
+        changed_by="ThemeValidationReadinessEvaluator",
+        related_artifact_id="readiness_report_001",
+        policy_version="2026-06-08.v1",
+        run_id="pipeline_test_mvp_block_001",
+    )
+    registry.transition(
+        theme_id="lead_follow_up_001",
+        theme_name="Lead follow-up automation",
+        new_state="VALIDATING",
+        trigger="validation_plan_created",
+        reason="Validation plan created.",
+        changed_by="ThemeValidationPlanGenerator",
+        related_artifact_id="validation_plan_001",
+        policy_version="2026-06-08.v1",
+        run_id="pipeline_test_mvp_block_002",
+    )
+    registry.transition(
+        theme_id="lead_follow_up_001",
+        theme_name="Lead follow-up automation",
+        new_state="READY_FOR_REVIEW",
+        trigger="validation_gate_passed",
+        reason="Validation evidence met human review threshold.",
+        changed_by="ValidationGate",
+        related_artifact_id="human_review_packet_001",
+        policy_version="2026-06-08.v1",
+        run_id="pipeline_test_mvp_block_003",
+    )
+
+    with pytest.raises(InvalidTransitionError):
+        registry.transition(
+            theme_id="lead_follow_up_001",
+            theme_name="Lead follow-up automation",
+            new_state="MVP_PLANNING",
+            trigger="manual_mvp_approval",
+            reason="Unsafe generic approval attempt.",
+            changed_by="update_theme_state_cli",
+            related_artifact_id="manual_cli_update",
+            policy_version="2026-06-08.v1",
+            run_id="pipeline_test_mvp_block_004",
+        )
+
+def test_theme_state_registry_blocks_sibling_prefix_registry_path():
+    with pytest.raises(ThemeStateRegistryError):
+        ThemeStateRegistry(
+            registry_path=(
+                "reports/intelligence_backup/"
+                "unsafe_state_registry.json"
+            )
+        )

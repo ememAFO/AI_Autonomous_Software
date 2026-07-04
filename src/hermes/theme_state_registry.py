@@ -63,6 +63,7 @@ class ThemeStateRegistry:
         "VALIDATION_READY",
         "VALIDATING",
         "READY_FOR_REVIEW",
+        "MVP_PLANNING",
         "REJECTED",
         "ARCHIVED",
     }
@@ -74,16 +75,21 @@ class ThemeStateRegistry:
         "VALIDATING": {"READY_FOR_REVIEW", "REJECTED"},
         "REJECTED": {"ARCHIVED"},
         "READY_FOR_REVIEW": set(),
+        "MVP_PLANNING": set(),
         "ARCHIVED": set(),
     }
 
     INITIAL_STATE = "RESEARCHED"
 
     HUMAN_REVIEW_RETURN_TRIGGER = "human_review_returned_to_validation"
-    HUMAN_REVIEW_RETURN_ACTOR = "HumanReviewDecisionService"
+    HUMAN_REVIEW_APPROVE_TRIGGER = "human_review_approved_mvp_planning"
+    HUMAN_REVIEW_REJECT_TRIGGER = "human_review_rejected"
+    HUMAN_REVIEW_DECISION_ACTOR = "HumanReviewDecisionService"
+    HUMAN_REVIEW_RETURN_ACTOR = HUMAN_REVIEW_DECISION_ACTOR
 
     TERMINAL_STATES = {
         "READY_FOR_REVIEW",
+        "MVP_PLANNING",
         "ARCHIVED",
     }
 
@@ -214,6 +220,103 @@ class ThemeStateRegistry:
             trigger=self.HUMAN_REVIEW_RETURN_TRIGGER,
             reason=reason,
             changed_by=self.HUMAN_REVIEW_RETURN_ACTOR,
+            related_artifact_id=related_artifact_id,
+            policy_version=policy_version,
+            run_id=run_id,
+        )
+
+        self._append_event(event)
+        return event
+
+    def approve_mvp_planning_after_human_review(
+        self,
+        *,
+        theme_id: str,
+        theme_name: str,
+        reason: str,
+        related_artifact_id: str,
+        policy_version: str,
+        run_id: str,
+    ) -> ThemeStateEvent:
+        """
+        Records the controlled human-review outcome:
+
+        READY_FOR_REVIEW -> MVP_PLANNING
+
+        MVP_PLANNING is planning only. It does not approve implementation,
+        integration, deployment, or autonomous execution.
+        """
+        return self._record_human_review_resolution(
+            theme_id=theme_id,
+            theme_name=theme_name,
+            new_state="MVP_PLANNING",
+            trigger=self.HUMAN_REVIEW_APPROVE_TRIGGER,
+            reason=reason,
+            related_artifact_id=related_artifact_id,
+            policy_version=policy_version,
+            run_id=run_id,
+        )
+
+    def reject_after_human_review(
+        self,
+        *,
+        theme_id: str,
+        theme_name: str,
+        reason: str,
+        related_artifact_id: str,
+        policy_version: str,
+        run_id: str,
+    ) -> ThemeStateEvent:
+        """Records the controlled human-review outcome READY_FOR_REVIEW -> REJECTED."""
+        return self._record_human_review_resolution(
+            theme_id=theme_id,
+            theme_name=theme_name,
+            new_state="REJECTED",
+            trigger=self.HUMAN_REVIEW_REJECT_TRIGGER,
+            reason=reason,
+            related_artifact_id=related_artifact_id,
+            policy_version=policy_version,
+            run_id=run_id,
+        )
+
+    def _record_human_review_resolution(
+        self,
+        *,
+        theme_id: str,
+        theme_name: str,
+        new_state: str,
+        trigger: str,
+        reason: str,
+        related_artifact_id: str,
+        policy_version: str,
+        run_id: str,
+    ) -> ThemeStateEvent:
+        current_state = self.get_current_state(theme_id)
+
+        if current_state is None:
+            raise ThemeNotFoundError(
+                f"Theme must be registered before human review resolution: {theme_id}"
+            )
+
+        if current_state != "READY_FOR_REVIEW":
+            raise InvalidTransitionError(
+                "Human review resolution requires current state READY_FOR_REVIEW, "
+                f"got {current_state}"
+            )
+
+        self._validate_theme_name(
+            theme_id=theme_id,
+            theme_name=theme_name,
+        )
+
+        event = self._build_event(
+            theme_id=theme_id,
+            theme_name=theme_name,
+            previous_state=current_state,
+            new_state=new_state,
+            trigger=trigger,
+            reason=reason,
+            changed_by=self.HUMAN_REVIEW_DECISION_ACTOR,
             related_artifact_id=related_artifact_id,
             policy_version=policy_version,
             run_id=run_id,
@@ -416,12 +519,20 @@ class ThemeStateRegistry:
 
         return hashlib.sha256(normalized).hexdigest()
 
+    @staticmethod
+    def _is_within(path: Path, root: Path) -> bool:
+        try:
+            path.relative_to(root)
+            return True
+        except ValueError:
+            return False
+
     def _validate_registry_path(self, registry_path: Path) -> Path:
         resolved = registry_path.resolve()
         project_root = Path.cwd().resolve()
         allowed_root = (project_root / "reports" / "intelligence").resolve()
 
-        if not str(resolved).startswith(str(allowed_root)):
+        if not self._is_within(resolved, allowed_root):
             raise ThemeStateRegistryError(
                 "Theme state registry must stay inside reports/intelligence"
             )
