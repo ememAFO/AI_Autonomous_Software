@@ -1,0 +1,70 @@
+{
+  "campaign_id": "EOP-0001-FPV-20260805",
+  "idempotency": {
+    "distributed_backend_required_before_live": true,
+    "key_max_length": 128,
+    "key_min_length": 8,
+    "raw_idempotency_key_persistence_allowed": false,
+    "required": true,
+    "same_key_different_body_conflict": true,
+    "same_key_same_body_returns_cached_response": true,
+    "status": "IN_PROCESS_SYNTHETIC_ONLY",
+    "ttl_seconds": 600
+  },
+  "live_http_adapter_approved": false,
+  "mode": "in_process_synthetic_only",
+  "network_listener_allowed": false,
+  "policy_id": "EOP-0001-STAGE4J-D-HTTP-ADAPTER-0.1",
+  "protected_actions": {
+    "automatic_outreach_allowed": false,
+    "customer_messaging_allowed": false,
+    "live_contact_collection_allowed": false,
+    "live_server_side_storage_allowed": false,
+    "network_submission_allowed": false,
+    "participant_contact_allowed": false,
+    "public_deployment_allowed": false,
+    "public_posting_allowed": false,
+    "validation_log_import_allowed": false,
+    "validation_state_change_allowed": false
+  },
+  "purpose": "model_future_http_routing_without_network_binding",
+  "rate_limit": {
+    "adapter_uses_stage4j_c_synthetic_limiter": true,
+    "distributed_backend_required_before_live": true,
+    "raw_network_identifier_persistence_allowed": false
+  },
+  "responses": {
+    "cache_control_no_store_required": true,
+    "contact_name_echo_allowed": false,
+    "contact_value_echo_allowed": false,
+    "internal_exception_text_allowed": false,
+    "participant_token_in_url_allowed": false,
+    "research_may_return_participant_token": true,
+    "security_headers_required": true
+  },
+  "routes": {
+    "/contact": {
+      "method": "POST",
+      "request_kind": "contact",
+      "success_status": 201
+    },
+    "/research": {
+      "method": "POST",
+      "request_kind": "research",
+      "success_status": 201
+    }
+  },
+  "socket_binding_allowed": false,
+  "storage": {
+    "live_storage_allowed": false,
+    "stage4g_automatic_handoff_allowed": false,
+    "stage4j_b_synthetic_store_only": true,
+    "validation_log_import_allowed": false
+  },
+  "synthetic_origin": {
+    "in_process_origin_bypass_allowed": true,
+    "live_origin_bypass_allowed": false,
+    "reason": "Stage 4J-C live origin allow-list is intentionally empty"
+  },
+  "web_framework_dependency_allowed": false
+}
