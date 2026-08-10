@@ -1,0 +1,48 @@
+{
+  "campaign_id": "EOP-0001-FPV-20260805",
+  "gate_id": "EOP-0001-STAGE4J-C-SECURITY-0.1",
+  "http_adapter_present": false,
+  "human_review": {
+    "approval_reference": "emem-stage4j-c-20260811",
+    "decision": "APPROVE",
+    "http_adapter_approved": false,
+    "live_contact_collection_approved": false,
+    "live_server_side_storage_approved": false,
+    "network_submission_approved": false,
+    "participant_contact_approved": false,
+    "public_deployment_approved": false,
+    "scope": "security_and_abuse_boundary_only",
+    "validation_log_import_approved": false
+  },
+  "live_security_controls_enabled": false,
+  "network_listener_present": false,
+  "protected_actions": {
+    "automatic_outreach_allowed": false,
+    "customer_messaging_allowed": false,
+    "live_contact_collection_allowed": false,
+    "live_server_side_storage_allowed": false,
+    "network_submission_allowed": false,
+    "participant_contact_allowed": false,
+    "public_deployment_allowed": false,
+    "public_posting_allowed": false,
+    "validation_log_import_allowed": false,
+    "validation_state_change_allowed": false
+  },
+  "purpose": "validate_future_http_security_contract_without_network",
+  "required_reviews": {
+    "contact_access_boundary_reviewed": true,
+    "error_disclosure_test_passed": true,
+    "full_regression_passed": true,
+    "human_security_boundary_approval_recorded": true,
+    "identifier_minimisation_test_passed": true,
+    "method_and_content_type_test_passed": true,
+    "origin_fail_closed_test_passed": true,
+    "privacy_retention_prerequisites_reviewed": true,
+    "rate_limit_design_test_passed": true,
+    "request_envelope_limits_test_passed": true,
+    "secret_handling_boundary_reviewed": true,
+    "security_header_contract_test_passed": true
+  },
+  "rollback_point": "Stage 4J-B commit 6e08251",
+  "status": "APPROVED_FOR_STAGE4J_D_HTTP_ADAPTER_DESIGN_NETWORK_OFF"
+}

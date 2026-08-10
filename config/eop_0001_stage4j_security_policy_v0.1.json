@@ -1,0 +1,108 @@
+{
+  "campaign_id": "EOP-0001-FPV-20260805",
+  "contact_access": {
+    "access_logging_required_before_live": true,
+    "anonymous_contact_read_allowed": false,
+    "browser_contact_read_allowed": false,
+    "human_authorization_required_for_contact_access": true,
+    "participant_contact_automatic": false,
+    "role_based_access_control_required_before_live": true
+  },
+  "errors": {
+    "generic_codes": [
+      "invalid_request",
+      "request_too_large",
+      "unsupported_media_type",
+      "method_not_allowed",
+      "origin_not_allowed",
+      "rate_limited",
+      "temporarily_unavailable"
+    ],
+    "public_error_details_allowed": false,
+    "raw_validation_reason_exposure_allowed": false,
+    "stack_trace_exposure_allowed": false
+  },
+  "future_response_headers": {
+    "Cache-Control": "no-store",
+    "Content-Security-Policy": "default-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
+    "Cross-Origin-Opener-Policy": "same-origin",
+    "Cross-Origin-Resource-Policy": "same-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    "Referrer-Policy": "no-referrer",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+    "X-Content-Type-Options": "nosniff"
+  },
+  "live_security_controls_approved": false,
+  "mode": "synthetic_test_only",
+  "origin": {
+    "approved_origins": [],
+    "cors_credentials_allowed": false,
+    "csrf_position": "same_origin_json_post_plus_origin_validation",
+    "mode": "deny_all_until_origin_approved",
+    "same_origin_required_before_live": true,
+    "wildcard_origin_allowed": false
+  },
+  "policy_id": "EOP-0001-STAGE4J-C-SECURITY-0.1",
+  "privacy_and_retention_prerequisites": {
+    "contact_access_policy_required": true,
+    "data_access_process_required": true,
+    "deletion_process_required": true,
+    "privacy_notice_live_review_required": true,
+    "production_retention_schedule_required": true
+  },
+  "protected_actions": {
+    "automatic_outreach_allowed": false,
+    "customer_messaging_allowed": false,
+    "live_contact_collection_allowed": false,
+    "live_server_side_storage_allowed": false,
+    "network_submission_allowed": false,
+    "participant_contact_allowed": false,
+    "public_deployment_allowed": false,
+    "public_posting_allowed": false,
+    "validation_log_import_allowed": false,
+    "validation_state_change_allowed": false
+  },
+  "purpose": "network_off_security_and_abuse_contract_validation",
+  "rate_limit_design": {
+    "contact_requests_per_window": 5,
+    "distributed_backend_required_before_multi_instance_deployment": true,
+    "ephemeral_hashed_rate_key_only": true,
+    "raw_network_identifier_persistence_allowed": false,
+    "research_requests_per_window": 10,
+    "status": "PROPOSED_NOT_LIVE_APPROVED",
+    "window_seconds": 60
+  },
+  "replay_and_idempotency": {
+    "client_governance_fields_rejected": true,
+    "duplicate_storage_detection_required": true,
+    "idempotency_key_transport_contract_required_before_live": true,
+    "replay_cache_required_before_live": true,
+    "status": "DESIGN_REQUIRED_BEFORE_LIVE"
+  },
+  "request_limits": {
+    "contact_max_body_bytes": 8192,
+    "max_array_items": 32,
+    "max_json_depth": 8,
+    "max_string_length": 2048,
+    "max_total_nodes": 256,
+    "research_max_body_bytes": 32768
+  },
+  "secrets": {
+    "environment_or_managed_secret_store_required": true,
+    "production_secrets_available_to_agents": false,
+    "production_secrets_in_repo_allowed": false,
+    "secret_rotation_process_required_before_live": true
+  },
+  "transport": {
+    "allowed_content_types": [
+      "application/json"
+    ],
+    "allowed_methods": [
+      "POST"
+    ],
+    "https_required_before_live": true,
+    "participant_token_in_url_allowed": false,
+    "query_string_submission_allowed": false,
+    "request_compression_allowed": false
+  }
+}
