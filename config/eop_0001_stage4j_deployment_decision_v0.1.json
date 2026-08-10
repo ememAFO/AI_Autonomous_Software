@@ -1,0 +1,159 @@
+{
+  "campaign_id": "EOP-0001-FPV-20260805",
+  "candidates": {
+    "azure_managed_container": {
+      "application_runtime": "Azure Container Apps",
+      "approval": "NOT_APPROVED",
+      "database": "Azure Database for PostgreSQL Flexible Server",
+      "fit": "VIABLE_RUNNER_UP",
+      "label": "Azure managed container stack",
+      "rationale": [
+        "managed ingress includes TLS termination and scaling",
+        "managed PostgreSQL provides backups, PITR and encryption",
+        "strong production platform but would add a second cloud operating model"
+      ]
+    },
+    "gcp_managed_container": {
+      "application_runtime": "Cloud Run",
+      "approval": "SELECTED_FOR_DESIGN_NOT_PROVISIONING",
+      "cloud_run_ingress": "internal-and-cloud-load-balancing",
+      "database": "Cloud SQL for PostgreSQL",
+      "default_service_url": "disable_after_load_balancer_path_is_verified",
+      "edge": "Global external Application Load Balancer + Cloud Armor",
+      "fit": "RECOMMENDED",
+      "label": "Google Cloud managed container stack",
+      "preferred_region": "europe-west2",
+      "preferred_region_label": "London, UK",
+      "rationale": [
+        "managed HTTPS container runtime matches the existing Python adapter path",
+        "load balancer supports custom-domain routing and Cloud Armor",
+        "Cloud Run ingress can be restricted to load-balancer/internal traffic",
+        "Cloud SQL and Cloud Run are both available in London",
+        "Cloud SQL supports regional placement, backups and point-in-time recovery",
+        "Secret Manager supports least-privilege IAM"
+      ],
+      "same_origin_design": true,
+      "secrets": "Secret Manager"
+    },
+    "render_managed_platform": {
+      "application_runtime": "Render Web Service",
+      "approval": "NOT_APPROVED",
+      "database": "Render Postgres",
+      "fit": "FASTEST_LOW_OPS_OPTION",
+      "label": "Render managed platform",
+      "rationale": [
+        "simple Python web-service deployment and managed TLS",
+        "managed Postgres and secret/environment configuration are available",
+        "governance boundary is less explicit than the recommended cloud stack"
+      ]
+    }
+  },
+  "constraints": {
+    "automatic_participant_contact_allowed": false,
+    "contact_admin_surface_required_for_initial_public_pilot": false,
+    "data_classification": [
+      "structured research responses",
+      "optional participant contact data"
+    ],
+    "default_service_url_bypass_must_be_prevented": true,
+    "edge_rate_limiting_required": true,
+    "managed_database_required": true,
+    "managed_secrets_required": true,
+    "managed_tls_required": true,
+    "point_in_time_recovery_required": true,
+    "primary_users": "UK electricians and small electrical contractors",
+    "python_runtime_preferred": true,
+    "same_origin_preferred": true,
+    "uk_region_preferred": true,
+    "validation_log_import_allowed": false
+  },
+  "decision_id": "EOP-0001-STAGE4J-E-DEPLOYMENT-DECISION-0.1",
+  "evaluated_on": "2026-08-11",
+  "human_architecture_selection": {
+    "candidate": "gcp_managed_container",
+    "cloud_resource_creation_approved": false,
+    "contact_capture_in_initial_public_scope": false,
+    "container_creation_approved": false,
+    "cost_budget_status": "PENDING_BEFORE_PROVISIONING",
+    "decision": "SELECT",
+    "dns_change_approved": false,
+    "framework_installation_approved": false,
+    "initial_public_scope_if_later_approved": [
+      "GET form assets",
+      "POST /research"
+    ],
+    "live_contact_collection_approved": false,
+    "network_listener_approved": false,
+    "participant_contact_approved": false,
+    "preferred_region": "europe-west2",
+    "preferred_region_label": "London, UK",
+    "production_database_creation_approved": false,
+    "production_secret_creation_approved": false,
+    "public_deployment_approved": false,
+    "same_origin_design": true,
+    "scope": "architecture_and_production_contract_design_only",
+    "selection_reference": "emem-stage4j-e-20260811",
+    "validation_log_import_approved": false
+  },
+  "production_prerequisites_before_listener": {
+    "backup_restore_drill": "PENDING",
+    "contact_access_process": "PENDING",
+    "container_build": "PENDING",
+    "cost_budget": "PENDING",
+    "database_schema_and_migration": "PENDING",
+    "deletion_process": "PENDING",
+    "deployment_rollback_plan": "PENDING",
+    "distributed_idempotency": "PENDING",
+    "edge_rate_limit_policy": "PENDING",
+    "framework_selection": "PENDING",
+    "human_architecture_approval": "SELECTED_FOR_DESIGN_ONLY",
+    "observability_redaction_policy": "PENDING",
+    "origin_and_host_policy": "PENDING",
+    "privacy_notice_review": "PENDING",
+    "production_storage_adapter": "PENDING",
+    "retention_schedule": "PENDING",
+    "secret_inventory_and_rotation": "PENDING"
+  },
+  "protected_actions": {
+    "automatic_outreach_allowed": false,
+    "cloud_resource_creation_allowed": false,
+    "customer_messaging_allowed": false,
+    "dns_change_allowed": false,
+    "live_contact_collection_allowed": false,
+    "live_server_side_storage_allowed": false,
+    "network_submission_allowed": false,
+    "participant_contact_allowed": false,
+    "production_database_creation_allowed": false,
+    "production_secret_creation_allowed": false,
+    "public_deployment_allowed": false,
+    "public_posting_allowed": false,
+    "tls_certificate_creation_allowed": false,
+    "validation_log_import_allowed": false,
+    "validation_state_change_allowed": false
+  },
+  "purpose": "select_minimum_governed_production_topology_before_real_http_service",
+  "recommendation": {
+    "candidate": "gcp_managed_container",
+    "explicitly_deferred_from_first_public_scope": [
+      "POST /contact until contact-access operations are approved",
+      "admin/contact read API",
+      "automatic outreach",
+      "validation state changes",
+      "Stage 4G automatic handoff"
+    ],
+    "initial_public_scope_if_later_approved": [
+      "GET form assets",
+      "POST /research"
+    ],
+    "initial_topology": [
+      "single_same_origin_public_domain",
+      "global_external_application_load_balancer",
+      "cloud_armor",
+      "cloud_run_service_europe_west2",
+      "cloud_sql_postgresql_europe_west2",
+      "secret_manager"
+    ],
+    "status": "SELECTED_FOR_DESIGN_NOT_PROVISIONING"
+  },
+  "status": "ARCHITECTURE_SELECTED_FOR_DESIGN_NOT_PROVISIONING"
+}
