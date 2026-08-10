@@ -1,0 +1,52 @@
+{
+  "profile_id": "HOUND-PILOT-SAFETY-0.1",
+  "status": "approved_for_controlled_live_benchmark_only",
+  "candidate": {
+    "package": "hound-mcp",
+    "version": "13.1.0",
+    "install": {
+      "distribution": "core_only",
+      "requirement": "hound-mcp==13.1.0",
+      "extras_allowed": [],
+      "automatic_updates": false,
+      "verify_hashes": true
+    }
+  },
+  "research_mode": {
+    "read_only": true,
+    "allowed_tools": [
+      "smart_search",
+      "smart_fetch",
+      "version"
+    ],
+    "disabled_tools": [
+      "smart_crawl",
+      "screenshot"
+    ],
+    "request_limits": {
+      "search_results_per_query": 10,
+      "fetched_urls_per_query": 3,
+      "total_fetches_per_workflow": 60,
+      "max_content_chars": 40000
+    }
+  },
+  "domain_policy": {
+    "mode": "allowlist",
+    "allow_subdomains": true,
+    "allowlist": [
+      "citizensadvice.org.uk",
+      "ico.org.uk",
+      "committees.parliament.uk",
+      "which.co.uk",
+      "checkatrade.com",
+      "help.tradifyhq.com",
+      "help.fergus.com",
+      "support.servicem8.com",
+      "support.powerednow.com",
+      "help.getjobber.com",
+      "xero.com",
+      "engx.theiet.org",
+      "reddit.com"
+    ]
+  }
+}

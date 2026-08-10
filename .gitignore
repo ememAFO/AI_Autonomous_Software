@@ -215,3 +215,10 @@ reports/intelligence/local_feedback/test_registry_reports/
 reports/intelligence/test_weekly_local_feedback_registry.json
 reports/intelligence/test_weekly_path_local_feedback_registry.json
 data/raw/external_feedback/test_local_feedback_registry/
+
+# Versioned Stage 4I local staging implementation
+!sandbox/eop_0001_form_staging/
+!sandbox/eop_0001_form_staging/**
+
+# Local Stage 4I installer rollback snapshots
+reports/research/stage4i_form_staging_backups/

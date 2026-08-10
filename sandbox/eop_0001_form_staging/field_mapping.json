@@ -1,0 +1,47 @@
+{
+  "mapping_id": "EOP-0001-STAGE4I-FORM-MAPPING-0.2",
+  "campaign_id": "EOP-0001-FPV-20260805",
+  "question_set_version": "EOP-0001-QS-0.2",
+  "consent_version": "EOP-0001-CONSENT-0.2",
+  "public_form_treatment": "hold_only",
+  "staging_payload": {
+    "staging_only": true,
+    "live_evidence_eligible": false,
+    "synthetic_submission": true,
+    "supports_validation": false,
+    "signal_strength": "weak"
+  },
+  "research_contact_separation": {
+    "link_field": "participant_token",
+    "contact_payload_stage4g_allowed": false,
+    "direct_identifiers_in_research_payload_allowed": false,
+    "contact_name_required": false
+  },
+  "question_mapping": {
+    "q1": "participant_role",
+    "q2": "uk_region",
+    "q3": "business_size",
+    "q4": "monthly_quotes",
+    "q5": "recorded_outcomes",
+    "q6": "unclassified_share",
+    "q7": "follow_up_methods",
+    "q8": "barriers",
+    "q9": "decision_inputs",
+    "q10": "most_valuable_outcome",
+    "q11": "next_action_interest",
+    "q12": "bounded_comment"
+  },
+  "interaction_rules": {
+    "follow_up_methods_exclusive": "none",
+    "barriers_exclusive": "not_a_problem",
+    "decision_inputs_exclusive": "none",
+    "barriers_maximum": 3,
+    "decision_inputs_maximum": 4
+  },
+  "visual_sections": [
+    "About your business",
+    "Current quotation process",
+    "What would help",
+    "Optional next step"
+  ]
+}

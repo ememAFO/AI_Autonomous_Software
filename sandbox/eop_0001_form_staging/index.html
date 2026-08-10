@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'; frame-ancestors 'none'; object-src 'none'"
+  >
+  <meta name="referrer" content="no-referrer">
+  <title>Electrical Quote Outcome Research — Staging</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell">
+      <p class="eyebrow">LOCAL PREVIEW — NOT LIVE</p>
+      <h1>How do electrical businesses track what happens after a quote is sent?</h1>
+      <p class="lede">
+        This staging form tests wording and payload structure for research with
+        UK electricians and small electrical contractors.
+      </p>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="notice" aria-labelledby="privacy-heading">
+      <h2 id="privacy-heading">Before you begin</h2>
+      <p>
+        Do not enter your name, email, phone number, business address, customer
+        details, quotation documents or message transcripts.
+      </p>
+      <p>
+        This local preview does not submit anything online. It only lets us test
+        the wording, privacy flow and response structure before any launch.
+      </p>
+    </section>
+
+
+    <nav class="progress" aria-label="Research form sections">
+      <ol>
+        <li><span>1</span><strong>About your business</strong></li>
+        <li><span>2</span><strong>Current quotation process</strong></li>
+        <li><span>3</span><strong>What would help</strong></li>
+        <li><span>4</span><strong>Optional next step</strong></li>
+      </ol>
+    </nav>
+
+    <form id="research-form" novalidate>
+      <input type="hidden" id="campaign-id" value="EOP-0001-FPV-20260805">
+      <input type="hidden" id="question-set-version" value="EOP-0001-QS-0.2">
+      <input type="hidden" id="consent-version" value="EOP-0001-CONSENT-0.2">
+
+      <section class="form-section" aria-labelledby="section-business">
+        <div class="section-heading">
+          <p class="section-kicker">Section 1 of 4</p>
+          <h2 id="section-business">About your business</h2>
+        </div>
+
+      <fieldset>
+        <legend>1. Which description best matches your role?</legend>
+        <label><input type="radio" name="participant_role" value="electrical_business_owner" required> Electrical business owner</label>
+        <label><input type="radio" name="participant_role" value="self_employed_electrician"> Self-employed electrician</label>
+        <label><input type="radio" name="participant_role" value="estimator_or_surveyor"> Estimator or surveyor</label>
+        <label><input type="radio" name="participant_role" value="quotation_administrator"> Office or administration staff managing quotations</label>
+        <label><input type="radio" name="participant_role" value="operations_or_contracts_manager"> Operations or contracts manager</label>
+        <label><input type="radio" name="participant_role" value="other_electrical_trade_role"> Other electrical-trade role</label>
+        <label><input type="radio" name="participant_role" value="not_target_market"> None of these</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>2. Where do you mainly work?</legend>
+        <select id="uk-region" required>
+          <option value="">Select one</option>
+          <option value="england">England</option>
+          <option value="scotland">Scotland</option>
+          <option value="wales">Wales</option>
+          <option value="northern_ireland">Northern Ireland</option>
+          <option value="multiple_uk_nations">Across multiple UK nations</option>
+          <option value="outside_uk">Outside the UK</option>
+        </select>
+      </fieldset>
+
+      <fieldset>
+        <legend>3. Approximately how many people work in the business?</legend>
+        <select id="business-size" required>
+          <option value="">Select one</option>
+          <option value="1">1</option>
+          <option value="2_4">2–4</option>
+          <option value="5_9">5–9</option>
+          <option value="10_19">10–19</option>
+          <option value="20_plus">20 or more</option>
+          <option value="prefer_not_to_say">Prefer not to say</option>
+        </select>
+      </fieldset>
+
+      <fieldset>
+        <legend>4. Roughly how many quotations does the business send in a typical month?</legend>
+        <select id="monthly-quotes" required>
+          <option value="">Select one</option>
+          <option value="0_4">0–4</option>
+          <option value="5_10">5–10</option>
+          <option value="11_25">11–25</option>
+          <option value="26_50">26–50</option>
+          <option value="more_than_50">More than 50</option>
+          <option value="unsure">Unsure</option>
+        </select>
+      </fieldset>
+
+      </section>
+
+      <section class="form-section" aria-labelledby="section-process">
+        <div class="section-heading">
+          <p class="section-kicker">Section 2 of 4</p>
+          <h2 id="section-process">Current quotation process</h2>
+        </div>
+
+      <fieldset>
+        <legend>5. Which quotation outcomes do you currently record?</legend>
+        <div class="check-grid" data-group="recorded_outcomes">
+          <label><input type="checkbox" value="accepted"> Accepted</label>
+          <label><input type="checkbox" value="declined"> Declined</label>
+          <label><input type="checkbox" value="deferred"> Deferred or postponed</label>
+          <label><input type="checkbox" value="another_contractor"> Customer chose another contractor</label>
+          <label><input type="checkbox" value="price_objection"> Price objection</label>
+          <label><input type="checkbox" value="scope_or_timing"> Scope or timing issue</label>
+          <label><input type="checkbox" value="expired"> Expired</label>
+          <label><input type="checkbox" value="unclassified"> No response or unclassified</label>
+          <label><input type="checkbox" value="not_consistent"> We do not record outcomes consistently</label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>6. Roughly what share of quotations finish without a clear recorded outcome?</legend>
+        <select id="unclassified-share" required>
+          <option value="">Select one</option>
+          <option value="none">None</option>
+          <option value="under_10">Less than 10%</option>
+          <option value="10_24">10–24%</option>
+          <option value="25_49">25–49%</option>
+          <option value="50_plus">Half or more</option>
+          <option value="unsure">Unsure</option>
+        </select>
+      </fieldset>
+
+      <fieldset>
+        <legend>7. How is quotation follow-up currently handled?</legend>
+        <div class="check-grid exclusive-group" data-group="follow_up_methods" data-exclusive-value="none">
+          <label><input type="checkbox" value="none"> No regular follow-up</label>
+          <label><input type="checkbox" value="diary"> Personal reminder or diary</label>
+          <label><input type="checkbox" value="spreadsheet"> Spreadsheet</label>
+          <label><input type="checkbox" value="trade_software"> Trade or job-management software</label>
+          <label><input type="checkbox" value="accounting_software"> Accounting software</label>
+          <label><input type="checkbox" value="email_templates"> Email templates</label>
+          <label><input type="checkbox" value="sms_or_messaging"> SMS or messaging</label>
+          <label><input type="checkbox" value="office_staff"> Office staff</label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>8. What most often prevents consistent follow-up or outcome recording? <span class="hint">Choose up to three.</span></legend>
+        <div class="check-grid limited-group exclusive-group" data-group="barriers" data-limit="3" data-exclusive-value="not_a_problem">
+          <label><input type="checkbox" value="busy_delivering_work"> Too busy delivering work</label>
+          <label><input type="checkbox" value="unsure_when"> Unsure when to follow up</label>
+          <label><input type="checkbox" value="avoid_annoying"> Do not want to annoy customers</label>
+          <label><input type="checkbox" value="fragmented_systems"> Quotes are spread across different systems</label>
+          <label><input type="checkbox" value="recording_difficult"> No easy way to record outcomes</label>
+          <label><input type="checkbox" value="customers_do_not_explain"> Customers rarely explain their decision</label>
+          <label><input type="checkbox" value="software_not_configured"> Existing software is not configured</label>
+          <label><input type="checkbox" value="low_value"> Follow-up feels low value</label>
+          <label><input type="checkbox" value="someone_else"> Someone else handles it</label>
+          <label><input type="checkbox" value="not_a_problem"> Not a meaningful problem</label>
+        </div>
+      </fieldset>
+
+      </section>
+
+      <section class="form-section" aria-labelledby="section-help">
+        <div class="section-heading">
+          <p class="section-kicker">Section 3 of 4</p>
+          <h2 id="section-help">What would help</h2>
+        </div>
+
+      <fieldset>
+        <legend>9. Which information would be most useful when deciding whether to follow up? <span class="hint">Choose up to four.</span></legend>
+        <div class="check-grid limited-group exclusive-group" data-group="decision_inputs" data-limit="4" data-exclusive-value="none">
+          <label><input type="checkbox" value="receipt_confirmation"> Confirmation that the quote was received</label>
+          <label><input type="checkbox" value="quote_age"> Quote age</label>
+          <label><input type="checkbox" value="value_band"> Quote value band</label>
+          <label><input type="checkbox" value="job_urgency"> Job urgency</label>
+          <label><input type="checkbox" value="planned_start"> Planned start date</label>
+          <label><input type="checkbox" value="previous_customer"> Previous customer relationship</label>
+          <label><input type="checkbox" value="lead_source"> Lead source</label>
+          <label><input type="checkbox" value="customer_questions"> Customer questions or change requests</label>
+          <label><input type="checkbox" value="expiry"> Quote expiry</label>
+          <label><input type="checkbox" value="previous_attempts"> Previous follow-up attempts</label>
+          <label><input type="checkbox" value="likely_delay_reason"> Likely reason for delay</label>
+          <label><input type="checkbox" value="none"> None of these</label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>10. Which outcome would be most valuable?</legend>
+        <select id="most-valuable-outcome" required>
+          <option value="">Select one</option>
+          <option value="more_accepted">More accepted quotations</option>
+          <option value="faster_decisions">Faster decisions</option>
+          <option value="fewer_unclassified">Fewer unclassified quotations</option>
+          <option value="better_loss_reasons">Better reasons for lost work</option>
+          <option value="less_manual_follow_up">Less manual follow-up</option>
+          <option value="avoid_unnecessary_messages">Avoiding unnecessary messages</option>
+          <option value="better_forecasting">Better forecasting</option>
+          <option value="no_meaningful_benefit">No meaningful benefit</option>
+        </select>
+      </fieldset>
+
+      </section>
+
+      <section class="form-section" aria-labelledby="section-next">
+        <div class="section-heading">
+          <p class="section-kicker">Section 4 of 4</p>
+          <h2 id="section-next">Optional next step</h2>
+        </div>
+
+      <fieldset>
+        <legend>11. What would you be willing to do next?</legend>
+        <select id="next-action-interest" required>
+          <option value="">Select one</option>
+          <option value="interview">Complete a short direct research interview</option>
+          <option value="pilot">Join a small no-automation pilot</option>
+          <option value="share_baseline">Share anonymised baseline counts</option>
+          <option value="waitlist">Join a waitlist only</option>
+          <option value="workflow_review">Review a proposed workflow</option>
+          <option value="nothing">Nothing further</option>
+        </select>
+        <p class="hint">This records interest only. Choosing an option here does not sign you up or share contact details.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>12. Optional comment</legend>
+        <label for="bounded-comment">
+          In one or two sentences, describe the last time a quotation remained
+          open or unclear. Do not include names, contact details, addresses,
+          customer details or quotation documents.
+        </label>
+        <textarea id="bounded-comment" maxlength="300" rows="4"></textarea>
+        <p class="counter"><span id="comment-count">0</span>/300</p>
+      </fieldset>
+
+      <fieldset class="consent-box">
+        <legend>Research consent</legend>
+        <label>
+          <input id="research-consent" type="checkbox" required>
+          I understand the research purpose, I have not included direct
+          identifiers or customer details, and I agree that my anonymised
+          staging response may be reviewed for product-discovery design.
+        </label>
+      </fieldset>
+
+      </section>
+
+      <div id="form-errors" class="error-panel" role="alert" tabindex="-1" hidden></div>
+
+      <button class="primary" type="submit">Generate preview response</button>
+    </form>
+
+    <section id="research-result" class="result-panel" hidden aria-live="polite">
+      <h2>Preview response generated</h2>
+      <p>
+        Nothing was sent online. This local file is only for testing the form before launch.
+      </p>
+      <p><strong>Participant token:</strong> <code id="participant-token"></code></p>
+      <p class="token-warning">
+        Keep this token private. Do not post it in public comments or share it with another participant.
+      </p>
+      <div class="button-row">
+        <button id="download-research" type="button">Download preview response</button>
+        <a id="contact-link" class="secondary-link" href="contact.html">
+          Preview the separate optional contact form
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell">
+      <p>Local preview only. No live collection or public deployment.</p>
+    </div>
+  </footer>
+
+  <script src="assets/research-form.js" defer></script>
+</body>
+</html>

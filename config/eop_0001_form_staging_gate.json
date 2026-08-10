@@ -1,0 +1,46 @@
+{
+  "gate_id": "EOP-0001-STAGE4I-FORM-STAGING-0.2",
+  "campaign_id": "EOP-0001-FPV-20260805",
+  "status": "NOT_APPROVED_FOR_PUBLIC_DEPLOYMENT",
+  "purpose": "local_visual_and_payload_review",
+  "allowed_host": "127.0.0.1",
+  "allowed_port": 8765,
+  "network_submission_enabled": false,
+  "server_side_storage_enabled": false,
+  "contact_collection_enabled": false,
+  "live_research_capture_enabled": false,
+  "stage4g_import_enabled": false,
+  "public_posting_enabled": false,
+  "automatic_outreach_enabled": false,
+  "authentication_mode": "not_applicable_local_preview_only",
+  "required_before_public_deployment": [
+    "visual_review_completed",
+    "accessibility_review_completed",
+    "privacy_review_completed",
+    "storage_adapter_selected",
+    "authentication_and_authorization_design_reviewed",
+    "rate_limiting_and_abuse_controls_reviewed",
+    "retention_and_deletion_process_defined",
+    "stage4h_launch_approval_completed",
+    "human_deployment_approval_recorded"
+  ],
+  "protected_actions": {
+    "public_deployment_allowed": false,
+    "network_submission_allowed": false,
+    "server_side_storage_allowed": false,
+    "contact_collection_allowed": false,
+    "participant_contact_allowed": false,
+    "public_posting_allowed": false,
+    "automatic_outreach_allowed": false,
+    "validation_log_import_allowed": false
+  },
+  "rollback_point": "Stage 4I v0.1",
+  "required_visual_review": [
+    "research_form_mobile",
+    "research_validation_error_state",
+    "research_completion_state",
+    "contact_form_mobile",
+    "contact_validation_error_state",
+    "contact_completion_state"
+  ]
+}

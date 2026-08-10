@@ -1,0 +1,119 @@
+{
+  "policy_id": "EOP-0001-STAGE4G-0.2-MEASUREMENT",
+  "campaign_id": "EOP-0001-FPV-20260805",
+  "measurement_program_id": "EOP-0001-QUOTE-OUTCOME-MEASUREMENT-0-1",
+  "theme": "lead + follow up",
+  "positioning": "Governed quote-outcome decision support, not autonomous reminder sending.",
+  "taxonomy_status": "separate_operational_measurement",
+  "validation_log_import_allowed": false,
+  "claim_boundary": "observational_not_causal",
+  "minimum_baseline_days": 14,
+  "minimum_observation_days": 14,
+  "minimum_sample_size": 5,
+  "allowed_comparison_methods": [
+    "descriptive_before_after",
+    "matched_period",
+    "interrupted_time_series",
+    "controlled_comparison",
+    "other_documented"
+  ],
+  "allowed_decisions": [
+    "continue",
+    "adapt",
+    "pause",
+    "stop",
+    "insufficient_evidence"
+  ],
+  "metrics": {
+    "unclassified_rate_percent": {
+      "unit": "percent",
+      "improvement_direction": "decrease_is_better",
+      "materiality_threshold": 2.0
+    },
+    "median_time_to_decision_days": {
+      "unit": "days",
+      "improvement_direction": "decrease_is_better",
+      "materiality_threshold": 0.5
+    },
+    "staff_minutes_per_quote": {
+      "unit": "minutes_per_quote",
+      "improvement_direction": "decrease_is_better",
+      "materiality_threshold": 1.0
+    },
+    "accepted_rate_percent": {
+      "unit": "percent",
+      "improvement_direction": "increase_is_better",
+      "materiality_threshold": 2.0
+    },
+    "decline_reason_capture_rate_percent": {
+      "unit": "percent",
+      "improvement_direction": "increase_is_better",
+      "materiality_threshold": 2.0
+    },
+    "deferred_rate_percent": {
+      "unit": "percent",
+      "improvement_direction": "increase_is_better",
+      "materiality_threshold": 2.0
+    },
+    "unnecessary_followups_count": {
+      "unit": "count",
+      "improvement_direction": "decrease_is_better",
+      "materiality_threshold": 1.0
+    },
+    "gross_margin_estimate_gbp": {
+      "unit": "gbp",
+      "improvement_direction": "increase_is_better",
+      "materiality_threshold": 50.0
+    }
+  },
+  "allowed_operational_context_codes": [
+    "domestic",
+    "commercial",
+    "emergency_work",
+    "planned_work",
+    "new_customer",
+    "repeat_customer",
+    "low_value_quote",
+    "mid_value_quote",
+    "high_value_quote",
+    "mixed_quote_portfolio"
+  ],
+  "allowed_confounder_codes": [
+    "none_known",
+    "lead_mix_change",
+    "job_type_mix_change",
+    "quote_value_mix_change",
+    "repeat_customer_mix_change",
+    "seasonal_demand",
+    "pricing_change",
+    "staffing_change",
+    "workload_change",
+    "channel_change",
+    "process_change",
+    "data_completeness_issue",
+    "external_event",
+    "other_documented"
+  ],
+  "allowed_feedback_reason_codes": [
+    "missing_source_data",
+    "incorrect_source_data",
+    "wrong_classification",
+    "unsupported_inference",
+    "irrelevant_recommendation",
+    "permission_failure",
+    "poor_presentation",
+    "human_process_failure",
+    "useful_recommendation",
+    "no_feedback_recorded"
+  ],
+  "allowed_unintended_effect_codes": [
+    "none_observed",
+    "alert_fatigue",
+    "excessive_follow_up",
+    "customer_confusion",
+    "staff_workload_increase",
+    "premature_close_out",
+    "data_entry_burden",
+    "other_documented"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "packet_id": "ERP-EXAMPLE",
+  "packet_hash": "replace-with-generated-packet-hash",
+  "reviewer_reference": "human-reviewer-id",
+  "decisions": [
+    {
+      "review_id": "ER-generated-review-id",
+      "decision": "APPROVE",
+      "reason": "The source, attribution and bounded claim were checked.",
+      "evidence_summary": "A concise human-written summary of what the source supports.",
+      "classification": "source-verified",
+      "signal_strength": "strong",
+      "supports_validation": true
+    },
+    {
+      "review_id": "ER-generated-review-id-2",
+      "decision": "HOLD",
+      "reason": "Publication date or claim scope needs further checking.",
+      "evidence_summary": "",
+      "classification": "",
+      "signal_strength": "",
+      "supports_validation": null
+    },
+    {
+      "review_id": "ER-generated-review-id-3",
+      "decision": "REJECT",
+      "reason": "The candidate does not support the stated claim.",
+      "evidence_summary": "",
+      "classification": "rejected",
+      "signal_strength": "",
+      "supports_validation": null
+    }
+  ]
+}

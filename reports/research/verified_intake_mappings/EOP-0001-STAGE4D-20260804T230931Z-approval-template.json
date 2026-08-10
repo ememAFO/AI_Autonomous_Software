@@ -1,0 +1,108 @@
+{
+  "packet_id": "VIM-EOP-0001-STAGE4D-20260804T230931Z-e6f7f778b16b",
+  "packet_hash": "1a0c1e83d0af88b5f2afbc65b46b83df05bb73322b9b965b771aed3bb70a3027",
+  "approval_reference": "",
+  "instructions": "Review every eligible source-trust and evidence-type mapping. APPROVE permits an append to the validation evidence log only when the apply command is run with --apply. These public records remain secondary or risk evidence and contribute zero primary evidence.",
+  "decisions": [
+    {
+      "mapping_id": "VIMI-1c0dca90c933232036b5",
+      "source_id": "EV-0001",
+      "title": "Before you get work done on your home",
+      "source_trust": "public_dataset",
+      "evidence_type": "manual_research",
+      "gate_role": "secondary",
+      "first_party_eligible": false,
+      "decision": "",
+      "reason": ""
+    },
+    {
+      "mapping_id": "VIMI-de4b2c057256f4ef5234",
+      "source_id": "EV-0004",
+      "title": "Home improvement horrors: One in 10 who have home renovations aren’t happy with the outcome, Which? finds - Which?",
+      "source_trust": "public_dataset",
+      "evidence_type": "manual_research",
+      "gate_role": "secondary",
+      "first_party_eligible": false,
+      "decision": "",
+      "reason": ""
+    },
+    {
+      "mapping_id": "VIMI-d9a3dd539f84ff3ff417",
+      "source_id": "EV-0006",
+      "title": "Identify direct marketing",
+      "source_trust": "public_dataset",
+      "evidence_type": "risk_finding",
+      "gate_role": "risk",
+      "first_party_eligible": false,
+      "decision": "",
+      "reason": ""
+    },
+    {
+      "mapping_id": "VIMI-30cdcde2ad70235b1372",
+      "source_id": "EV-0008",
+      "title": "Quote/ Estimate Reminders | Fergus Help Center",
+      "source_trust": "public_competitor",
+      "evidence_type": "competitor_check",
+      "gate_role": "secondary",
+      "first_party_eligible": false,
+      "decision": "",
+      "reason": ""
+    },
+    {
+      "mapping_id": "VIMI-55b76774d14070c05860",
+      "source_id": "EV-0009",
+      "title": "Quote Follow Up Automation - ServiceM8 Help Center",
+      "source_trust": "public_competitor",
+      "evidence_type": "competitor_check",
+      "gate_role": "secondary",
+      "first_party_eligible": false,
+      "decision": "",
+      "reason": ""
+    },
+    {
+      "mapping_id": "VIMI-b500c0ed59fe69977042",
+      "source_id": "EV-0010",
+      "title": "Auto Chase- Automated Quote &amp; Invoice Reminders",
+      "source_trust": "public_competitor",
+      "evidence_type": "competitor_check",
+      "gate_role": "secondary",
+      "first_party_eligible": false,
+      "decision": "",
+      "reason": ""
+    },
+    {
+      "mapping_id": "VIMI-c22d6e01aff8c31781cd",
+      "source_id": "EV-0011",
+      "title": "Sales–How Jobber Works For Different Roles in a Company",
+      "source_trust": "public_competitor",
+      "evidence_type": "competitor_check",
+      "gate_role": "secondary",
+      "first_party_eligible": false,
+      "decision": "",
+      "reason": ""
+    },
+    {
+      "mapping_id": "VIMI-60f48e800a23e155225b",
+      "source_id": "EV-0012",
+      "title": "Online Quoting and Estimating Software for Small Business",
+      "source_trust": "public_competitor",
+      "evidence_type": "competitor_check",
+      "gate_role": "secondary",
+      "first_party_eligible": false,
+      "decision": "",
+      "reason": ""
+    },
+    {
+      "mapping_id": "VIMI-69cc20f4afed274b1d41",
+      "source_id": "EV-0013",
+      "title": "Electrician understanding of Electrical Vehicle Charging installations",
+      "source_trust": "public_dataset",
+      "evidence_type": "manual_research",
+      "gate_role": "secondary",
+      "first_party_eligible": false,
+      "decision": "",
+      "reason": ""
+    }
+  ],
+  "blocked_mappings": []
+}

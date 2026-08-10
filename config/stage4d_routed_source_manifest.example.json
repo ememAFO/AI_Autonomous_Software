@@ -1,0 +1,29 @@
+{
+  "workflow_id": "EOP-0001-STAGE4D-EXAMPLE",
+  "sources": [
+    {
+      "source_id": "OFFICIAL-001",
+      "url": "https://ico.org.uk/for-organisations/direct-marketing-and-privacy-and-electronic-communications/direct-marketing-guidance/identify-direct-marketing/",
+      "focus": "Distinguish administrative service messages from direct marketing.",
+      "industry": "home services"
+    },
+    {
+      "source_id": "REDDIT-REVIEW-001",
+      "url": "https://www.reddit.com/r/electricians/example/",
+      "focus": "Quote follow-up workflow evidence.",
+      "industry": "home services"
+    },
+    {
+      "source_id": "REDDIT-LOCAL-001",
+      "url": "https://www.reddit.com/r/smallbusiness/example/",
+      "focus": "Quote follow-up workflow evidence.",
+      "industry": "home services",
+      "reddit_post": {
+        "subreddit": "smallbusiness",
+        "title": "Customers stop replying after quotes",
+        "body": "Supplied public post content goes through the existing local Reddit pipeline. Replace this example with human-verified public content and preserve its source URL.",
+        "url": "https://www.reddit.com/r/smallbusiness/example/"
+      }
+    }
+  ]
+}

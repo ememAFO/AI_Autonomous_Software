@@ -1,0 +1,24 @@
+{
+  "patch": "stage4e_routed_evidence_review_patch_v0.1",
+  "created": "2026-08-05",
+  "new_files_only": true,
+  "files": [
+    "config/stage4e_review_decision.example.json",
+    "docs/stage_4e_patch_manifest.json",
+    "docs/stage_4e_routed_evidence_review.md",
+    "scripts/prepare_routed_evidence_review.py",
+    "scripts/resolve_routed_evidence_review.py",
+    "src/research/routed_evidence_review.py",
+    "src/research/routed_evidence_review_storage.py",
+    "tests/research/test_routed_evidence_review.py",
+    "tests/research/test_routed_evidence_review_decision.py",
+    "tests/research/test_routed_evidence_review_storage.py"
+  ],
+  "protected_actions": {
+    "approved_registry_write": false,
+    "validation_evidence_log_write": false,
+    "theme_state_change": false,
+    "public_release": false,
+    "autonomous_outreach": false
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "resolution_id": "ERR-d373f0f82f154f14b1cec3a6db0cb74b",
+  "packet_id": "ERP-EOP-0001-STAGE4D-20260804T230931Z-9236e04396fa",
+  "packet_hash": "c974f7a91a0f9d8f2861ddecd5cb6a58bcc3064bda683a81ea15e0b692223fec",
+  "workflow_id": "EOP-0001-STAGE4D-20260804T230931Z",
+  "reviewer_reference": "emem-stage4e-20260805",
+  "approved": 9,
+  "rejected": 0,
+  "held": 2,
+  "blocked_by_gate": 2,
+  "verified_intake_path": "/home/emem-ai-software/Projects/ai-autonomus-factory/data/research/verified_evidence_intake/EOP-0001-STAGE4D-20260804T230931Z.jsonl",
+  "decision_registry_path": "/home/emem-ai-software/Projects/ai-autonomus-factory/data/research/evidence_review_decisions/EOP-0001-STAGE4D-20260804T230931Z.jsonl",
+  "resolved_at": "2026-08-04T23:51:23.799287+00:00",
+  "protected_actions": {
+    "approved_registry_modified": false,
+    "validation_evidence_log_modified": false,
+    "theme_state_modified": false,
+    "public_action_taken": false,
+    "automatic_outreach": false
+  }
+}

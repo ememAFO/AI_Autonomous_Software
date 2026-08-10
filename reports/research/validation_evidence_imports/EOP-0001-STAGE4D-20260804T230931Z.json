@@ -1,0 +1,191 @@
+{
+  "import_id": "VEI-c442a15e04c149f0a8f4dabbd05a75f6",
+  "packet_id": "VIM-EOP-0001-STAGE4D-20260804T230931Z-e6f7f778b16b",
+  "packet_hash": "1a0c1e83d0af88b5f2afbc65b46b83df05bb73322b9b965b771aed3bb70a3027",
+  "workflow_id": "EOP-0001-STAGE4D-20260804T230931Z",
+  "approval_reference": "emem-stage4f-20260805",
+  "imported": 9,
+  "held": 0,
+  "rejected": 0,
+  "blocked_by_mapping_gate": 0,
+  "target_log_path": "reports/intelligence/validation_evidence_log.json",
+  "import_registry_path": "data/research/validation_evidence_imports/EOP-0001-STAGE4D-20260804T230931Z.jsonl",
+  "before_summary": {
+    "theme": "lead + follow up",
+    "total_entries": 13,
+    "supporting_entries": 11,
+    "opposing_entries": 2,
+    "signal_strengths": [
+      [
+        "medium",
+        10
+      ],
+      [
+        "strong",
+        3
+      ]
+    ],
+    "evidence_types": [
+      [
+        "customer_interview",
+        4
+      ],
+      [
+        "manual_research",
+        3
+      ],
+      [
+        "competitor_check",
+        2
+      ],
+      [
+        "risk_finding",
+        2
+      ],
+      [
+        "willingness_to_pay",
+        1
+      ],
+      [
+        "waitlist_signup",
+        1
+      ]
+    ],
+    "status": "NEEDS_FIRST_PARTY_VALIDATION",
+    "recommended_next_action": "Public research may inform the theme, but collect human-attested first-party evidence before human review.",
+    "primary_entries": 6,
+    "secondary_entries": 5,
+    "risk_entries": 2,
+    "gate_safe_entries": 5,
+    "gate_safe_supporting_entries": 3,
+    "gate_safe_primary_entries": 0,
+    "gate_safe_opposing_entries": 2,
+    "gate_safe_signal_strengths": [
+      [
+        "medium",
+        5
+      ]
+    ],
+    "source_trusts": [
+      [
+        "legacy_unverified",
+        8
+      ],
+      [
+        "public_dataset",
+        5
+      ]
+    ],
+    "gate_excluded_entries": 8,
+    "legacy_unverified_entries": 8,
+    "suspect_entries": 5
+  },
+  "after_summary": {
+    "theme": "lead + follow up",
+    "total_entries": 22,
+    "supporting_entries": 20,
+    "opposing_entries": 2,
+    "signal_strengths": [
+      [
+        "medium",
+        11
+      ],
+      [
+        "strong",
+        10
+      ],
+      [
+        "weak",
+        1
+      ]
+    ],
+    "evidence_types": [
+      [
+        "competitor_check",
+        7
+      ],
+      [
+        "manual_research",
+        6
+      ],
+      [
+        "customer_interview",
+        4
+      ],
+      [
+        "risk_finding",
+        3
+      ],
+      [
+        "willingness_to_pay",
+        1
+      ],
+      [
+        "waitlist_signup",
+        1
+      ]
+    ],
+    "status": "NEEDS_FIRST_PARTY_VALIDATION",
+    "recommended_next_action": "Public research may inform the theme, but collect human-attested first-party evidence before human review.",
+    "primary_entries": 6,
+    "secondary_entries": 13,
+    "risk_entries": 3,
+    "gate_safe_entries": 14,
+    "gate_safe_supporting_entries": 12,
+    "gate_safe_primary_entries": 0,
+    "gate_safe_opposing_entries": 2,
+    "gate_safe_signal_strengths": [
+      [
+        "strong",
+        7
+      ],
+      [
+        "medium",
+        6
+      ],
+      [
+        "weak",
+        1
+      ]
+    ],
+    "source_trusts": [
+      [
+        "public_dataset",
+        9
+      ],
+      [
+        "legacy_unverified",
+        8
+      ],
+      [
+        "public_competitor",
+        5
+      ]
+    ],
+    "gate_excluded_entries": 8,
+    "legacy_unverified_entries": 8,
+    "suspect_entries": 5
+  },
+  "imported_source_references": [
+    "stage4e:EOP-0001-STAGE4D-20260804T230931Z:EV-0001:ER-9552302aa7f4ea544a37",
+    "stage4e:EOP-0001-STAGE4D-20260804T230931Z:EV-0004:ER-2f845785aaac5fa841da",
+    "stage4e:EOP-0001-STAGE4D-20260804T230931Z:EV-0006:ER-655b41ce984284030966",
+    "stage4e:EOP-0001-STAGE4D-20260804T230931Z:EV-0008:ER-094c59b3f1c467d67faf",
+    "stage4e:EOP-0001-STAGE4D-20260804T230931Z:EV-0009:ER-127bcd41b78de7a7a40a",
+    "stage4e:EOP-0001-STAGE4D-20260804T230931Z:EV-0010:ER-f4c00d3432c331c5b92a",
+    "stage4e:EOP-0001-STAGE4D-20260804T230931Z:EV-0011:ER-8027d38c58b8cabc98d0",
+    "stage4e:EOP-0001-STAGE4D-20260804T230931Z:EV-0012:ER-755e8cc3903e39d942b8",
+    "stage4e:EOP-0001-STAGE4D-20260804T230931Z:EV-0013:ER-194116fe7df3e20d29d6"
+  ],
+  "applied_at": "2026-08-05T00:54:39.795900+00:00",
+  "authorized_actions": {
+    "validation_evidence_log_append": true
+  },
+  "protected_actions": {
+    "approved_registry_modified": false,
+    "verified_intake_modified": false,
+    "theme_state_modified": false,
+    "public_action_taken": false,
+    "automatic_outreach": false
+  }
+}

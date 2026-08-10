@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'; frame-ancestors 'none'; object-src 'none'"
+  >
+  <meta name="referrer" content="no-referrer">
+  <title>Optional Research Contact — Staging</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell">
+      <p class="eyebrow">LOCAL PREVIEW — NOT LIVE</p>
+      <h1>Optional contact details</h1>
+      <p class="lede">
+        Share contact details only if you want to be contacted about a research interview, pilot, waitlist or workflow review.
+      </p>
+    </div>
+  </header>
+
+  <main class="shell">
+    <a class="back-link" href="index.html">← Return to the research form</a>
+
+    <section class="notice">
+      <h2>Your contact details stay separate</h2>
+      <p>
+        Contact details are stored separately and are not included in the
+        anonymised research response. The participant token is the only link
+        between the two records.
+      </p>
+      <p>
+        Providing contact details is optional. This local preview does not send or store the information online.
+      </p>
+    </section>
+
+    <form id="contact-form" novalidate>
+      <fieldset>
+        <legend>Participant token</legend>
+        <label for="contact-token">Token from the research completion screen</label>
+        <input id="contact-token" type="text" maxlength="120" required autocomplete="off">
+      </fieldset>
+
+      <fieldset>
+        <legend>How may we address you? <span class="hint">Optional</span></legend>
+        <label for="contact-name">Name or preferred form of address</label>
+        <input id="contact-name" type="text" maxlength="120" autocomplete="name">
+      </fieldset>
+
+      <fieldset>
+        <legend>Preferred contact method</legend>
+        <label><input type="radio" name="contact_method" value="email" required> Email</label>
+        <label><input type="radio" name="contact_method" value="phone"> Phone</label>
+
+        <label for="contact-value">Email address or phone number</label>
+        <input id="contact-value" type="text" maxlength="254" required autocomplete="off">
+      </fieldset>
+
+      <fieldset>
+        <legend>What are you opting into?</legend>
+        <select id="requested-action" required>
+          <option value="">Select one</option>
+          <option value="interview">Direct research interview</option>
+          <option value="pilot">Small human-gated pilot</option>
+          <option value="waitlist">Waitlist</option>
+          <option value="workflow_review">Workflow review</option>
+        </select>
+      </fieldset>
+
+      <fieldset class="consent-box">
+        <legend>Contact consent</legend>
+        <label>
+          <input id="contact-consent" type="checkbox" required>
+          I agree to be contacted only about the action selected above. My
+          contact details remain separate from the anonymised research response.
+        </label>
+      </fieldset>
+
+      <div id="contact-errors" class="error-panel" role="alert" tabindex="-1" hidden></div>
+
+      <button class="primary" type="submit">Generate preview contact record</button>
+    </form>
+
+    <section id="contact-result" class="result-panel" hidden aria-live="polite">
+      <h2>Preview contact record generated</h2>
+      <p>
+        Nothing was sent or stored online. This local file is only for reviewing the contact-data separation before launch.
+      </p>
+      <div class="button-row">
+        <button id="download-contact" type="button">Download preview contact record</button>
+        <a class="secondary-link" href="index.html">Return to the research form</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell">
+      <p>Local preview only. Contact collection is not approved.</p>
+    </div>
+  </footer>
+
+  <script src="assets/contact-form.js" defer></script>
+</body>
+</html>

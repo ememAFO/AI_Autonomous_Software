@@ -1,0 +1,27 @@
+{
+  "patch": "stage4f_verified_intake_mapping_patch_v0.1",
+  "created": "2026-08-05",
+  "new_files_only": true,
+  "files": [
+    "config/eop_0001_verified_intake_mapping_policy.json",
+    "docs/stage_4f_patch_manifest.json",
+    "docs/stage_4f_verified_intake_mapping.md",
+    "scripts/apply_verified_intake_mapping.py",
+    "scripts/prepare_verified_intake_mapping.py",
+    "src/research/verified_intake_mapping.py",
+    "src/research/verified_intake_mapping_storage.py",
+    "tests/research/test_verified_intake_mapping.py",
+    "tests/research/test_verified_intake_mapping_apply.py",
+    "tests/research/test_verified_intake_mapping_storage.py"
+  ],
+  "expected_new_tests": 15,
+  "expected_full_suite_after_apply": 448,
+  "protected_actions": {
+    "verified_intake_write": false,
+    "approved_registry_write": false,
+    "theme_state_change": false,
+    "build_approval": false,
+    "public_release": false,
+    "autonomous_outreach": false
+  }
+}

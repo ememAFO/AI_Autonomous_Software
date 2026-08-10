@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EOP-0001 separate optional contact opt-in",
+  "description": "This schema is for a separate contact store and must never be submitted to Stage 4G research capture.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "participant_token",
+    "contact_name",
+    "contact_method",
+    "contact_value",
+    "requested_action",
+    "consent_to_contact",
+    "captured_at"
+  ],
+  "properties": {
+    "participant_token": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 120
+    },
+    "contact_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "contact_method": {
+      "type": "string",
+      "enum": [
+        "email",
+        "phone"
+      ]
+    },
+    "contact_value": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 254
+    },
+    "requested_action": {
+      "type": "string",
+      "enum": [
+        "interview",
+        "pilot",
+        "waitlist",
+        "workflow_review"
+      ]
+    },
+    "consent_to_contact": {
+      "type": "boolean",
+      "const": true
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

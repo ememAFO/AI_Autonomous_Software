@@ -1,0 +1,133 @@
+{
+  "plan_id": "HOUND-EOP-0001-BENCHMARK-0.1",
+  "benchmark_reference": {
+    "registry": "EOP-0001_Evidence_Registry_v1.0.json",
+    "retained_sources": 15
+  },
+  "query_set": [
+    {
+      "query_id": "Q01",
+      "query": "UK homeowners advice obtain three written quotations traders",
+      "target_domains": [
+        "citizensadvice.org.uk"
+      ],
+      "expected_evidence_ids": [
+        "EV-0001",
+        "EV-0002"
+      ]
+    },
+    {
+      "query_id": "Q02",
+      "query": "UK electrical contracting SMEs 215000 electricians electrical fitters ECA",
+      "target_domains": [
+        "committees.parliament.uk"
+      ],
+      "expected_evidence_ids": [
+        "EV-0003"
+      ]
+    },
+    {
+      "query_id": "Q03",
+      "query": "home improvement choosing trader trust prices quoted Which survey",
+      "target_domains": [
+        "which.co.uk"
+      ],
+      "expected_evidence_ids": [
+        "EV-0004"
+      ]
+    },
+    {
+      "query_id": "Q04",
+      "query": "Checkatrade homeowner review communication reliability quality of work",
+      "target_domains": [
+        "checkatrade.com"
+      ],
+      "expected_evidence_ids": [
+        "EV-0005"
+      ]
+    },
+    {
+      "query_id": "Q05",
+      "query": "ICO service messages direct marketing administrative customer service promotional content",
+      "target_domains": [
+        "ico.org.uk"
+      ],
+      "expected_evidence_ids": [
+        "EV-0006"
+      ]
+    },
+    {
+      "query_id": "Q06",
+      "query": "Tradify automated text reminders quotes 7 14 days expiry",
+      "target_domains": [
+        "help.tradifyhq.com"
+      ],
+      "expected_evidence_ids": [
+        "EV-0007"
+      ]
+    },
+    {
+      "query_id": "Q07",
+      "query": "Fergus quote estimate reminders email SMS expiry",
+      "target_domains": [
+        "help.fergus.com"
+      ],
+      "expected_evidence_ids": [
+        "EV-0008"
+      ]
+    },
+    {
+      "query_id": "Q08",
+      "query": "ServiceM8 quote follow up automation reply accept status stop",
+      "target_domains": [
+        "support.servicem8.com"
+      ],
+      "expected_evidence_ids": [
+        "EV-0009"
+      ]
+    },
+    {
+      "query_id": "Q09",
+      "query": "Powered Now Auto Chase automated quote reminders three emails",
+      "target_domains": [
+        "support.powerednow.com"
+      ],
+      "expected_evidence_ids": [
+        "EV-0010"
+      ]
+    },
+    {
+      "query_id": "Q10",
+      "query": "Jobber automated quote follow ups online approve changes deposit",
+      "target_domains": [
+        "help.getjobber.com"
+      ],
+      "expected_evidence_ids": [
+        "EV-0011"
+      ]
+    },
+    {
+      "query_id": "Q11",
+      "query": "Xero UK quotation software accept decline comments expiry",
+      "target_domains": [
+        "xero.com"
+      ],
+      "expected_evidence_ids": [
+        "EV-0012"
+      ]
+    },
+    {
+      "query_id": "Q12",
+      "query": "electrician sent quote no response customer went with another contractor forum UK",
+      "target_domains": [
+        "engx.theiet.org",
+        "reddit.com"
+      ],
+      "expected_evidence_ids": [
+        "EV-0013",
+        "EV-0014",
+        "EV-0015"
+      ]
+    }
+  ]
+}

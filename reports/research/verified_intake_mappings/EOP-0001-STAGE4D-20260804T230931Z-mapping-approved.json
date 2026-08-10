@@ -1,0 +1,61 @@
+{
+  "packet_id": "VIM-EOP-0001-STAGE4D-20260804T230931Z-e6f7f778b16b",
+  "packet_hash": "1a0c1e83d0af88b5f2afbc65b46b83df05bb73322b9b965b771aed3bb70a3027",
+  "approval_reference": "emem-stage4f-20260805",
+  "decisions": [
+    {
+      "mapping_id": "VIMI-1c0dca90c933232036b5",
+      "source_id": "EV-0001",
+      "decision": "APPROVE",
+      "reason": "Citizens Advice is public non-competitor market-context evidence, so public_dataset plus manual_research is the closest permitted existing taxonomy mapping."
+    },
+    {
+      "mapping_id": "VIMI-de4b2c057256f4ef5234",
+      "source_id": "EV-0004",
+      "decision": "APPROVE",
+      "reason": "The Which? member survey is public secondary consumer research, appropriately mapped to public_dataset plus manual_research."
+    },
+    {
+      "mapping_id": "VIMI-d9a3dd539f84ff3ff417",
+      "source_id": "EV-0006",
+      "decision": "APPROVE",
+      "reason": "ICO guidance defines the compliance boundary for service and marketing messages, so public_dataset plus risk_finding is appropriate."
+    },
+    {
+      "mapping_id": "VIMI-30cdcde2ad70235b1372",
+      "source_id": "EV-0008",
+      "decision": "APPROVE",
+      "reason": "Fergus documentation verifies an existing competitor quotation-reminder feature, so public_competitor plus competitor_check is appropriate."
+    },
+    {
+      "mapping_id": "VIMI-55b76774d14070c05860",
+      "source_id": "EV-0009",
+      "decision": "APPROVE",
+      "reason": "ServiceM8 documentation verifies existing competitor follow-up automation and stopping conditions."
+    },
+    {
+      "mapping_id": "VIMI-b500c0ed59fe69977042",
+      "source_id": "EV-0010",
+      "decision": "APPROVE",
+      "reason": "Powered Now documentation verifies existing competitor quotation-chasing capability."
+    },
+    {
+      "mapping_id": "VIMI-c22d6e01aff8c31781cd",
+      "source_id": "EV-0011",
+      "decision": "APPROVE",
+      "reason": "Jobber documentation verifies existing competitor quotation follow-up, approval and deposit workflows."
+    },
+    {
+      "mapping_id": "VIMI-60f48e800a23e155225b",
+      "source_id": "EV-0012",
+      "decision": "APPROVE",
+      "reason": "Xero documentation verifies existing competitor quotation acceptance and status-tracking functionality."
+    },
+    {
+      "mapping_id": "VIMI-69cc20f4afed274b1d41",
+      "source_id": "EV-0013",
+      "decision": "APPROVE",
+      "reason": "The IET forum record is weak public qualitative research rather than first-party validation, so public_dataset plus manual_research is the closest permitted mapping."
+    }
+  ]
+}

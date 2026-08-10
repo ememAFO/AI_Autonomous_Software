@@ -1,0 +1,55 @@
+{
+  "policy_id": "EOP-0001-STAGE4F-0.1",
+  "workflow_id": "EOP-0001-STAGE4D-20260804T230931Z",
+  "theme": "lead + follow up",
+  "validation_plan_path": "reports/intelligence/validation_plans/lead_and_follow_up_validation_plan.md",
+  "target_log_path": "reports/intelligence/validation_evidence_log.json",
+  "taxonomy_note": "The existing validation evidence model has no generic public authoritative-source trust class. This policy uses public_dataset for public non-competitor research and public_competitor for vendor documentation, without changing the core taxonomy.",
+  "source_mappings": {
+    "EV-0001": {
+      "source_trust": "public_dataset",
+      "evidence_type": "manual_research",
+      "rationale": "Public consumer guidance supports market-context research but is not first-party behavioural evidence."
+    },
+    "EV-0004": {
+      "source_trust": "public_dataset",
+      "evidence_type": "manual_research",
+      "rationale": "Published consumer survey evidence is public secondary research and cannot satisfy the primary threshold."
+    },
+    "EV-0006": {
+      "source_trust": "public_dataset",
+      "evidence_type": "risk_finding",
+      "rationale": "Regulatory guidance informs the messaging-compliance risk boundary rather than customer demand."
+    },
+    "EV-0008": {
+      "source_trust": "public_competitor",
+      "evidence_type": "competitor_check",
+      "rationale": "Vendor documentation verifies existing quotation-reminder capability and therefore belongs in competitor evidence."
+    },
+    "EV-0009": {
+      "source_trust": "public_competitor",
+      "evidence_type": "competitor_check",
+      "rationale": "Vendor documentation verifies existing follow-up automation and stopping conditions."
+    },
+    "EV-0010": {
+      "source_trust": "public_competitor",
+      "evidence_type": "competitor_check",
+      "rationale": "Vendor documentation verifies configurable quotation chasing and informs the competitive baseline."
+    },
+    "EV-0011": {
+      "source_trust": "public_competitor",
+      "evidence_type": "competitor_check",
+      "rationale": "Vendor documentation verifies quotation follow-up, approval and deposit workflows."
+    },
+    "EV-0012": {
+      "source_trust": "public_competitor",
+      "evidence_type": "competitor_check",
+      "rationale": "Vendor documentation verifies online quotation acceptance and status-tracking functionality."
+    },
+    "EV-0013": {
+      "source_trust": "public_dataset",
+      "evidence_type": "manual_research",
+      "rationale": "A bounded public forum self-report is weak qualitative secondary research, not a customer interview."
+    }
+  }
+}

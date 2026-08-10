@@ -1,0 +1,86 @@
+{
+  "policy_id": "EOP-0001-STAGE4G-0.1",
+  "campaign_id": "EOP-0001-FPV-20260805",
+  "theme": "lead + follow up",
+  "validation_plan_path": "reports/intelligence/validation_plans/lead_and_follow_up_validation_plan.md",
+  "target_log_path": "reports/intelligence/validation_evidence_log.json",
+  "consent_version": "EOP-FPV-CONSENT-0.1",
+  "allowed_participant_roles": [
+    "electrician_owner",
+    "electrical_contractor_staff",
+    "customer_client",
+    "other_trade_owner"
+  ],
+  "evidence_rules": {
+    "structured_response": {
+      "evidence_type": "",
+      "review_mode": "hold_only",
+      "allowed_capture_methods": ["public_form"],
+      "allowed_attestation_bases": ["direct_response"],
+      "requires_consent": true,
+      "requires_participant_token": true,
+      "requires_confirmed_action": false,
+      "requires_measurement": false
+    },
+    "waitlist_signup": {
+      "evidence_type": "waitlist_signup",
+      "review_mode": "importable",
+      "allowed_capture_methods": ["public_form", "landing_page"],
+      "allowed_attestation_bases": ["recorded_action"],
+      "requires_consent": true,
+      "requires_participant_token": true,
+      "requires_confirmed_action": true,
+      "requires_measurement": false
+    },
+    "willingness_to_pay": {
+      "evidence_type": "willingness_to_pay",
+      "review_mode": "importable",
+      "allowed_capture_methods": ["public_form", "payment_intent"],
+      "allowed_attestation_bases": ["recorded_action"],
+      "requires_consent": true,
+      "requires_participant_token": true,
+      "requires_confirmed_action": true,
+      "requires_measurement": false
+    },
+    "customer_interview": {
+      "evidence_type": "customer_interview",
+      "review_mode": "importable",
+      "allowed_capture_methods": ["direct_interview"],
+      "allowed_attestation_bases": ["direct_response"],
+      "requires_consent": true,
+      "requires_participant_token": true,
+      "requires_confirmed_action": false,
+      "requires_measurement": false
+    },
+    "landing_page_result": {
+      "evidence_type": "landing_page_result",
+      "review_mode": "importable",
+      "allowed_capture_methods": ["landing_page_aggregate"],
+      "allowed_attestation_bases": ["aggregate_measurement"],
+      "requires_consent": false,
+      "requires_participant_token": false,
+      "requires_confirmed_action": false,
+      "requires_measurement": true
+    },
+    "participant_risk_finding": {
+      "evidence_type": "risk_finding",
+      "review_mode": "importable",
+      "allowed_capture_methods": ["direct_interview"],
+      "allowed_attestation_bases": ["direct_response"],
+      "requires_consent": true,
+      "requires_participant_token": true,
+      "requires_confirmed_action": false,
+      "requires_measurement": false
+    },
+    "pilot_risk_finding": {
+      "evidence_type": "risk_finding",
+      "review_mode": "importable",
+      "allowed_capture_methods": ["pilot_observation"],
+      "allowed_attestation_bases": ["direct_observation"],
+      "requires_consent": false,
+      "requires_participant_token": false,
+      "requires_confirmed_action": false,
+      "requires_measurement": false
+    }
+  }
+}

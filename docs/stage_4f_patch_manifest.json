@@ -1,0 +1,15 @@
+{
+  "patch": "stage4f_verified_intake_mapping_patch_v0.1",
+  "stage": "4F",
+  "new_files_only": true,
+  "replaces_existing_files": false,
+  "authorized_action": "Append separately approved mapped summaries to the validation evidence log.",
+  "protected_actions": {
+    "verified_intake_write": false,
+    "approved_registry_write": false,
+    "theme_state_change": false,
+    "build_approval": false,
+    "public_release": false,
+    "autonomous_outreach": false
+  }
+}

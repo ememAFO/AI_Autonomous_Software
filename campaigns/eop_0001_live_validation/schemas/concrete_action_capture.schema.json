@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EOP-0001 concrete action capture",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "campaign_id",
+    "submission_id",
+    "participant_token",
+    "participant_role",
+    "capture_method",
+    "evidence_kind",
+    "attestation_basis",
+    "evidence_summary",
+    "source_reference",
+    "consent_to_research",
+    "consent_version",
+    "question_set_version",
+    "signal_strength",
+    "supports_validation",
+    "action_confirmed",
+    "captured_at"
+  ],
+  "properties": {
+    "campaign_id": {
+      "type": "string",
+      "const": "EOP-0001-FPV-20260805"
+    },
+    "submission_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 120
+    },
+    "participant_token": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 120
+    },
+    "participant_role": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 120
+    },
+    "capture_method": {
+      "type": "string",
+      "enum": [
+        "separate_opt_in",
+        "written_pilot_acceptance",
+        "payment_record"
+      ]
+    },
+    "evidence_kind": {
+      "type": "string",
+      "enum": [
+        "waitlist_signup",
+        "willingness_to_pay"
+      ]
+    },
+    "attestation_basis": {
+      "type": "string",
+      "enum": [
+        "system_recorded_action",
+        "operator_attested_action"
+      ]
+    },
+    "evidence_summary": {
+      "type": "string",
+      "minLength": 30,
+      "maxLength": 1200
+    },
+    "source_reference": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 120
+    },
+    "consent_to_research": {
+      "type": "boolean",
+      "const": true
+    },
+    "consent_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "question_set_version": {
+      "type": "string",
+      "const": "EOP-0001-ACT-0.1"
+    },
+    "signal_strength": {
+      "type": "string",
+      "enum": [
+        "strong",
+        "medium",
+        "weak",
+        "negative"
+      ]
+    },
+    "supports_validation": {
+      "type": "boolean"
+    },
+    "action_confirmed": {
+      "type": "boolean",
+      "const": true
+    },
+    "self_submission": {
+      "type": "boolean",
+      "const": false
+    },
+    "synthetic_submission": {
+      "type": "boolean",
+      "const": false
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

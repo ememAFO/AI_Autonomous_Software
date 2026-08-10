@@ -1,0 +1,22 @@
+{
+  "gate_id": "EOP-0001-STAGE4H-LAUNCH-0.1",
+  "campaign_id": "EOP-0001-FPV-20260805",
+  "reviewer_reference": "",
+  "decision": "",
+  "decision_reason": "",
+  "selected_public_post": "",
+  "approved_channels": [],
+  "approved_launch_date": "",
+  "maximum_responses": 0,
+  "maximum_interviews": 0,
+  "maximum_pilot_participants": 0,
+  "confirmations": {
+    "campaign_plan_reviewed": false,
+    "public_form_implemented": false,
+    "contact_form_separated": false,
+    "consent_notice_reviewed": false,
+    "stage4g_policy_versions_confirmed": false,
+    "synthetic_gate_test_passed": false,
+    "no_public_action_taken_yet": true
+  }
+}

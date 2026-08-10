@@ -1,0 +1,29 @@
+{
+  "patch": "stage4d_research_adapter_routing_patch_v0.1",
+  "created": "2026-08-05",
+  "new_files_only": true,
+  "files": [
+    "config/stage4d_routed_source_manifest.example.json",
+    "docs/stage_4d_research_adapter_routing.md",
+    "scripts/run_routed_source_intake.py",
+    "src/adapters/reddit_local_evidence_adapter.py",
+    "src/research/research_adapter_router.py",
+    "src/research/research_routing_review_queue.py",
+    "src/research/routed_evidence_candidate_queue.py",
+    "tests/research/test_reddit_local_evidence_adapter.py",
+    "tests/research/test_research_adapter_router.py",
+    "tests/research/test_routing_queues.py"
+  ],
+  "routing_decision": {
+    "known_permitted_public_url": "hound_http_only",
+    "reddit_with_supplied_post": "existing_reddit_pipeline_then_candidate_queue",
+    "reddit_without_supplied_post": "human_review",
+    "unsupported_or_failed": "human_review"
+  },
+  "protected_actions": {
+    "approved_registry_write": false,
+    "public_release": false,
+    "automatic_outreach": false,
+    "browser_or_stealth": false
+  }
+}

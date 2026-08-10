@@ -1,0 +1,13 @@
+{
+  "patch": "stage4e_routed_evidence_review_patch_v0.1",
+  "stage": "4E",
+  "new_files_only": true,
+  "replaces_existing_files": false,
+  "protected_actions": {
+    "approved_registry_write": false,
+    "validation_evidence_log_write": false,
+    "theme_state_change": false,
+    "public_release": false,
+    "autonomous_outreach": false
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "patch": "stage4g_first_party_validation_patch_v0.1",
+  "stage": "4G",
+  "created": "2026-08-05",
+  "new_files_only": true,
+  "replaces_existing_files": false,
+  "expected_new_tests": 20,
+  "expected_full_suite_after_apply": 468,
+  "files": [
+    "config/eop_0001_first_party_validation_policy.json",
+    "docs/eop_0001_public_validation_form_spec.md",
+    "docs/stage_4g_first_party_validation.md",
+    "examples/eop_0001_first_party_submission_template.json",
+    "scripts/capture_first_party_validation.py",
+    "scripts/import_first_party_evidence.py",
+    "scripts/prepare_first_party_review.py",
+    "scripts/resolve_first_party_review.py",
+    "src/research/first_party_validation_capture.py",
+    "src/research/first_party_validation_import.py",
+    "src/research/first_party_validation_review.py",
+    "src/research/first_party_validation_storage.py",
+    "tests/research/test_first_party_validation_capture.py",
+    "tests/research/test_first_party_validation_import.py",
+    "tests/research/test_first_party_validation_review.py",
+    "tests/research/test_first_party_validation_storage.py"
+  ],
+  "pipeline": [
+    "capture",
+    "prepare_review",
+    "resolve_review",
+    "explicit_import"
+  ],
+  "governance": {
+    "direct_identifiers_stored": false,
+    "self_submissions_allowed": false,
+    "synthetic_submissions_allowed": false,
+    "structured_public_responses_auto_mapped_to_interviews": false,
+    "human_review_required": true,
+    "explicit_apply_required": true
+  },
+  "protected_actions": {
+    "theme_state_change": false,
+    "build_approval": false,
+    "public_release": false,
+    "automatic_outreach": false
+  }
+}
