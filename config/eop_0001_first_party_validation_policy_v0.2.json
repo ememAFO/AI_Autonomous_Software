@@ -1,0 +1,117 @@
+{
+  "allowed_participant_roles": [
+    "electrician_owner",
+    "electrical_contractor_staff",
+    "customer_client",
+    "other_trade_owner"
+  ],
+  "campaign_id": "EOP-0001-FPV-20260805",
+  "consent_version": "EOP-0001-CONSENT-0.2",
+  "contract_note": "Stage 4J-A normalizes approved Stage 4I v0.2 public requests into this Stage 4G-compatible policy. Structured public responses remain hold_only.",
+  "evidence_rules": {
+    "customer_interview": {
+      "allowed_attestation_bases": [
+        "direct_response"
+      ],
+      "allowed_capture_methods": [
+        "direct_interview"
+      ],
+      "evidence_type": "customer_interview",
+      "requires_confirmed_action": false,
+      "requires_consent": true,
+      "requires_measurement": false,
+      "requires_participant_token": true,
+      "review_mode": "importable"
+    },
+    "landing_page_result": {
+      "allowed_attestation_bases": [
+        "aggregate_measurement"
+      ],
+      "allowed_capture_methods": [
+        "landing_page_aggregate"
+      ],
+      "evidence_type": "landing_page_result",
+      "requires_confirmed_action": false,
+      "requires_consent": false,
+      "requires_measurement": true,
+      "requires_participant_token": false,
+      "review_mode": "importable"
+    },
+    "participant_risk_finding": {
+      "allowed_attestation_bases": [
+        "direct_response"
+      ],
+      "allowed_capture_methods": [
+        "direct_interview"
+      ],
+      "evidence_type": "risk_finding",
+      "requires_confirmed_action": false,
+      "requires_consent": true,
+      "requires_measurement": false,
+      "requires_participant_token": true,
+      "review_mode": "importable"
+    },
+    "pilot_risk_finding": {
+      "allowed_attestation_bases": [
+        "direct_observation"
+      ],
+      "allowed_capture_methods": [
+        "pilot_observation"
+      ],
+      "evidence_type": "risk_finding",
+      "requires_confirmed_action": false,
+      "requires_consent": false,
+      "requires_measurement": false,
+      "requires_participant_token": false,
+      "review_mode": "importable"
+    },
+    "structured_response": {
+      "allowed_attestation_bases": [
+        "direct_response"
+      ],
+      "allowed_capture_methods": [
+        "public_form"
+      ],
+      "evidence_type": "",
+      "requires_confirmed_action": false,
+      "requires_consent": true,
+      "requires_measurement": false,
+      "requires_participant_token": true,
+      "review_mode": "hold_only"
+    },
+    "waitlist_signup": {
+      "allowed_attestation_bases": [
+        "recorded_action"
+      ],
+      "allowed_capture_methods": [
+        "public_form",
+        "landing_page"
+      ],
+      "evidence_type": "waitlist_signup",
+      "requires_confirmed_action": true,
+      "requires_consent": true,
+      "requires_measurement": false,
+      "requires_participant_token": true,
+      "review_mode": "importable"
+    },
+    "willingness_to_pay": {
+      "allowed_attestation_bases": [
+        "recorded_action"
+      ],
+      "allowed_capture_methods": [
+        "public_form",
+        "payment_intent"
+      ],
+      "evidence_type": "willingness_to_pay",
+      "requires_confirmed_action": true,
+      "requires_consent": true,
+      "requires_measurement": false,
+      "requires_participant_token": true,
+      "review_mode": "importable"
+    }
+  },
+  "policy_id": "EOP-0001-STAGE4G-0.2",
+  "target_log_path": "reports/intelligence/validation_evidence_log.json",
+  "theme": "lead + follow up",
+  "validation_plan_path": "reports/intelligence/validation_plans/lead_and_follow_up_validation_plan.md"
+}

@@ -1,0 +1,37 @@
+{
+  "campaign_id": "EOP-0001-FPV-20260805",
+  "gate_id": "EOP-0001-STAGE4J-A-CONTRACT-0.1",
+  "human_review": {
+    "approval_reference": "emem-stage4j-a-20260810",
+    "decision": "APPROVE",
+    "network_submission_approved": false,
+    "public_deployment_approved": false,
+    "scope": "capture_contract_only",
+    "server_side_storage_approved": false,
+    "validation_log_import_approved": false
+  },
+  "network_listener_present": false,
+  "protected_actions": {
+    "automatic_outreach_allowed": false,
+    "contact_collection_allowed": false,
+    "customer_messaging_allowed": false,
+    "network_submission_allowed": false,
+    "participant_contact_allowed": false,
+    "public_deployment_allowed": false,
+    "public_posting_allowed": false,
+    "server_side_storage_allowed": false,
+    "validation_log_import_allowed": false,
+    "validation_state_change_allowed": false
+  },
+  "purpose": "reconcile_stage4i_request_contract_with_stage4g_governed_capture",
+  "required_reviews": {
+    "client_authority_boundary_test_passed": true,
+    "contract_mapping_reviewed": true,
+    "human_contract_approval_recorded": true,
+    "research_contact_separation_test_passed": true,
+    "stage4g_compatibility_test_passed": true
+  },
+  "rollback_point": "Stage 4I v0.2 visually approved staging",
+  "status": "APPROVED_FOR_STAGE4J_B_NETWORK_OFF",
+  "storage_adapter_enabled": false
+}

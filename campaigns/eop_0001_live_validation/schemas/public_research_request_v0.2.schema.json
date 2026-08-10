@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Untrusted participant request contract. Governance/provenance fields are server-derived and therefore absent from this schema.",
+  "properties": {
+    "barriers": {
+      "items": {
+        "enum": [
+          "busy_delivering_work",
+          "unsure_when",
+          "avoid_annoying",
+          "fragmented_systems",
+          "recording_difficult",
+          "customers_do_not_explain",
+          "software_not_configured",
+          "low_value",
+          "someone_else",
+          "not_a_problem"
+        ],
+        "type": "string"
+      },
+      "maxItems": 3,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "bounded_comment": {
+      "maxLength": 300,
+      "type": "string"
+    },
+    "business_size": {
+      "enum": [
+        "1",
+        "2_4",
+        "5_9",
+        "10_19",
+        "20_plus",
+        "prefer_not_to_say"
+      ],
+      "type": "string"
+    },
+    "consent_to_research": {
+      "const": true,
+      "type": "boolean"
+    },
+    "decision_inputs": {
+      "items": {
+        "enum": [
+          "receipt_confirmation",
+          "quote_age",
+          "value_band",
+          "job_urgency",
+          "planned_start",
+          "previous_customer",
+          "lead_source",
+          "customer_questions",
+          "expiry",
+          "previous_attempts",
+          "likely_delay_reason",
+          "none"
+        ],
+        "type": "string"
+      },
+      "maxItems": 4,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "follow_up_methods": {
+      "items": {
+        "enum": [
+          "none",
+          "diary",
+          "spreadsheet",
+          "trade_software",
+          "accounting_software",
+          "email_templates",
+          "sms_or_messaging",
+          "office_staff"
+        ],
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "monthly_quotes": {
+      "enum": [
+        "0_4",
+        "5_10",
+        "11_25",
+        "26_50",
+        "more_than_50",
+        "unsure"
+      ],
+      "type": "string"
+    },
+    "most_valuable_outcome": {
+      "enum": [
+        "more_accepted",
+        "faster_decisions",
+        "fewer_unclassified",
+        "better_loss_reasons",
+        "less_manual_follow_up",
+        "avoid_unnecessary_messages",
+        "better_forecasting",
+        "no_meaningful_benefit"
+      ],
+      "type": "string"
+    },
+    "next_action_interest": {
+      "enum": [
+        "interview",
+        "pilot",
+        "share_baseline",
+        "waitlist",
+        "workflow_review",
+        "nothing"
+      ],
+      "type": "string"
+    },
+    "participant_role": {
+      "enum": [
+        "electrical_business_owner",
+        "self_employed_electrician",
+        "estimator_or_surveyor",
+        "quotation_administrator",
+        "operations_or_contracts_manager",
+        "other_electrical_trade_role",
+        "not_target_market"
+      ],
+      "type": "string"
+    },
+    "recorded_outcomes": {
+      "items": {
+        "enum": [
+          "accepted",
+          "declined",
+          "deferred",
+          "another_contractor",
+          "price_objection",
+          "scope_or_timing",
+          "expired",
+          "unclassified",
+          "not_consistent"
+        ],
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "uk_region": {
+      "enum": [
+        "england",
+        "scotland",
+        "wales",
+        "northern_ireland",
+        "multiple_uk_nations",
+        "outside_uk"
+      ],
+      "type": "string"
+    },
+    "unclassified_share": {
+      "enum": [
+        "none",
+        "under_10",
+        "10_24",
+        "25_49",
+        "50_plus",
+        "unsure"
+      ],
+      "type": "string"
+    }
+  },
+  "required": [
+    "participant_role",
+    "uk_region",
+    "business_size",
+    "monthly_quotes",
+    "recorded_outcomes",
+    "unclassified_share",
+    "follow_up_methods",
+    "barriers",
+    "decision_inputs",
+    "most_valuable_outcome",
+    "next_action_interest",
+    "consent_to_research"
+  ],
+  "title": "EOP-0001 public research request v0.2",
+  "type": "object"
+}

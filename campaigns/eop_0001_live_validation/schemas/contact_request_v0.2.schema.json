@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Untrusted optional contact request. This request is never submitted to Stage 4G research capture.",
+  "properties": {
+    "consent_to_contact": {
+      "const": true,
+      "type": "boolean"
+    },
+    "contact_method": {
+      "enum": [
+        "email",
+        "phone"
+      ],
+      "type": "string"
+    },
+    "contact_name": {
+      "maxLength": 120,
+      "type": "string"
+    },
+    "contact_value": {
+      "maxLength": 254,
+      "minLength": 3,
+      "type": "string"
+    },
+    "participant_token": {
+      "maxLength": 120,
+      "minLength": 3,
+      "type": "string"
+    },
+    "requested_action": {
+      "enum": [
+        "interview",
+        "pilot",
+        "waitlist",
+        "workflow_review"
+      ],
+      "type": "string"
+    }
+  },
+  "required": [
+    "participant_token",
+    "contact_method",
+    "contact_value",
+    "requested_action",
+    "consent_to_contact"
+  ],
+  "title": "EOP-0001 separate optional contact request v0.2",
+  "type": "object"
+}
