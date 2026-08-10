@@ -1,0 +1,51 @@
+{
+  "audit": {
+    "contact_value_logging_allowed": false,
+    "direct_identifier_logging_allowed": false,
+    "raw_participant_token_logging_allowed": false,
+    "raw_request_logging_allowed": false,
+    "safe_link_hash_allowed": true
+  },
+  "campaign_id": "EOP-0001-FPV-20260805",
+  "live_storage_approved": false,
+  "policy_id": "EOP-0001-STAGE4J-B-STORAGE-0.1",
+  "protected_actions": {
+    "automatic_outreach_allowed": false,
+    "customer_messaging_allowed": false,
+    "live_contact_collection_allowed": false,
+    "live_server_side_storage_allowed": false,
+    "network_submission_allowed": false,
+    "participant_contact_allowed": false,
+    "public_deployment_allowed": false,
+    "public_posting_allowed": false,
+    "validation_log_import_allowed": false,
+    "validation_state_change_allowed": false
+  },
+  "purpose": "network_off_synthetic_storage_boundary_validation",
+  "retention": {
+    "automated_deletion_enabled": false,
+    "contact_retention_days": null,
+    "deletion_requires_human_review": true,
+    "production_retention_schedule_required_before_live": true,
+    "research_retention_days": null,
+    "status": "NOT_APPROVED_FOR_LIVE_USE"
+  },
+  "runtime_roots": {
+    "contact": "data/research/live_contact_opt_ins",
+    "registry": "data/research/live_capture_batches",
+    "research": "data/research/live_research_responses"
+  },
+  "separation": {
+    "contact_records_allowed_in_stage4g_capture": false,
+    "contact_requires_known_research_token": true,
+    "direct_identifiers_allowed_in_research_store": false,
+    "participant_token_is_only_join_key": true,
+    "research_and_contact_roots_must_differ": true
+  },
+  "stage4g": {
+    "automatic_handoff_allowed": false,
+    "public_form_treatment": "hold_only",
+    "validation_log_import_allowed": false
+  },
+  "storage_mode": "synthetic_test_only"
+}

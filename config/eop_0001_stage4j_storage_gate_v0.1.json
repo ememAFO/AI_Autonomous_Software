@@ -1,0 +1,47 @@
+{
+  "campaign_id": "EOP-0001-FPV-20260805",
+  "gate_id": "EOP-0001-STAGE4J-B-STORAGE-0.1",
+  "human_review": {
+    "approval_reference": "emem-stage4j-b-20260810",
+    "decision": "APPROVE",
+    "live_contact_collection_approved": false,
+    "live_server_side_storage_approved": false,
+    "network_submission_approved": false,
+    "participant_contact_approved": false,
+    "public_deployment_approved": false,
+    "scope": "synthetic_storage_boundary_only",
+    "validation_log_import_approved": false
+  },
+  "live_contact_collection_enabled": false,
+  "live_server_side_storage_enabled": false,
+  "local_storage_adapter_present": true,
+  "network_listener_present": false,
+  "protected_actions": {
+    "automatic_outreach_allowed": false,
+    "customer_messaging_allowed": false,
+    "live_contact_collection_allowed": false,
+    "live_server_side_storage_allowed": false,
+    "network_submission_allowed": false,
+    "participant_contact_allowed": false,
+    "public_deployment_allowed": false,
+    "public_posting_allowed": false,
+    "validation_log_import_allowed": false,
+    "validation_state_change_allowed": false
+  },
+  "purpose": "validate_separate_governed_storage_without_network_or_live_data",
+  "required_reviews": {
+    "atomic_rollback_test_passed": true,
+    "audit_minimisation_test_passed": true,
+    "controlled_root_isolation_test_passed": true,
+    "duplicate_protection_test_passed": true,
+    "full_regression_passed": true,
+    "human_storage_boundary_approval_recorded": true,
+    "known_token_linkage_test_passed": true,
+    "research_contact_separation_test_passed": true,
+    "research_identifier_boundary_test_passed": true,
+    "retention_boundary_reviewed": true
+  },
+  "rollback_point": "Stage 4J-A commit 4d91565",
+  "status": "APPROVED_FOR_STAGE4J_C_SECURITY_BOUNDARY_NETWORK_OFF",
+  "storage_mode": "synthetic_test_only"
+}
